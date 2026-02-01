@@ -1,9 +1,12 @@
 export type LogItem = {
   id: string;
+  userId: string | null;
   title: string;
   content: string;
   tags: string[];
-  createdAt: string; // ISO
+  createdAt: string;
+  updatedAt: string | null;
+  commentCount: number;
 };
 
 export interface NoteItem {
@@ -24,3 +27,30 @@ export interface Suggestion {
 
 export type SearchScope = "all" | "title" | "content" | "tags";
 export type SearchOptions = { scope: SearchScope };
+
+export type ShioriItem = {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ListQuery = {
+  q?: string; // search text
+  tags?: string[]; // filter tags
+  sort?: "new" | "old";
+};
+
+export interface ShioriRepo {
+  list(query?: ListQuery): Promise<ShioriItem[]>;
+  create(
+    input: Omit<ShioriItem, "id" | "createdAt" | "updatedAt">,
+  ): Promise<ShioriItem>;
+  update(
+    id: string,
+    patch: Partial<Omit<ShioriItem, "id">>,
+  ): Promise<ShioriItem>;
+  remove(id: string): Promise<void>;
+}

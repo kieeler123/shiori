@@ -2,33 +2,27 @@ import type { LogItem } from "../types";
 
 const KEY = "shiori.logs.v1";
 
-export function loadLogs(): LogItem[] {
+export function loadLogs(): any[] {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-
-    if (!Array.isArray(parsed)) return [];
-
-    // 최소한의 런타임 검증(깨진 데이터 방어)
-    return parsed
-      .filter((x) => x && typeof x === "object")
-      .map((x) => ({
-        id: String(x.id ?? crypto.randomUUID()),
-        title: String(x.title ?? ""),
-        content: String(x.content ?? ""),
-        tags: Array.isArray(x.tags) ? x.tags.map(String) : [],
-        createdAt: String(x.createdAt ?? new Date().toISOString()),
-      }));
+    const raw = localStorage.getItem("shiori_logs");
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr)
+      ? arr.map((x) => ({
+          ...x,
+          commentCount: Number(x?.commentCount ?? 0),
+          userId: x?.userId ?? null,
+          updatedAt: x?.updatedAt ?? null,
+        }))
+      : [];
   } catch {
     return [];
   }
 }
 
-export function saveLogs(logs: LogItem[]) {
+export function saveLogs(items: LogItem[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(logs));
+    localStorage.setItem(KEY, JSON.stringify(items));
   } catch {
-    // 저장공간 부족/사파리 프라이빗 모드 등에서 실패 가능
+    // ignore
   }
 }

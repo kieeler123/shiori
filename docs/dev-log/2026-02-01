@@ -1,0 +1,157 @@
+🇯🇵 日本語 (メインログ)
+📅 今日の開発ログ — Shiori Auth & System Integration
+✅ 今日やったこと
+
+Supabaseプロジェクトとフロントエンドの完全接続
+
+supabase-js を使った認証基盤の構築
+
+Google OAuthログイン実装完了
+
+セッション管理フロー理解
+
+getSession → onAuthStateChange → ready状態
+
+ログイン状態に応じたUI分岐処理実装
+
+未ログイン → 読み取り専用モード
+
+ログイン済み → 作成・編集・削除可能
+
+ユーザー情報をヘッダーに表示
+
+アバター
+
+ニックネーム
+
+ログアウトボタン
+
+RLS（Row Level Security）構造理解
+
+DBとフロントの認証連動成功
+
+認証コールバックルート /auth/callback 実装
+
+セッション復元と自動ログイン処理確認
+
+🧠 今日理解したこと
+
+OAuthログイン問題の多くはコードではなく「コンソール設定」
+
+認証はUI機能ではなく「アクセス制御システム」
+
+Supabaseは
+Auth + DB + Policy + API が一体化された構造
+
+RLSはセキュリティというより「データフィルター」
+
+セッション管理の流れを実体験で理解
+
+⚠️ 今日発生した問題
+問題	原因	解決
+Googleログインエラー	OAuthリダイレクトURI未設定	Google Cloud Console設定修正
+401エラー	RLSによる未ログイン挿入拒否	ログイン必須構造へ変更
+ログイン後画面が変わらない	セッションready待機処理不足	useSessionフロー修正
+ログインボタン動かない	callbackルート未実装	/auth/callback追加
+🚀 今の段階
+
+Shioriは「認証付き実運用構造」に到達
+
+これはチュートリアルレベルではなく実務レベル構造。
+
+🇺🇸 English
+📅 Dev Log — Shiori Auth Integration Day
+✅ What was completed
+
+Full Supabase ↔ Frontend connection
+
+Authentication system implemented with supabase-js
+
+Google OAuth login fully working
+
+Session lifecycle understood
+getSession → onAuthStateChange → ready
+
+UI split based on login state
+
+Header user profile display (avatar, nickname, logout)
+
+RLS system behavior understood
+
+DB ↔ Auth linkage verified
+
+Auth callback route /auth/callback built
+
+Session restore and auto-login confirmed
+
+🧠 Key Learnings
+
+Most OAuth issues are console configuration, not code
+
+Auth is not UI, it is an access control system
+
+Supabase = Auth + DB + Policy + API ecosystem
+
+RLS acts as a data access filter
+
+Session management flow fully understood
+
+⚠️ Issues Encountered
+Issue	Cause	Fix
+Google login invalid request	Missing redirect URI	Fixed in Google Console
+401 errors	RLS blocking inserts	Login-required structure
+UI not updating after login	Session ready timing	Fixed useSession logic
+Login button no action	Missing callback route	Added /auth/callback
+🚀 Current Level
+
+Project upgraded from tutorial app → production-style auth architecture.
+
+🇰🇷 한국어
+📅 오늘 개발 로그 — Shiori 인증 시스템 구축
+✅ 오늘 완료한 작업
+
+Supabase와 프론트 완전 연결
+
+supabase-js 기반 인증 시스템 구축
+
+Google 로그인 구현 완료
+
+세션 흐름 이해
+getSession → onAuthStateChange → ready
+
+로그인 상태 기반 UI 분기 구현
+
+헤더에 사용자 정보 표시 (아바타, 닉네임, 로그아웃)
+
+RLS 동작 구조 이해
+
+DB와 인증 연동 확인
+
+/auth/callback 라우트 구현
+
+자동 세션 복원 확인
+
+🧠 오늘 얻은 핵심 이해
+
+OAuth 문제 대부분은 코드가 아니라 콘솔 설정
+
+로그인 기능은 UI가 아니라 권한 시스템
+
+Supabase는 Auth+DB+Policy+API 통합 구조
+
+RLS는 보안기능이라기보다 데이터 접근 필터
+
+세션 관리 흐름을 직접 체험하며 이해
+
+⚠️ 겪은 문제들
+문제	원인	해결
+구글 로그인 오류	리디렉트 URI 누락	콘솔 설정 수정
+401 오류	RLS가 insert 차단	로그인 필수 구조로 변경
+로그인 후 화면 변화 없음	ready 처리 부족	useSession 로직 수정
+로그인 버튼 무반응	callback 라우트 없음	/auth/callback 구현
+🚀 현재 단계
+
+Shiori가 “실서비스 인증 구조” 단계에 도달
+
+💬 이건 진짜로
+“개발자 레벨 한 단계 상승한 날” 기록이다.

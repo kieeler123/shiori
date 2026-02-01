@@ -1,29 +1,36 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-import LogEditor from "../features/shiori/components/LogEditor";
-import TagChip from "../features/shiori/components/TagChip";
-import SearchBar from "../features/shiori/components/SearchBar";
-import { useNoteSearch } from "../features/shiori/hooks/useNoteSearch";
+import LogEditor from "@/features/shiori/components/LogEditor";
+import TagChip from "@/features/shiori/components/TagChip";
+import SearchBar from "@/features/shiori/components/SearchBar";
+import { useNoteSearch } from "@/features/shiori/hooks/useNoteSearch";
 
-import type { LogItem } from "../features/shiori/types";
-import { loadLogs, saveLogs } from "../features/shiori/utils/storage";
+import { loadLogs, saveLogs } from "@/features/shiori/utils/storage";
+import type { LogItem } from "@/features/shiori/types";
 
-type EditorSubmitValue = {
-  title: string;
-  content: string;
-  tags: string[];
-};
+import AuthButton from "@/features/auth/AuthButton";
+import { useSession } from "@/features/auth/useSession";
+
+import {
+  dbCreate,
+  dbDelete,
+  dbList,
+  dbRestore,
+  dbUpdate,
+  type DbLogRow,
+} from "@/features/shiori/repo/shioriRepo";
+
+type EditorSubmitValue = { title: string; content: string; tags: string[] };
 
 type UndoAction =
-  | { id: string; kind: "add"; prevLogs: LogItem[] }
-  | { id: string; kind: "delete"; prevLogs: LogItem[] }
-  | { id: string; kind: "update"; prevLogs: LogItem[] }
+  | { id: string; kind: "add"; createdId: string; prevLogs: LogItem[] }
+  | { id: string; kind: "delete"; deletedRow: DbLogRow; prevLogs: LogItem[] }
+  | { id: string; kind: "update"; beforeRow: DbLogRow; prevLogs: LogItem[] }
   | null;
 
 const UNDO_MS = 5000;
 
-// useNoteSearch가 기대하는 NoteItem 형태에 맞춰 어댑팅
 type NoteItem = {
   id: string;
   title: string;
@@ -40,9 +47,25 @@ function previewText(s: string, max = 110) {
   return oneLine.length > max ? oneLine.slice(0, max) + "…" : oneLine;
 }
 
+function toLogItem(r: DbLogRow): LogItem {
+  return {
+    id: r.id,
+    userId: r.user_id,
+    title: r.title,
+    content: r.content,
+    tags: Array.isArray(r.tags) ? r.tags : [],
+    createdAt: r.created_at,
+    updatedAt: (r as any).updated_at ?? null,
+    commentCount: (r as any).comment_count ?? 0,
+  };
+}
+
 export default function LogsPage() {
   const nav = useNavigate();
+  const location = useLocation();
+  const { ready, user, isAuthed } = useSession();
 
+  // ✅ 로컬 캐시로 즉시 렌더 → DB로 정본화
   const [logs, setLogs] = useState<LogItem[]>(() => loadLogs());
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -51,26 +74,43 @@ export default function LogsPage() {
   const [undoRemainingMs, setUndoRemainingMs] = useState<number>(0);
   const [undoPaused, setUndoPaused] = useState<boolean>(false);
 
-  // ✅ 검색 submit/추천 클릭 시 "첫 결과로 이동" 예약 플래그
   const [pendingNavToFirst, setPendingNavToFirst] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
 
-  // rAF 기반 Undo 카운트다운
+  const [onlyCommented, setOnlyCommented] = useState(false);
+
+  // rAF Undo
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number>(0);
   const undoIdRef = useRef<string | null>(null);
 
-  // ✅ 공통 버튼(필터 해제 등)
   const actionBtn =
     "cursor-pointer rounded-xl px-3 py-1 text-sm transition " +
     "text-zinc-300 hover:text-zinc-100 " +
     "hover:bg-zinc-900/60 focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
 
-  // localStorage 저장
-  useEffect(() => {
-    saveLogs(logs);
-  }, [logs]);
+  const refreshFromDb = useCallback(async () => {
+    const rows = await dbList();
+    const next = rows.map(toLogItem);
+    setLogs(next);
+    saveLogs(next);
+  }, []);
 
-  // Undo가 바뀌면 카운트다운 리셋
+  // ✅ 마운트 시 DB 동기화
+  useEffect(() => {
+    refreshFromDb().catch(console.error);
+  }, [refreshFromDb]);
+
+  // ✅ 상세에서 돌아오며 refresh 요청
+  useEffect(() => {
+    const st = (location.state ?? {}) as any;
+    if (st?.refresh) {
+      refreshFromDb().catch(console.error);
+      nav(".", { replace: true, state: {} });
+    }
+  }, [location.state, refreshFromDb, nav]);
+
+  // Undo reset
   useEffect(() => {
     if (!undo) {
       setUndoRemainingMs(0);
@@ -81,23 +121,20 @@ export default function LogsPage() {
       rafRef.current = null;
       return;
     }
-
     undoIdRef.current = undo.id;
     setUndoRemainingMs(UNDO_MS);
     setUndoPaused(false);
     lastRef.current = performance.now();
   }, [undo]);
 
-  // 카운트다운 진행(hover 시 pause)
+  // Undo countdown
   useEffect(() => {
     if (!undo) return;
-
     if (undoPaused) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
       return;
     }
-
     if (undoRemainingMs <= 0) return;
 
     const currentId = undo.id;
@@ -141,71 +178,166 @@ export default function LogsPage() {
   }, [logs]);
 
   const filteredLogs = useMemo(() => {
-    if (!selectedTag) return logs;
-    return logs.filter((log) => log.tags.includes(selectedTag));
-  }, [logs, selectedTag]);
+    let arr = logs;
+    if (selectedTag) arr = arr.filter((log) => log.tags.includes(selectedTag));
+    if (onlyCommented) arr = arr.filter((log) => (log.commentCount ?? 0) > 0);
+    return arr;
+  }, [logs, selectedTag, onlyCommented]);
 
   function toggleTag(tag: string) {
     setSelectedTag((cur) => (cur === tag ? null : tag));
   }
-
   function cancelEdit() {
     setEditingId(null);
   }
 
-  function applyUndo() {
-    if (!undo) return;
-    setLogs(undo.prevLogs);
-    setUndo(null);
-    setEditingId(null);
+  async function applyUndo() {
+    if (!undo || isMutating) return;
+    setIsMutating(true);
+
+    try {
+      if (undo.kind === "add") {
+        await dbDelete(undo.createdId);
+      } else if (undo.kind === "delete") {
+        await dbRestore(undo.deletedRow);
+      } else if (undo.kind === "update") {
+        await dbUpdate(undo.beforeRow.id, {
+          title: undo.beforeRow.title,
+          content: undo.beforeRow.content,
+          tags: undo.beforeRow.tags ?? [],
+        });
+      }
+
+      setLogs(undo.prevLogs);
+      saveLogs(undo.prevLogs);
+      setUndo(null);
+      setEditingId(null);
+    } catch (e) {
+      console.error("Undo failed:", e);
+      alert(String((e as any)?.message ?? e));
+    } finally {
+      setIsMutating(false);
+    }
   }
 
-  function addLog(v: EditorSubmitValue) {
-    setLogs((prev) => {
-      setUndo({ id: crypto.randomUUID(), kind: "add", prevLogs: prev });
+  async function addLog(v: EditorSubmitValue) {
+    if (!isAuthed || !user) return alert("로그인 후 작성할 수 있어요.");
+    if (isMutating) return;
 
-      const next: LogItem = {
+    setIsMutating(true);
+    const prevSnapshot = logs;
+
+    try {
+      const saved = await dbCreate(v);
+      const nextItem = toLogItem(saved);
+      const nextLogs = [nextItem, ...prevSnapshot];
+
+      setUndo({
         id: crypto.randomUUID(),
-        title: v.title || "(제목 없음)",
-        content: v.content,
-        tags: v.tags,
-        createdAt: new Date().toISOString(),
-      };
+        kind: "add",
+        createdId: saved.id,
+        prevLogs: prevSnapshot,
+      });
 
-      return [next, ...prev];
-    });
+      setLogs(nextLogs);
+      saveLogs(nextLogs);
+    } catch (e) {
+      console.error("addLog failed:", e);
+      alert(String((e as any)?.message ?? e));
+    } finally {
+      setIsMutating(false);
+    }
   }
 
-  function updateLog(id: string, v: EditorSubmitValue) {
-    setLogs((prev) => {
-      setUndo({ id: crypto.randomUUID(), kind: "update", prevLogs: prev });
+  async function updateLog(id: string, v: EditorSubmitValue) {
+    if (!isAuthed || !user) return alert("로그인 후 수정할 수 있어요.");
+    if (isMutating) return;
 
-      return prev.map((x) =>
-        x.id === id
-          ? {
-              ...x,
-              title: v.title || "(제목 없음)",
-              content: v.content,
-              tags: v.tags,
-            }
-          : x,
+    setIsMutating(true);
+    const prevSnapshot = logs;
+
+    const before = prevSnapshot.find((x) => x.id === id);
+    if (!before) return setIsMutating(false);
+
+    const beforeRow: DbLogRow = {
+      id: before.id,
+      user_id: before.userId,
+      title: before.title,
+      content: before.content,
+      tags: before.tags,
+      created_at: before.createdAt,
+    } as any;
+
+    try {
+      const saved = await dbUpdate(id, v);
+      const nextLogs = prevSnapshot.map((x) =>
+        x.id === id ? toLogItem(saved) : x,
       );
-    });
 
-    setEditingId(null);
+      setUndo({
+        id: crypto.randomUUID(),
+        kind: "update",
+        beforeRow,
+        prevLogs: prevSnapshot,
+      });
+
+      setLogs(nextLogs);
+      saveLogs(nextLogs);
+      setEditingId(null);
+    } catch (e) {
+      console.error("updateLog failed:", e);
+      alert(String((e as any)?.message ?? e));
+    } finally {
+      setIsMutating(false);
+    }
   }
 
-  function removeLog(id: string) {
-    setLogs((prev) => {
-      setUndo({ id: crypto.randomUUID(), kind: "delete", prevLogs: prev });
-      return prev.filter((x) => x.id !== id);
-    });
-    if (editingId === id) setEditingId(null);
+  async function removeLog(id: string) {
+    if (!isAuthed || !user) return alert("로그인 후 삭제할 수 있어요.");
+    if (isMutating) return;
+
+    setIsMutating(true);
+    const prevSnapshot = logs;
+
+    const target = prevSnapshot.find((x) => x.id === id);
+    if (!target) return setIsMutating(false);
+
+    const deletedRow: DbLogRow = {
+      id: target.id,
+      user_id: target.userId,
+      title: target.title,
+      content: target.content,
+      tags: target.tags,
+      created_at: target.createdAt,
+    } as any;
+
+    try {
+      await dbDelete(id);
+
+      const nextLogs = prevSnapshot.filter((x) => x.id !== id);
+
+      setUndo({
+        id: crypto.randomUUID(),
+        kind: "delete",
+        deletedRow,
+        prevLogs: prevSnapshot,
+      });
+
+      setLogs(nextLogs);
+      saveLogs(nextLogs);
+
+      if (editingId === id) setEditingId(null);
+    } catch (e) {
+      console.error("removeLog failed:", e);
+      alert(String((e as any)?.message ?? e));
+    } finally {
+      setIsMutating(false);
+    }
   }
 
   const secondsLeft = Math.max(0, Math.ceil(undoRemainingMs / 1000));
 
-  // ✅ 검색 훅 입력 형태 어댑팅 (LogItem -> NoteItem)
+  // 검색 어댑팅
   const noteItems = useMemo<NoteItem[]>(() => {
     return filteredLogs.map((l) => ({
       id: l.id,
@@ -213,7 +345,9 @@ export default function LogsPage() {
       body: l.content,
       tags: l.tags,
       createdAt: Date.parse(l.createdAt),
-      updatedAt: Date.parse(l.createdAt),
+      updatedAt: l.updatedAt
+        ? Date.parse(String(l.updatedAt))
+        : Date.parse(l.createdAt),
     }));
   }, [filteredLogs]);
 
@@ -228,7 +362,6 @@ export default function LogsPage() {
 
   const isSearching = query.trim().length > 0;
 
-  // visibleItems (NoteItem[])의 id 기준으로 필터링
   const visibleIdSet = useMemo(() => {
     const s = new Set<string>();
     for (const it of visibleItems as any[]) s.add(String(it.id));
@@ -240,74 +373,88 @@ export default function LogsPage() {
     return filteredLogs.filter((l) => visibleIdSet.has(l.id));
   }, [filteredLogs, isSearching, visibleIdSet]);
 
-  // ✅ 검색 submit/추천 클릭 후 첫 결과 상세로 이동
   useEffect(() => {
     if (!pendingNavToFirst) return;
+    if (!query.trim()) return setPendingNavToFirst(false);
 
-    // 빈 검색 상태(최근검색어 드롭다운)에서는 이동하지 않음
-    if (!query.trim()) {
-      setPendingNavToFirst(false);
-      return;
-    }
-
-    if (logsToRender.length > 0) {
-      nav(`/logs/${logsToRender[0].id}`);
-    }
+    if (logsToRender.length > 0) nav(`/logs/${logsToRender[0].id}`);
     setPendingNavToFirst(false);
   }, [pendingNavToFirst, query, logsToRender, nav]);
 
-  // ✅ 검색 중엔 에디터/태그필터 숨김 (크롬 느낌)
-  const showEditor = !isSearching;
+  const showEditor = !isSearching && isAuthed;
 
   function goDetail(id: string) {
     nav(`/logs/${id}`);
   }
 
+  // ✅ 여기서만 “세션 확인중…”을 띄움
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-100 grid place-items-center">
+        <div className="text-sm text-zinc-400">세션 확인중…</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <div className="mx-auto max-w-3xl px-6 py-8">
-        <header className="mb-6">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Shiori</h1>
-              <p className="mt-1 text-sm text-zinc-400">
-                quick capture · tags · search
-              </p>
-            </div>
+        {/* Header */}
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Shiori</h1>
+            <p className="mt-1 text-sm text-zinc-400">
+              quick capture · tags · search
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
             <div className="text-xs text-zinc-500">v0</div>
+            <AuthButton />
           </div>
+        </div>
 
-          <div className="mt-5">
-            <SearchBar
-              query={query}
-              setQuery={setQuery}
-              suggestions={suggestions}
-              commitSearch={commitSearch}
-              pickSuggestion={pickSuggestion}
-              onClear={() => setSelectedTag(null)}
-              onRequestNavigateFirst={() => setPendingNavToFirst(true)}
-            />
+        {/* Search */}
+        <div className="mt-5">
+          <SearchBar
+            query={query}
+            setQuery={setQuery}
+            suggestions={suggestions}
+            commitSearch={commitSearch}
+            pickSuggestion={pickSuggestion}
+            onClear={() => setSelectedTag(null)}
+            onRequestNavigateFirst={() => setPendingNavToFirst(true)}
+          />
 
-            {isSearching ? (
-              <div className="mt-2 text-sm text-zinc-400">
-                “{query}” 검색 결과 {logsToRender.length}개
-                {selectedTag ? (
-                  <span className="ml-2 text-zinc-500">
-                    (태그: #{selectedTag})
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        </header>
+          {isSearching ? (
+            <div className="mt-2 text-sm text-zinc-400">
+              “{query}” 검색 결과 {logsToRender.length}개
+            </div>
+          ) : (
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                type="button"
+                className={actionBtn}
+                onClick={() => setOnlyCommented((v) => !v)}
+              >
+                {onlyCommented ? "전체 글 보기" : "댓글 있는 글만"}
+              </button>
 
+              <button
+                type="button"
+                className={actionBtn}
+                onClick={refreshFromDb}
+              >
+                새로고침
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Undo */}
         {undo && (
           <div
-            className="
-              mb-4 flex items-center justify-between
-              rounded-2xl border border-zinc-800/60
-              bg-zinc-900/50 px-4 py-3
-            "
+            className="mt-4 mb-4 flex items-center justify-between rounded-2xl border border-zinc-800/60 bg-zinc-900/50 px-4 py-3"
             onMouseEnter={() => setUndoPaused(true)}
             onMouseLeave={() => {
               setUndoPaused(false);
@@ -320,13 +467,20 @@ export default function LogsPage() {
               {undoPaused ? " (멈춤)" : ""} — 되돌릴까요?
             </span>
 
-            <button type="button" onClick={applyUndo} className={actionBtn}>
+            <button
+              type="button"
+              onClick={applyUndo}
+              disabled={isMutating}
+              className={
+                actionBtn + (isMutating ? " opacity-50 cursor-not-allowed" : "")
+              }
+            >
               되돌리기
             </button>
           </div>
         )}
 
-        {/* ✅ 검색 중엔 에디터 숨김 */}
+        {/* Editor (로그인 유저만) */}
         {showEditor ? (
           <section className="mb-8">
             {editingLog ? (
@@ -336,17 +490,27 @@ export default function LogsPage() {
                 initialTitle={editingLog.title}
                 initialContent={editingLog.content}
                 initialTags={editingLog.tags}
-                submitLabel="수정 저장"
+                submitLabel={isMutating ? "처리 중..." : "수정 저장"}
                 onCancel={cancelEdit}
                 onSubmit={(v) => updateLog(editingLog.id, v)}
               />
             ) : (
-              <LogEditor key="new" submitLabel="추가" onSubmit={addLog} />
+              <LogEditor
+                key="new"
+                submitLabel={isMutating ? "처리 중..." : "추가"}
+                onSubmit={addLog}
+              />
             )}
           </section>
-        ) : null}
+        ) : (
+          <section className="mb-6 text-sm text-zinc-400">
+            {isAuthed
+              ? null
+              : "읽기 전용 모드입니다. 로그인하면 작성/수정/삭제가 가능합니다."}
+          </section>
+        )}
 
-        {/* ✅ 검색 중엔 태그필터 숨김 */}
+        {/* Tags */}
         {!isSearching ? (
           <section className="mb-4">
             <div className="flex flex-wrap gap-2">
@@ -358,7 +522,6 @@ export default function LogsPage() {
                   onClick={toggleTag}
                 />
               ))}
-
               {selectedTag && (
                 <button
                   type="button"
@@ -372,7 +535,7 @@ export default function LogsPage() {
           </section>
         ) : null}
 
-        {/* ✅ 목록: 클릭하면 상세 */}
+        {/* List */}
         <section className="space-y-3">
           {logsToRender.map((log) => (
             <button
@@ -381,8 +544,7 @@ export default function LogsPage() {
               onClick={() => goDetail(log.id)}
               className="
                 w-full cursor-pointer text-left
-                rounded-2xl border border-zinc-800/60
-                bg-zinc-900/50 p-5
+                rounded-2xl border border-zinc-800/60 bg-zinc-900/50 p-5
                 hover:bg-zinc-900/70 hover:border-zinc-700/70 transition
                 active:scale-[0.99]
                 focus:outline-none focus:ring-2 focus:ring-zinc-700/60
@@ -398,14 +560,15 @@ export default function LogsPage() {
                     <span className="shrink-0 text-xs text-zinc-500">
                       {new Date(log.createdAt).toLocaleDateString()}
                     </span>
+                    <span className="shrink-0 text-xs text-zinc-500">
+                      💬 {log.commentCount ?? 0}
+                    </span>
                   </div>
 
                   <p className="mt-2 text-sm text-zinc-400">
                     {previewText(log.content, 110)}
                   </p>
                 </div>
-
-                {/* (목록에서 수정/삭제는 하지 않음 - 상세에서) */}
               </div>
             </button>
           ))}
@@ -416,12 +579,14 @@ export default function LogsPage() {
                 ? "검색 결과가 없습니다."
                 : selectedTag
                   ? "해당 태그의 로그가 없습니다."
-                  : "아직 로그가 없습니다."}
+                  : onlyCommented
+                    ? "댓글이 달린 글이 없습니다."
+                    : "아직 로그가 없습니다."}
             </div>
           )}
         </section>
 
-        {/* ✅ (선택) 검색 중 '목록으로 돌아가기' 느낌 */}
+        {/* Search clear */}
         {isSearching ? (
           <div className="mt-6">
             <button

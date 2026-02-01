@@ -1,141 +1,156 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import type { LogItem } from "../features/shiori/types";
-import { loadLogs, saveLogs } from "../features/shiori/utils/storage";
-import LogEditor from "../features/shiori/components/LogEditor";
+import { useSession } from "@/features/auth/useSession";
+import AuthPanel from "@/features/auth/AuthPanel";
 
-function previewText(s: string, max = 100) {
-  const oneLine = String(s ?? "")
-    .replace(/\s+/g, " ")
-    .trim();
-  return oneLine.length > max ? oneLine.slice(0, max) + "…" : oneLine;
-}
+import { dbGet, dbDelete, dbUpdate } from "@/features/shiori/repo/shioriRepo";
+import {
+  dbCommentsList,
+  dbCommentCreate,
+  dbCommentDelete,
+  type DbCommentRow,
+} from "@/features/shiori/repo/commentsRepo";
 
-function tokenizeText(s: string) {
-  return String(s ?? "")
-    .toLowerCase()
-    .split(/[\s.,!?/(){}\[\]"'“”‘’<>:;|\\-]+/)
-    .filter(Boolean);
-}
+import LogEditor from "@/features/shiori/components/LogEditor";
 
-/**
- * 관련글 점수 (MVP)
- * - 태그 겹침: +6 / 개
- * - 텍스트 토큰 겹침: +1 / 개
- * - 최신 가중치: +1
- */
-function calcRelated(logs: LogItem[], current: LogItem, limit = 8) {
-  const curTags = new Set((current.tags ?? []).map((t) => t.toLowerCase()));
-  const curTokens = new Set(
-    tokenizeText(`${current.title} ${current.content}`).slice(0, 200),
+function chip(t: string) {
+  return (
+    <span
+      key={t}
+      className="select-none rounded-full border border-zinc-800/70 px-2 py-1 text-xs text-zinc-400"
+    >
+      #{t}
+    </span>
   );
-
-  return logs
-    .filter((x) => x.id !== current.id)
-    .map((x) => {
-      const tags = (x.tags ?? []).map((t) => t.toLowerCase());
-      let score = 0;
-
-      for (const t of tags) if (curTags.has(t)) score += 6;
-
-      const tokens = tokenizeText(`${x.title} ${x.content}`).slice(0, 200);
-      for (const tok of tokens) if (curTokens.has(tok)) score += 1;
-
-      if (Date.parse(x.createdAt)) score += 1;
-
-      return { item: x, score };
-    })
-    .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit)
-    .map((x) => x.item);
 }
 
 export default function LogDetailPage() {
   const nav = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
+  const { isAuthed, userId } = useSession();
 
-  const [logs, setLogs] = useState<LogItem[]>(() => loadLogs());
-  const [editing, setEditing] = useState(false);
+  const [item, setItem] = useState<Awaited<ReturnType<typeof dbGet>>>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
 
-  const log = useMemo(() => logs.find((x) => x.id === id) ?? null, [logs, id]);
+  const [comments, setComments] = useState<DbCommentRow[]>([]);
+  const [commentText, setCommentText] = useState("");
 
-  // ✅ 공통 인터랙션 스타일
-  const actionBtn =
-    "cursor-pointer rounded-xl px-3 py-1 text-sm transition " +
-    "text-zinc-300 hover:text-zinc-100 " +
-    "hover:bg-zinc-900/60 focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
+  const isMine = useMemo(() => {
+    if (!isAuthed || !userId) return false;
+    return item?.user_id === userId;
+  }, [isAuthed, userId, item?.user_id]);
 
-  const dangerBtn =
-    "cursor-pointer rounded-xl px-3 py-1 text-sm transition " +
-    "text-zinc-400 hover:text-red-300 " +
-    "hover:bg-zinc-900/60 focus:outline-none focus:ring-2 focus:ring-red-500/30";
+  useEffect(() => {
+    if (!id) return;
 
-  const tagBtn =
-    "cursor-pointer select-none rounded-full px-2 py-1 text-xs transition " +
-    "border border-zinc-800/70 text-zinc-400 " +
-    "hover:bg-zinc-900/70 hover:text-zinc-100 " +
-    "focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
+    (async () => {
+      setLoading(true);
+      try {
+        const row = await dbGet(id);
+        setItem(row);
+        const cs = await dbCommentsList(id);
+        setComments(cs);
+      } finally {
+        setLoading(false);
+      }
+    })().catch(console.error);
+  }, [id]);
 
-  const relatedCard =
-    "cursor-pointer text-left rounded-2xl border border-zinc-800/60 " +
-    "bg-zinc-900/40 p-4 transition " +
-    "hover:bg-zinc-900/70 hover:border-zinc-700/70 " +
-    "active:scale-[0.99] " +
-    "focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
-
-  function remove() {
-    if (!log) return;
-    const next = logs.filter((x) => x.id !== log.id);
-    setLogs(next);
-    saveLogs(next);
-    nav("/logs");
+  async function refreshComments() {
+    if (!id) return;
+    const cs = await dbCommentsList(id);
+    setComments(cs);
   }
 
-  function update(v: { title: string; content: string; tags: string[] }) {
-    if (!log) return;
+  async function submitComment() {
+    if (!id) return;
+    if (!isAuthed) return;
+    const body = commentText.trim();
+    if (!body) return;
 
-    const next = logs.map((x) =>
-      x.id === log.id
-        ? {
-            ...x,
-            title: v.title || "(제목 없음)",
-            content: v.content,
-            tags: v.tags,
-          }
-        : x,
+    setBusy(true);
+    try {
+      await dbCommentCreate({ item_id: id, body });
+      setCommentText("");
+      await refreshComments();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteComment(cid: string) {
+    if (!isAuthed) return;
+    setBusy(true);
+    try {
+      await dbCommentDelete(cid);
+      await refreshComments();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function saveEdit(v: {
+    title: string;
+    content: string;
+    tags: string[];
+  }) {
+    if (!id) return;
+    if (!isAuthed || !isMine) return;
+
+    setBusy(true);
+    try {
+      const updated = await dbUpdate(id, v);
+      setItem(updated);
+      // 목록 페이지에 “refresh 플래그”로 재동기화 요청
+      // (목록이 로컬캐시를 쓰기 때문)
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeItem() {
+    if (!id) return;
+    if (!isAuthed || !isMine) return;
+
+    if (!confirm("삭제할까요?")) return;
+
+    setBusy(true);
+    try {
+      await dbDelete(id);
+      nav("/", { state: { refresh: true } });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-100">
+        <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-zinc-400">
+          Loading...
+        </div>
+      </div>
     );
-
-    setLogs(next);
-    saveLogs(next);
-    setEditing(false);
   }
 
-  const related = useMemo(() => {
-    if (!log) return [];
-    return calcRelated(logs, log, 8);
-  }, [logs, log]);
-
-  const curTagSet = useMemo(() => {
-    if (!log) return new Set<string>();
-    return new Set((log.tags ?? []).map((t) => t.toLowerCase()));
-  }, [log]);
-
-  // ✅ 태그 클릭 UX(지금은 /logs로 이동만; 나중에 ?tag= 로 확장하면 완벽)
-  function goTag(tag: string) {
-    nav("/logs");
-  }
-
-  if (!log) {
+  if (!item) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100">
         <div className="mx-auto max-w-3xl px-6 py-8">
-          <button onClick={() => nav("/logs")} className={actionBtn}>
-            ← 목록으로
+          <button
+            className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+            onClick={() => nav(-1)}
+          >
+            뒤로
           </button>
           <div className="mt-6 text-sm text-zinc-400">
-            글을 찾을 수 없습니다.
+            존재하지 않는 글입니다.
           </div>
         </div>
       </div>
@@ -145,139 +160,122 @@ export default function LogDetailPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <div className="mx-auto max-w-3xl px-6 py-8">
-        <header className="mb-6">
-          <div className="flex items-center justify-between gap-3">
-            <button onClick={() => nav(-1)} className={actionBtn}>
-              ← 뒤로
-            </button>
-
-            <div className="flex items-center gap-2">
-              {!editing ? (
-                <button onClick={() => setEditing(true)} className={actionBtn}>
-                  수정
-                </button>
-              ) : (
-                <button onClick={() => setEditing(false)} className={actionBtn}>
-                  취소
-                </button>
-              )}
-
-              <button onClick={remove} className={dangerBtn}>
-                삭제
-              </button>
-            </div>
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <button
+            className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+            onClick={() => nav("/", { state: { refresh: true } })}
+          >
+            목록
+          </button>
+          <div className="text-xs text-zinc-500">
+            {new Date(item.created_at).toLocaleString()}
           </div>
+        </div>
 
-          <h1 className="mt-5 text-2xl font-semibold tracking-tight">
-            {log.title}
-          </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {item.title || "(제목 없음)"}
+        </h1>
 
-          <div className="mt-1 text-sm text-zinc-500">
-            {new Date(log.createdAt).toLocaleString()}
-          </div>
-        </header>
+        {Array.isArray(item.tags) && item.tags.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">{item.tags.map(chip)}</div>
+        ) : null}
 
-        {!editing ? (
-          <>
-            <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/50 p-5">
-              <p className="whitespace-pre-wrap text-sm text-zinc-200">
-                {log.content}
-              </p>
-            </div>
+        <div className="mt-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
+          <pre className="whitespace-pre-wrap break-words text-sm text-zinc-200">
+            {item.content}
+          </pre>
+        </div>
 
-            {/* ✅ 태그 버튼화 */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {log.tags.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className={tagBtn}
-                  onClick={() => goTag(t)}
-                  title={`#${t} 관련 글 보기`}
-                >
-                  #{t}
-                </button>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/50 p-5">
+        {/* ✅ 내 글이면 편집/삭제 */}
+        {isMine ? (
+          <div className="mt-6">
+            <div className="mb-3 text-sm text-zinc-400">내 글 수정</div>
             <LogEditor
-              syncKey={log.id}
-              key={`edit:${log.id}`}
-              initialTitle={log.title}
-              initialContent={log.content}
-              initialTags={log.tags}
-              submitLabel="수정 저장"
-              onCancel={() => setEditing(false)}
-              onSubmit={update}
+              syncKey={item.id}
+              initialTitle={item.title}
+              initialContent={item.content}
+              initialTags={Array.isArray(item.tags) ? item.tags : []}
+              submitLabel={busy ? "처리 중..." : "수정 저장"}
+              onSubmit={saveEdit}
             />
+            <button
+              onClick={removeItem}
+              disabled={busy}
+              className="mt-3 rounded-xl border border-red-900/60 bg-transparent px-3 py-2 text-sm text-red-300 hover:bg-red-950/30 disabled:opacity-50"
+            >
+              삭제
+            </button>
+          </div>
+        ) : (
+          <div className="mt-6 text-sm text-zinc-500">
+            이 글은 작성자만 수정/삭제할 수 있어요.
           </div>
         )}
 
-        {/* ✅ 관련글 */}
-        {related.length > 0 ? (
-          <section className="mt-10">
-            <h2 className="text-sm font-semibold text-zinc-200">
-              관련 글
-              <span className="ml-2 text-xs text-zinc-500">
-                (태그/내용 기반 추천)
-              </span>
-            </h2>
+        {/* ✅ 댓글 */}
+        <div className="mt-10">
+          <div className="mb-3 text-sm text-zinc-300">댓글</div>
 
-            <div className="mt-3 grid gap-3">
-              {related.map((r) => {
-                const sharedTags = (r.tags ?? []).filter((t) =>
-                  curTagSet.has(t.toLowerCase()),
-                );
-
-                return (
-                  <button
-                    key={r.id}
-                    type="button"
-                    onClick={() => nav(`/logs/${r.id}`)}
-                    className={relatedCard}
-                    title="상세 보기"
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="truncate font-medium text-zinc-100">
-                          {r.title}
-                        </div>
-                        <div className="mt-1 text-sm text-zinc-400">
-                          {previewText(r.content, 90)}
-                        </div>
-                      </div>
-                      <div className="shrink-0 text-xs text-zinc-500">
-                        {new Date(r.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-
-                    {/* ✅ 겹치는 태그만 버튼화 (카드 클릭 방지 stopPropagation) */}
-                    {sharedTags.length > 0 ? (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {sharedTags.slice(0, 8).map((t) => (
-                          <button
-                            key={t}
-                            type="button"
-                            className={tagBtn}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              goTag(t);
-                            }}
-                            title={`#${t} 관련 글 보기`}
-                          >
-                            #{t}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-                  </button>
-                );
-              })}
+          {!isAuthed ? (
+            <div className="mb-4">
+              <AuthPanel />
             </div>
-          </section>
-        ) : null}
+          ) : (
+            <div className="mb-4 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-4">
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                rows={3}
+                placeholder="댓글을 입력..."
+                className="w-full rounded-xl border border-zinc-800/70 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:ring-2 focus:ring-zinc-700/60"
+              />
+              <button
+                onClick={submitComment}
+                disabled={busy || !commentText.trim()}
+                className="mt-2 rounded-xl border border-zinc-700/70 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-800 disabled:opacity-50"
+              >
+                {busy ? "처리 중..." : "댓글 작성"}
+              </button>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            {comments.map((c) => {
+              const mine = isAuthed && userId === c.user_id;
+              return (
+                <div
+                  key={c.id}
+                  className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-xs text-zinc-500">
+                      {new Date(c.created_at).toLocaleString()}
+                      {mine ? (
+                        <span className="ml-2 text-zinc-400">(내 댓글)</span>
+                      ) : null}
+                    </div>
+                    {mine ? (
+                      <button
+                        onClick={() => deleteComment(c.id)}
+                        disabled={busy}
+                        className="rounded-xl border border-zinc-800/70 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-900/60 disabled:opacity-50"
+                      >
+                        삭제
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="mt-2 whitespace-pre-wrap break-words text-sm text-zinc-200">
+                    {c.body}
+                  </div>
+                </div>
+              );
+            })}
+
+            {comments.length === 0 ? (
+              <div className="text-sm text-zinc-500">댓글이 아직 없습니다.</div>
+            ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );

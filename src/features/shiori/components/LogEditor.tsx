@@ -43,7 +43,7 @@ export default function LogEditor({
   syncKey = "new",
   initialTitle = "",
   initialContent = "",
-  initialTags = [],
+  initialTags,
   submitLabel,
   onSubmit,
   onCancel,
@@ -52,7 +52,9 @@ export default function LogEditor({
   const [content, setContent] = useState<string>(initialContent);
 
   // 태그는 UI에서 "comma string"으로 다루고, submit 시 배열로 변환
-  const [tagText, setTagText] = useState<string>(() => initialTags.join(", "));
+  const [tagText, setTagText] = useState<string>(() =>
+    (initialTags ?? []).join(", "),
+  );
 
   // ✅ 연타 방지
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +63,7 @@ export default function LogEditor({
   useEffect(() => {
     setTitle(initialTitle);
     setContent(initialContent);
-    setTagText(initialTags.join(", "));
+    setTagText((initialTags ?? []).join(", "));
     setIsSubmitting(false);
   }, [syncKey, initialTitle, initialContent, initialTags]);
 
@@ -79,7 +81,16 @@ export default function LogEditor({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit) return;
+    console.log("✅ handleSubmit fired", { title, content, tags });
+    if (!canSubmit) {
+      console.log("⛔ canSubmit is false", {
+        title,
+        content,
+        tags,
+        isSubmitting,
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -88,8 +99,11 @@ export default function LogEditor({
         content: content,
         tags,
       });
+      console.log("✅ onSubmit resolved");
       // 추가 모드일 때만 초기화하고 싶으면(편집 모드는 유지)
       // 여기서는 외부에서 key/syncKey로 제어하니 굳이 내부 초기화 안 함
+    } catch (err) {
+      console.error("⛔ onSubmit error", err);
     } finally {
       setIsSubmitting(false);
     }
