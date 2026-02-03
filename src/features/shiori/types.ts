@@ -7,6 +7,7 @@ export type LogItem = {
   createdAt: string;
   updatedAt: string | null;
   commentCount: number;
+  viewCount: number;
 };
 
 export interface NoteItem {

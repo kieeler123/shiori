@@ -1,55 +1,53 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 
-type SessionValue = {
+type SessionState = {
+  ready: boolean;
   session: Session | null;
   user: User | null;
-  loading: boolean;
+  isAuthed: boolean;
 };
 
-const SessionContext = createContext<SessionValue | null>(null);
+const Ctx = createContext<SessionState | null>(null);
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1) 최초 세션 로드
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (error) console.error(error);
+    let alive = true;
+
+    // 1) 초기 세션 로드
+    supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
       setSession(data.session ?? null);
-      setUser(data.session?.user ?? null);
-      setLoading(false);
+      setReady(true);
     });
 
-    // 2) 로그인/로그아웃 변화 구독
-    const { data: sub } = supabase.auth.onAuthStateChange(
-      (_event, nextSession) => {
-        setSession(nextSession);
-        setUser(nextSession?.user ?? null);
-      },
-    );
+    // 2) 세션 변화 감지
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      if (!alive) return;
+      setSession(s ?? null);
+      setReady(true);
+    });
 
     return () => {
+      alive = false;
       sub.subscription.unsubscribe();
     };
   }, []);
 
-  const value = useMemo(
-    () => ({ session, user, loading }),
-    [session, user, loading],
-  );
+  const value = useMemo<SessionState>(() => {
+    const user = session?.user ?? null;
+    return { ready, session, user, isAuthed: !!user };
+  }, [ready, session]);
 
-  return (
-    <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
-  );
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export function useSession() {
-  const ctx = useContext(SessionContext);
-  if (!ctx)
-    throw new Error("useSession must be used within <SessionProvider />");
-  return ctx;
+  const v = useContext(Ctx);
+  if (!v) throw new Error("useSession must be used inside SessionProvider");
+  return v;
 }

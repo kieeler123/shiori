@@ -8,15 +8,21 @@ export type DbLogRow = {
   tags: string[];
   created_at: string;
   updated_at: string | null;
+
   comment_count: number;
+  view_count: number;
 };
 
-const TABLE = "shiori_items";
+const TABLE_VIEW = "shiori_items_v"; // ✅ 화면은 뷰만 본다
+const TABLE_BASE = "shiori_items"; // ✅ 생성/수정은 원본
+
+const SELECT_BASE =
+  "id,user_id,title,content,tags,created_at,updated_at,comment_count,view_count";
 
 export async function dbList(): Promise<DbLogRow[]> {
   const { data, error } = await supabase
-    .from(TABLE)
-    .select("id,user_id,title,content,tags,created_at")
+    .from(TABLE_VIEW)
+    .select(SELECT_BASE)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -25,8 +31,8 @@ export async function dbList(): Promise<DbLogRow[]> {
 
 export async function dbGet(id: string): Promise<DbLogRow | null> {
   const { data, error } = await supabase
-    .from(TABLE)
-    .select("id,user_id,title,content,tags,created_at")
+    .from(TABLE_VIEW)
+    .select(SELECT_BASE)
     .eq("id", id)
     .maybeSingle();
 
@@ -44,14 +50,14 @@ export async function dbCreate(input: {
   if (!user) throw new Error("Not signed in");
 
   const { data, error } = await supabase
-    .from(TABLE)
+    .from(TABLE_BASE)
     .insert({
       user_id: user.id,
       title: input.title.trim(),
       content: input.content,
       tags: input.tags,
     })
-    .select("id,user_id,title,content,tags,created_at")
+    .select(SELECT_BASE)
     .single();
 
   if (error) throw error;
@@ -63,40 +69,15 @@ export async function dbUpdate(
   input: { title: string; content: string; tags: string[] },
 ): Promise<DbLogRow> {
   const { data, error } = await supabase
-    .from(TABLE)
+    .from(TABLE_BASE)
     .update({
       title: input.title.trim(),
       content: input.content,
       tags: input.tags,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .select("id,user_id,title,content,tags,created_at")
-    .single();
-
-  if (error) throw error;
-  return data as DbLogRow;
-}
-
-export async function dbDelete(id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE).delete().eq("id", id);
-  if (error) throw error;
-}
-
-// Undo에서 delete 복구(원본 id 유지)
-export async function dbRestore(row: {
-  id: string;
-  user_id: string | null;
-  title: string;
-  content: string;
-  tags: string[];
-  created_at: string;
-  updated_at: string | null;
-  comment_count: number;
-}): Promise<DbLogRow> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert(row)
-    .select("id,user_id,title,content,tags,created_at")
+    .select(SELECT_BASE)
     .single();
 
   if (error) throw error;

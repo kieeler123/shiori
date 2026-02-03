@@ -1,10 +1,10 @@
 import type { LogItem } from "../types";
 
-const KEY = "shiori.logs.v1";
+const KEY = "shiori.logs";
 
 export function loadLogs(): any[] {
   try {
-    const raw = localStorage.getItem("shiori_logs");
+    const raw = localStorage.getItem("shiori.logs");
     const arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr)
       ? arr.map((x) => ({

@@ -1,29 +1,56 @@
 src/
   lib/
     supabaseClient.ts
-  app/               (또는 src/App.tsx)
+  app/
     App.tsx
-  pages/
-    LogsPage.tsx
+    Header.tsx
+    layout/
+      Layout.tsx
+      toast.ts
+      ToastProvider.tsx
   features/
     auth/
-      useSession.ts
+      AuthBar.tsx
+      AuthButton.tsx
+      AuthCallback.tsx
       AuthPanel.tsx
+      SessionProvider.tsx
+      useSession.ts
     shiori/
-      types.ts
       components/
         LogEditor.tsx
+        SearchBar.tsx
         TagChip.tsx
         TagSuggestions.tsx
-        SearchBar.tsx
-        NoteList.tsx        (선택)
-        NoteCard.tsx        (선택)
-      hooks/
-        useNoteSearch.ts
-      repo/
-        shioriRepo.ts
-        commentsRepo.ts
-      utils/
-        storage.ts
-        searchIndex.ts
-        tags.ts             (태그 유틸 있으면)
+        hooks/
+          useNoteSearch.ts
+          useTagAutocomplete.ts
+        repo/
+          commentsRepo.ts
+          feedbackRepo.ts
+          shioriRepo.ts
+          trashRepo.ts
+        utils/
+          recentSearch.ts
+          searchIndex.ts
+          storage.ts
+          tagRank.ts
+          tags.ts
+          textParser.ts
+      types.ts
+      pages/
+        auth/
+          AuthPage.tsx
+        feedbacks/
+          AdminFeedbackPage.tsx
+          SupportDetailPage.tsx
+          SupportListPage.tsx
+          SupportNewPage.tsx
+        logs/
+          EditLogPage.tsx
+          LogDetailPage.tsx
+          LogsPage.tsx
+          NewLogPage.tsx
+        TrashPage.tsx
+  index.css
+  main.tsx

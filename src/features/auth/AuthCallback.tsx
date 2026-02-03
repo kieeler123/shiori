@@ -1,23 +1,19 @@
 import { useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function AuthCallback() {
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const handle = async () => {
-      // 🔥 이 한 줄이 세션을 확정하는 핵심
+    const run = async () => {
+      // URL에 붙은 access_token 처리
       await supabase.auth.getSession();
-
-      nav("/", { replace: true });
+      navigate("/", { replace: true });
     };
-    handle();
-  }, [nav]);
 
-  return (
-    <div className="min-h-screen grid place-items-center text-zinc-400">
-      로그인 처리 중...
-    </div>
-  );
+    run();
+  }, [navigate]);
+
+  return <div className="p-6">로그인 처리 중...</div>;
 }
