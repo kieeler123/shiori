@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useSession } from "./useSession";
+import { useSession } from "@/features/auth/useSession";
 
 export default function AuthPanel() {
   const { isAuthed, user } = useSession();

@@ -5,7 +5,7 @@ export default function AuthButton() {
   const { ready, user, isAuthed } = useSession();
 
   const btn =
-    "inline-flex items-center gap-2 rounded-xl border border-zinc-800/70 bg-zinc-900/50 " +
+    "cursor-pointer inline-flex items-center gap-2 rounded-xl border border-zinc-800/70 bg-zinc-900/50 " +
     "px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-900/80 transition " +
     "focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
 
@@ -32,7 +32,7 @@ export default function AuthButton() {
   if (!isAuthed || !user) {
     return (
       <button type="button" className={btn} onClick={onLogin}>
-        <span className="text-base">🔐</span>
+        <span className={btn}>🔐</span>
         로그인
       </button>
     );

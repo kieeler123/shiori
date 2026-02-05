@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
 import {
-  dbFeedbackDelete,
-  dbFeedbackList,
-  type DbFeedbackRow,
-} from "@/features/shiori/repo/feedbackRepo";
+  dbSupportList,
+  type SupportTicketListRow,
+} from "@/features/shiori/repo/supportRepo";
+import { dbSupportSoftDelete } from "@/features/shiori/repo/supportTrashRepo";
 
 const actionBtn =
   "cursor-pointer rounded-xl px-3 py-2 text-sm transition " +
@@ -18,7 +18,7 @@ export default function AdminFeedbackPage() {
   const nav = useNavigate();
   const { ready, isAuthed } = useSession();
 
-  const [rows, setRows] = useState<DbFeedbackRow[]>([]);
+  const [rows, setRows] = useState<SupportTicketListRow[]>([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -26,7 +26,7 @@ export default function AdminFeedbackPage() {
     setErr(null);
     setBusy(true);
     try {
-      const data = await dbFeedbackList(100);
+      const data = await dbSupportList();
       setRows(data);
     } catch (e) {
       console.error(e);
@@ -40,11 +40,8 @@ export default function AdminFeedbackPage() {
     if (!confirm("삭제할까요?")) return;
     setBusy(true);
     try {
-      await dbFeedbackDelete(id);
+      await dbSupportSoftDelete(id);
       await refresh();
-    } catch (e) {
-      console.error(e);
-      alert(String((e as any)?.message ?? e));
     } finally {
       setBusy(false);
     }
@@ -109,21 +106,14 @@ export default function AdminFeedbackPage() {
                   className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-xs text-zinc-500">
-                        {new Date(r.created_at).toLocaleString()} · {r.type}
-                      </div>
-                      <div className="mt-1 text-sm text-zinc-100">
-                        {r.title || "(제목 없음)"}
-                      </div>
-                      <div className="mt-2 whitespace-pre-wrap break-words text-sm text-zinc-300">
-                        {r.body}
-                      </div>
-                      {r.page_url ? (
-                        <div className="mt-2 text-xs text-zinc-600">
-                          {r.page_url}
-                        </div>
-                      ) : null}
+                    <div className="text-xs text-zinc-500">
+                      {new Date(r.created_at).toLocaleString()} · {r.status}
+                    </div>
+                    <div className="mt-1 text-sm text-zinc-100">
+                      {r.title || "(제목 없음)"}
+                    </div>
+                    <div className="mt-1 text-xs text-zinc-500">
+                      작성자: {r.nickname}
                     </div>
 
                     <button

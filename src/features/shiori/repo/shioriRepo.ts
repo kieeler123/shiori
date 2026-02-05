@@ -46,6 +46,7 @@ export async function dbCreate(input: {
   tags: string[];
 }): Promise<DbLogRow> {
   const { data: auth } = await supabase.auth.getUser();
+  console.log("create user:", auth.user);
   const user = auth.user;
   if (!user) throw new Error("Not signed in");
 

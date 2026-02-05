@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "./useAuth";
+import { useAuth } from "@/features/auth/useAuth";
 
 export default function AuthBar() {
   const { user, loading } = useAuth();

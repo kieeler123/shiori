@@ -7,6 +7,33 @@ const TABLE_TRASH_VIEW = "shiori_trash_v";
 const SELECT_TRASH =
   "id,user_id,title,content,tags,created_at,updated_at,comment_count,view_count,deleted_at,deleted_by";
 
+export type SupportTrashListRow = {
+  id: string;
+  title: string | null;
+  deleted_at: string | null;
+  deleted_by: string | null; // 유저 id (RLS로 본인만 볼 때도 유용)
+};
+
+const SUPPORT_TRASH_VIEW = "support_trash_v";
+
+// ✅ 휴지통 목록: 최소 필드만 가져오기
+const SELECT_SUPPORT_TRASH_LIST = "id,title,deleted_at,deleted_by";
+
+export async function dbSupportMyTrashList(): Promise<SupportTrashListRow[]> {
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) throw new Error("Not signed in");
+
+  const { data, error } = await supabase
+    .from(SUPPORT_TRASH_VIEW)
+    .select(SELECT_SUPPORT_TRASH_LIST)
+    .eq("deleted_by", user.id)
+    .order("deleted_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []) as any;
+}
+
 export async function dbSoftDelete(id: string): Promise<void> {
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
