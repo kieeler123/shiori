@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
-import {
-  dbSupportGet,
-  type SupportTicketDetailRow,
-} from "@/features/shiori/repo/supportRepo";
+import { dbSupportGet } from "@/features/shiori/repo/supportRepo";
 import RouteProblem from "@/features/shiori/components/RouteProblem";
 import { isUuid } from "@/features/shiori/utils/isUuid";
 import { dbSupportSoftDelete } from "../../repo/supportTrashRepo";
+import type { SupportTicketDetailRow } from "../../type";
 
 export default function SupportDetailPage() {
   const nav = useNavigate();
@@ -82,7 +80,7 @@ export default function SupportDetailPage() {
       <div className="min-h-screen bg-zinc-950 text-zinc-100">
         <div className="mx-auto max-w-3xl px-6 py-8">
           <button
-            className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+            className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
             onClick={() => nav(-1)}
           >
             뒤로
@@ -100,7 +98,7 @@ export default function SupportDetailPage() {
       <div className="mx-auto max-w-3xl px-6 py-8">
         <div className="flex items-center justify-between gap-3">
           <button
-            className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+            className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
             onClick={() => nav("/support")}
           >
             목록
@@ -119,13 +117,13 @@ export default function SupportDetailPage() {
           {isMine ? (
             <div className="flex shrink-0 items-center gap-2">
               <button
-                className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+                className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
                 onClick={() => nav(`/support/${item.id}/edit`)}
               >
                 수정
               </button>
               <button
-                className="rounded-xl border border-red-900/60 px-3 py-2 text-sm text-red-300 hover:bg-red-950/30 disabled:opacity-50"
+                className="cursor-pointer rounded-xl border border-red-900/60 px-3 py-2 text-sm text-red-300 hover:bg-red-950/30 disabled:opacity-50"
                 onClick={remove}
                 disabled={busy}
               >

@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
-import {
-  dbMyTickets,
-  type SupportTicketListRow,
-} from "@/features/shiori/repo/supportRepo";
+import { dbMyTickets } from "@/features/shiori/repo/supportRepo";
+import type { SupportTicketListRow } from "../../type";
 
 export default function MyTicketsPage() {
   const nav = useNavigate();
@@ -53,7 +51,7 @@ export default function MyTicketsPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">내 문의</h2>
           <button
-            className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+            className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
             onClick={() => nav("/support")}
           >
             고객센터
@@ -71,7 +69,7 @@ export default function MyTicketsPage() {
                 <button
                   key={r.id}
                   onClick={() => nav(`/support/${r.id}`)}
-                  className="w-full text-left rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-4 hover:bg-zinc-900/50"
+                  className="cursor-pointer w-full text-left rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-4 hover:bg-zinc-900/50"
                 >
                   <div className="truncate text-sm text-zinc-100">
                     {r.title || "(제목 없음)"}

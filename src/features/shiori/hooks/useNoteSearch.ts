@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { NoteItem, Suggestion } from "../types";
+import type { NoteItem, Suggestion } from "../type/logs";
 import { buildSearchIndex, type IndexedNote } from "../utils/searchIndex";
 import { loadRecentQueries, pushRecentQuery } from "../utils/recentSearch";
 

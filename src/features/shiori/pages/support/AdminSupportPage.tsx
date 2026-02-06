@@ -2,17 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
-import {
-  dbSupportList,
-  type SupportTicketListRow,
-} from "@/features/shiori/repo/supportRepo";
+import { dbSupportList } from "@/features/shiori/repo/supportRepo";
 import { dbSupportSoftDelete } from "@/features/shiori/repo/supportTrashRepo";
-
-const actionBtn =
-  "cursor-pointer rounded-xl px-3 py-2 text-sm transition " +
-  "text-zinc-300 hover:text-zinc-100 " +
-  "border border-zinc-800/70 hover:bg-zinc-900/60 " +
-  "focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
+import { actionBtn } from "@/app/ui/btn";
+import type { SupportTicketListRow } from "../../type";
 
 export default function AdminFeedbackPage() {
   const nav = useNavigate();

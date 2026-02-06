@@ -3,54 +3,28 @@ import { supabase } from "@/lib/supabaseClient";
 import type { Session, User } from "@supabase/supabase-js";
 
 export function useSession() {
-  const [ready, setReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
+    // 1️⃣ 최초 세션 로드
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+      setReady(true);
+    });
 
-    const init = async () => {
-      try {
-        console.log("🔵 getSession start");
-
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error("getSession error:", error.message);
-        }
-
-        if (!mounted) return;
-
-        setSession(data.session ?? null);
-        setUser(data.session?.user ?? null);
-
-        console.log(
-          "🟢 session loaded:",
-          data.session?.user?.email ?? "no session",
-        );
-      } catch (err) {
-        console.error("🔥 session crash:", err);
-      } finally {
-        if (mounted) {
-          console.log("🟣 ready=true");
-          setReady(true); // 🔥 무조건 실행됨
-        }
-      }
-    };
-
-    init();
-
+    // 2️⃣ 🔥 세션 변경 구독 (이게 핵심)
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        console.log("🟡 auth change:", session?.user?.email ?? "logged out");
         setSession(session);
         setUser(session?.user ?? null);
+        setReady(true);
       },
     );
 
     return () => {
-      mounted = false;
       listener.subscription.unsubscribe();
     };
   }, []);
@@ -59,7 +33,7 @@ export function useSession() {
     ready,
     session,
     user,
-    isAuthed: !!user,
-    userId: user?.id ?? null,
+    isAuthed: !!session, // ✅ 여기
+    userId: session?.user?.id ?? null,
   };
 }

@@ -1,4 +1,4 @@
-import type { NoteItem } from "../types";
+import type { NoteItem } from "../type/logs";
 
 export interface IndexedNote extends NoteItem {
   __searchText: string; // 전체(all) 검색용

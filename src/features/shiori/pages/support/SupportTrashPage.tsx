@@ -2,11 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
-import {
-  dbSupportMyTrashList,
-  type SupportTrashListRow,
-} from "../../repo/trashRepo";
+import { dbSupportMyTrashList } from "../../repo/trashRepo";
 import { supabase } from "@/lib/supabaseClient";
+import type { SupportTrashListRow } from "../../type";
 
 const actionBtn =
   "cursor-pointer rounded-xl px-3 py-2 text-sm transition " +

@@ -1,18 +1,11 @@
 import { supabase } from "@/lib/supabaseClient";
-import type { DbLogRow } from "./shioriRepo";
+import type { DbLogRow, SupportTrashListRow } from "../type";
 
 const TABLE_BASE = "shiori_items";
 const TABLE_TRASH_VIEW = "shiori_trash_v";
 
 const SELECT_TRASH =
   "id,user_id,title,content,tags,created_at,updated_at,comment_count,view_count,deleted_at,deleted_by";
-
-export type SupportTrashListRow = {
-  id: string;
-  title: string | null;
-  deleted_at: string | null;
-  deleted_by: string | null; // 유저 id (RLS로 본인만 볼 때도 유용)
-};
 
 const SUPPORT_TRASH_VIEW = "support_trash_v";
 

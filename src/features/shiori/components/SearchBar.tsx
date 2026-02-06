@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import type { Suggestion } from "../types";
+import type { Suggestion } from "../type/logs";
 
 type Props = {
   query: string;

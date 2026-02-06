@@ -1,17 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
-
-export type DbLogRow = {
-  id: string;
-  user_id: string | null;
-  title: string;
-  content: string;
-  tags: string[];
-  created_at: string;
-  updated_at: string | null;
-
-  comment_count: number;
-  view_count: number;
-};
+import type { DbLogRow } from "../type";
 
 const TABLE_VIEW = "shiori_items_v"; // ✅ 화면은 뷰만 본다
 const TABLE_BASE = "shiori_items"; // ✅ 생성/수정은 원본

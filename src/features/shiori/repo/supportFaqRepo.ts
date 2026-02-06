@@ -1,16 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
+import type { SupportFaqRow } from "../type";
 
 const TABLE = "support_faq";
-
-// 목록용 타입
-export type SupportFaqRow = {
-  id: string;
-  title: string;
-  body: string;
-  category: string | null;
-  sort_order: number;
-  updated_at: string;
-};
 
 const SELECT = "id,title,body,category,sort_order,updated_at";
 

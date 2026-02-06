@@ -1,10 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-
-const tabBase =
-  "px-3 py-2 text-sm rounded-xl transition cursor-pointer border border-zinc-800/60";
-
-const tabActive = "bg-zinc-900 text-zinc-100";
-const tabIdle = "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60";
+import { tabActive, tabBase, tabIdle } from "../ui/btn";
 
 export default function SupportLayout() {
   return (

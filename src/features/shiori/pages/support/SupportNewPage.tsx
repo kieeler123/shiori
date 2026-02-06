@@ -59,7 +59,7 @@ export default function SupportNewPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">문의하기</h2>
           <button
-            className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+            className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
             onClick={() => nav("/support")}
             disabled={busy}
           >
@@ -84,7 +84,7 @@ export default function SupportNewPage() {
           <button
             onClick={submit}
             disabled={busy || !title.trim() || !body.trim()}
-            className="rounded-xl border border-zinc-700/70 bg-zinc-100 px-3 py-2 text-sm text-zinc-900 hover:bg-white disabled:opacity-50"
+            className="cursor-pointer rounded-xl border border-zinc-700/70 bg-zinc-100 px-3 py-2 text-sm text-zinc-900 hover:bg-white disabled:opacity-50"
           >
             {busy ? "처리 중..." : "등록"}
           </button>

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
+import type { SupportTicketDetailRow, SupportTicketListRow } from "../type";
 
 const TABLE_BASE = "support_tickets";
 const TABLE_VIEW = "support_tickets_v";
@@ -7,27 +8,6 @@ const TABLE_TRASH_VIEW = "support_trash_v";
 const SELECT_LIST = "id,user_id,nickname,title,status,created_at,updated_at";
 const SELECT_DETAIL =
   "id,user_id,nickname,title,body,status,created_at,updated_at";
-
-export type SupportTicketListRow = {
-  id: string;
-  user_id: string;
-  nickname: string;
-  title: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type SupportTicketDetailRow = {
-  id: string;
-  user_id: string;
-  nickname: string;
-  title: string;
-  body: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-};
 
 export async function dbSupportCreate(input: {
   title: string;

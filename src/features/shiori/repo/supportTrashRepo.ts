@@ -1,14 +1,8 @@
 import { supabase } from "@/lib/supabaseClient";
+import type { SupportTrashListRow } from "../type";
 
 const SUPPORT_TABLE = "support_tickets";
 const SUPPORT_TRASH_VIEW = "support_trash_v";
-
-export type SupportTrashListRow = {
-  id: string;
-  title: string | null;
-  deleted_at: string | null;
-  deleted_by: string | null;
-};
 
 export async function dbSupportSoftDelete(id: string): Promise<void> {
   const { data: auth } = await supabase.auth.getUser();

@@ -1,4 +1,4 @@
-import type { LogItem } from "../types";
+import type { LogItem } from "../type/logs";
 
 const KEY = "shiori.logs";
 

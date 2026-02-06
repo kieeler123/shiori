@@ -1,12 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
-
-export type DbCommentRow = {
-  id: string;
-  item_id: string;
-  user_id: string;
-  body: string;
-  created_at: string;
-};
+import type { DbCommentRow } from "../type";
 
 const T = "shiori_comments";
 

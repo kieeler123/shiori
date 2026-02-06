@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  dbFaqList,
-  type SupportFaqRow,
-} from "@/features/shiori/repo/supportFaqRepo";
+import { dbFaqList } from "@/features/shiori/repo/supportFaqRepo";
+import type { SupportFaqRow } from "../../type";
 
 function normalize(s: string) {
   return s.trim().toLowerCase();

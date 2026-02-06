@@ -4,11 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AuthButton from "@/features/auth/AuthButton";
 import { useSession } from "@/features/auth/useSession";
 import { btnBase, menuItem } from "./ui/btn";
-
-type HeaderProps = {
-  title?: string;
-  versionText?: string;
-};
+import type { HeaderProps } from "@/features/shiori/type";
 
 export default function Header({
   title = "Shiori",
@@ -98,6 +94,8 @@ export default function Header({
             {open && (
               <div
                 ref={menuRef}
+                role="menu"
+                aria-label="햄버거 메뉴"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
                 className="absolute left-4 top-14 z-50 w-60 rounded-2xl border border-zinc-800/60 bg-zinc-950/95 p-2 shadow-xl"
@@ -107,6 +105,7 @@ export default function Header({
 
                 <button
                   type="button"
+                  role="menuitem"
                   className={menuItem}
                   onClick={() => {
                     nav("/support");
@@ -118,6 +117,7 @@ export default function Header({
 
                 <button
                   type="button"
+                  role="menuitem"
                   className={menuItem}
                   onClick={() => {
                     nav("/support/faq");
@@ -129,6 +129,7 @@ export default function Header({
 
                 <button
                   type="button"
+                  role="menuitem"
                   className={menuItem}
                   onClick={() => {
                     nav("/support/new");
@@ -140,6 +141,7 @@ export default function Header({
 
                 <button
                   type="button"
+                  role="menuitem"
                   className={menuItem}
                   onClick={() => {
                     nav("/support/mine");
@@ -151,6 +153,7 @@ export default function Header({
 
                 <button
                   type="button"
+                  role="menuitem"
                   className={menuItem}
                   onClick={() => {
                     nav("/support/trash");
@@ -160,6 +163,19 @@ export default function Header({
                   🗑 고객센터 휴지통
                 </button>
 
+                {/* ✅ 여기만 경로 수정 */}
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={menuItem}
+                  onClick={() => {
+                    nav("/settings/account");
+                    setOpen(false);
+                  }}
+                >
+                  ⚙️ 계정 설정
+                </button>
+
                 <div className="my-2 border-t border-zinc-800/60" />
 
                 {/* ✅ 일반 영역 */}
@@ -167,6 +183,7 @@ export default function Header({
 
                 <button
                   type="button"
+                  role="menuitem"
                   className={menuItem}
                   onClick={() => {
                     nav("/trash");
