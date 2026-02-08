@@ -19,14 +19,13 @@ type Props = {
 };
 
 function normalizeTags(input: string): string[] {
-  // "a, b, c" -> ["a","b","c"]
-  return String(input ?? "")
+  const arr = String(input ?? "")
     .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean)
-    .slice(0, 10);
-}
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean);
 
+  return [...new Set(arr)].slice(0, 10);
+}
 function uniqLowerKeepFirst(arr: string[]) {
   const seen = new Set<string>();
   const out: string[] = [];
