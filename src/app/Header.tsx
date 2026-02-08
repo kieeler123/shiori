@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import AuthButton from "@/features/auth/AuthButton";
 import { useSession } from "@/features/auth/useSession";
-import { btnBase, menuItem } from "./ui/btn";
+import { actionBtn, btnBase, menuItem } from "./ui/btn";
 import type { HeaderProps } from "@/features/shiori/type";
 
 export default function Header({
@@ -46,16 +46,6 @@ export default function Header({
       document.removeEventListener("keydown", onEsc);
     };
   }, [open]);
-
-  const actionBtn =
-    "cursor-pointer rounded-xl px-3 py-2 text-sm transition " +
-    "text-zinc-300 hover:text-zinc-100 " +
-    "hover:bg-zinc-900/60 focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
-
-  function go(path: string) {
-    nav(path);
-    setOpen(false);
-  }
 
   return (
     <header className="sticky top-0 z-20 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur">
