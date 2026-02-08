@@ -39,7 +39,7 @@ export default function App() {
 
         <Route path="/support" element={<SupportLayout />}>
           <Route index element={<SupportListPage />} />
-          <Route path="/faq" element={<SupportFaqPage />} />
+          <Route path="faq" element={<SupportFaqPage />} />
           <Route path=":id" element={<SupportDetailPage />} />
 
           {/* ✅ 보호: 쓰기/개인 */}
