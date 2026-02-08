@@ -13,6 +13,10 @@ dist-ssr
 *.local
 .env
 
+# logs 폴더는 원래 무시하지만, src 아래 logs는 포함한다
+!src/features/shiori/pages/logs/
+!src/features/shiori/pages/logs/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
