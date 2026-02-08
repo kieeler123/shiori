@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useSession } from "@/features/auth/useSession";
@@ -51,9 +51,6 @@ export default function LogDetailPage() {
 
   const [comments, setComments] = useState<DbCommentRow[]>([]);
   const [commentText, setCommentText] = useState("");
-
-  // ✅ 개발모드 StrictMode 2회 실행 방지(현재는 사용 안 하면 지워도 됨)
-  const viewedRef = useRef(new Set<string>());
 
   const isMine = useMemo(() => {
     if (!isAuthed || !userId) return false;
