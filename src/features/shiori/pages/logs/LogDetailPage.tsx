@@ -17,7 +17,6 @@ import { dbSoftDelete } from "@/features/shiori/repo/trashRepo";
 import RouteProblem from "@/features/shiori/components/RouteProblem";
 import { isUuid } from "@/features/shiori/utils/isUuid";
 import type { DbCommentRow } from "../../type";
-import { Card } from "@/shared/ui/primitives/Card";
 import { Button } from "@/shared/ui/primitives/Button";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { Textarea } from "@/shared/ui/primitives/Textarea";

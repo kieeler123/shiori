@@ -2,7 +2,6 @@ import {
   cancelBtn,
   chip,
   editorShell,
-  field,
   fieldControl,
   submitBtn,
 } from "@/shared/theme/editor";

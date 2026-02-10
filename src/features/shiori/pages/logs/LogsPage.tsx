@@ -12,7 +12,6 @@ import { dbList } from "@/features/shiori/repo/shioriRepo";
 
 import TagChip from "@/shared/ui/primitives/TagChip";
 import { Button } from "@/shared/ui/primitives/Button";
-import { CardButton } from "@/shared/ui/primitives/CardButton";
 import { Card } from "@/shared/ui/primitives/Card";
 import { getEmptyMessage } from "@/app/layout/getEmptyMessage";
 import { ListItemButton } from "@/shared/ui/patterns/ListItemButton";
