@@ -187,11 +187,11 @@ export default function SearchBar({
           onKeyDown={onKeyDown}
           placeholder="검색: 제목 / 내용 / 태그"
           className="
-            flex-1 rounded-2xl border border-zinc-800/70
+            flex-1 rounded-2xl border border-zinc-700/40
             bg-zinc-900/60 px-4 py-3
             text-sm text-zinc-100 placeholder:text-zinc-500
             outline-none
-            focus:border-indigo-400/40 focus:ring-2 focus:ring-indigo-400/20
+            focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/40
             transition
           "
         />

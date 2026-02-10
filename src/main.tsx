@@ -4,12 +4,15 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./app/App";
 import { SessionProvider } from "@/features/auth/SessionProvider";
 import "./index.css";
+import { ThemeProvider } from "@/shared/theme/ThemeProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <SessionProvider>
       <BrowserRouter>
-        <App />
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
       </BrowserRouter>
     </SessionProvider>
   </React.StrictMode>,

@@ -10,6 +10,11 @@ import type { DbLogRow, LogItem } from "@/features/shiori/type/logs";
 import { useSession } from "@/features/auth/useSession";
 import { dbList } from "@/features/shiori/repo/shioriRepo";
 
+import TagChip from "@/shared/ui/primitives/TagChip";
+import { Button } from "@/shared/ui/primitives/Button";
+import { CardButton } from "@/shared/ui/primitives/CardButton";
+import { Card } from "@/shared/ui/primitives/Card";
+
 type NoteItem = {
   id: string;
   title: string;
@@ -63,11 +68,6 @@ export default function LogsPage() {
   const [onlyCommented, setOnlyCommented] = useState(false);
   const [pendingNavToFirst, setPendingNavToFirst] = useState(false);
 
-  const actionBtn =
-    "cursor-pointer rounded-xl px-3 py-2 text-sm transition " +
-    "text-zinc-300 hover:text-zinc-100 " +
-    "hover:bg-zinc-900/60 focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
-
   const refreshFromDb = useCallback(async () => {
     const rows = await dbList();
     const next = rows.map(toLogItem);
@@ -90,9 +90,7 @@ export default function LogsPage() {
   }, [location.state, refreshFromDb, nav]);
 
   // 태그 통계(Top10)
-  const tagStatsTop10 = useMemo(() => {
-    return collectTags(logs).slice(0, 10);
-  }, [logs]);
+  const tagStatsTop10 = useMemo(() => collectTags(logs).slice(0, 10), [logs]);
 
   const filteredLogs = useMemo(() => {
     let arr = logs;
@@ -159,170 +157,132 @@ export default function LogsPage() {
 
   if (!ready) {
     return (
-      <div className="min-h-[calc(100vh-72px)] bg-zinc-950 text-zinc-100 grid place-items-center">
-        <div className="text-sm text-zinc-400">세션 확인중…</div>
+      <div className="min-h-[calc(100vh-72px)] bg-[var(--bg-app)] text-[var(--text-main)] grid place-items-center">
+        <div className="text-sm text-[var(--text-sub)]">세션 확인중…</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-zinc-950 text-zinc-100">
-      <div className="mx-auto max-w-3xl px-6 py-6">
-        {/* ✅ Search (상단) */}
-        <div>
-          <SearchBar
-            query={query}
-            setQuery={setQuery}
-            suggestions={suggestions}
-            commitSearch={commitSearch}
-            pickSuggestion={pickSuggestion}
-            onClear={() => {
-              setSelectedTag(null);
-              setOnlyCommented(false);
-            }}
-            onRequestNavigateFirst={() => setPendingNavToFirst(true)}
-          />
+    <>
+      {/* Search */}
+      <Card variant="panel" className="bg-[var(--bg-elev-1)]/40">
+        <SearchBar
+          query={query}
+          setQuery={setQuery}
+          suggestions={suggestions}
+          commitSearch={commitSearch}
+          pickSuggestion={pickSuggestion}
+          onClear={() => {
+            setSelectedTag(null);
+            setOnlyCommented(false);
+          }}
+          onRequestNavigateFirst={() => setPendingNavToFirst(true)}
+        />
 
-          {isSearching ? (
-            <div className="mt-2 text-sm text-zinc-400">
-              “{query}” 검색 결과 {logsToRender.length}개
-            </div>
-          ) : (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                className={actionBtn}
-                onClick={() => setOnlyCommented((v) => !v)}
-              >
-                {onlyCommented ? "전체 글 보기" : "댓글 있는 글만"}
-              </button>
+        {isSearching ? (
+          <div className="mt-2 text-sm text-[var(--text-sub)]">
+            “{query}” 검색 결과 {logsToRender.length}개
+          </div>
+        ) : (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="soft"
+              onClick={() => setOnlyCommented((v) => !v)}
+            >
+              {onlyCommented ? "전체 글 보기" : "댓글 있는 글만"}
+            </Button>
 
-              <button
-                type="button"
-                className={actionBtn}
-                onClick={refreshFromDb}
-              >
-                새로고침
-              </button>
+            {selectedTag ? (
+              <div className="text-xs text-[var(--text-sub)]">
+                태그 필터:{" "}
+                <span className="text-[var(--text-main)]">#{selectedTag}</span>
+              </div>
+            ) : null}
+          </div>
+        )}
+      </Card>
 
-              {selectedTag ? (
-                <div className="text-xs text-zinc-500">
-                  태그 필터:{" "}
-                  <span className="text-zinc-300">#{selectedTag}</span>
+      {/* Tag filter (Top10) */}
+      {!isSearching && tagStatsTop10.length > 0 ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {tagStatsTop10.map(([tag, count]) => {
+            const active = selectedTag === tag;
+            return (
+              <TagChip
+                key={tag}
+                tag={tag}
+                count={count}
+                active={active}
+                variant="filter"
+                onClick={(t) =>
+                  setSelectedTag((prev) => (prev === t ? null : t))
+                }
+              />
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* List */}
+      <section className="mt-6 space-y-3">
+        {logsToRender.map((log, index) => (
+          <CardButton
+            key={index}
+            className="bg-[rgb(var(--app-surface-1)/0.55)]"
+            onClick={() => goDetail(log.id)}
+            title="상세 보기"
+          >
+            <div className="min-w-0">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="min-w-0 flex-1 truncate font-medium text-[var(--text-main)]">
+                  {log.title || "(제목 없음)"}
+                </h3>
+
+                <div className="shrink-0 flex items-center gap-3 text-xs text-[var(--text-sub)]">
+                  <span>{new Date(log.createdAt).toLocaleDateString()}</span>
+                  <span>💬 {log.commentCount ?? 0}</span>
+                  <span>👀 {log.viewCount ?? 0}</span>
+                </div>
+              </div>
+
+              <p className="mt-2 text-sm text-[var(--text-sub)]">
+                {previewText(log.content, 110)}
+              </p>
+
+              {(log.tags ?? []).length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {(log.tags ?? []).slice(0, 5).map((t) => (
+                    <TagChip key={t} tag={t} variant="display" />
+                  ))}
                 </div>
               ) : null}
             </div>
-          )}
+          </CardButton>
+        ))}
+
+        {logsToRender.length === 0 ? (
+          <div className="text-sm text-[var(--text-sub)]">
+            {isSearching
+              ? "검색 결과가 없습니다."
+              : onlyCommented
+                ? "댓글이 달린 글이 없습니다."
+                : selectedTag
+                  ? "해당 태그의 글이 없습니다."
+                  : "아직 로그가 없습니다."}
+          </div>
+        ) : null}
+      </section>
+
+      {/* Search clear */}
+      {isSearching ? (
+        <div className="mt-6">
+          <Button type="button" variant="soft" onClick={() => setQuery("")}>
+            검색 지우기
+          </Button>
         </div>
-
-        {/* ✅ Tag filter (Top10) */}
-        {!isSearching && tagStatsTop10.length > 0 ? (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {tagStatsTop10.map(([tag, count]) => {
-              const active = selectedTag === tag;
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() =>
-                    setSelectedTag((prev) => (prev === tag ? null : tag))
-                  }
-                  className={[
-                    "text-xs px-3 py-1 rounded-full border transition",
-                    active
-                      ? "bg-zinc-200 text-black border-zinc-200"
-                      : "bg-zinc-900/50 text-zinc-400 border-zinc-700 hover:text-zinc-200",
-                  ].join(" ")}
-                  title="태그 필터"
-                >
-                  #{tag} <span className="opacity-60">({count})</span>
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-
-        {/* ✅ List */}
-        <section className="mt-6 space-y-3">
-          {logsToRender.map((log) => (
-            <button
-              key={log.id}
-              type="button"
-              onClick={() => goDetail(log.id)}
-              className="
-                w-full cursor-pointer text-left
-                rounded-2xl border border-zinc-800/60 bg-zinc-900/50 p-5
-                hover:bg-zinc-900/70 hover:border-zinc-700/70 transition
-                active:scale-[0.99]
-                focus:outline-none focus:ring-2 focus:ring-zinc-700/60
-              "
-              title="상세 보기"
-            >
-              <div className="min-w-0">
-                <div className="flex items-baseline gap-3">
-                  <h3 className="min-w-0 flex-1 truncate font-medium text-zinc-100">
-                    {log.title || "(제목 없음)"}
-                  </h3>
-
-                  <span className="shrink-0 text-xs text-zinc-500">
-                    {new Date(log.createdAt).toLocaleDateString()}
-                  </span>
-
-                  <span className="shrink-0 text-xs text-zinc-500">
-                    💬 {log.commentCount ?? 0}
-                  </span>
-
-                  <span className="shrink-0 text-xs text-zinc-500">
-                    👀 {log.viewCount ?? 0}
-                  </span>
-                </div>
-
-                <p className="mt-2 text-sm text-zinc-400">
-                  {previewText(log.content, 110)}
-                </p>
-
-                {(log.tags ?? []).length > 0 ? (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {(log.tags ?? []).slice(0, 5).map((t) => (
-                      <span
-                        key={t}
-                        className="text-[11px] px-2 py-1 rounded-full border border-zinc-700/70 text-zinc-400 bg-zinc-900/40"
-                      >
-                        #{t}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            </button>
-          ))}
-
-          {logsToRender.length === 0 ? (
-            <div className="text-sm text-zinc-400">
-              {isSearching
-                ? "검색 결과가 없습니다."
-                : onlyCommented
-                  ? "댓글이 달린 글이 없습니다."
-                  : selectedTag
-                    ? "해당 태그의 글이 없습니다."
-                    : "아직 로그가 없습니다."}
-            </div>
-          ) : null}
-        </section>
-
-        {/* Search clear */}
-        {isSearching ? (
-          <div className="mt-6">
-            <button
-              type="button"
-              className={actionBtn}
-              onClick={() => setQuery("")}
-            >
-              검색 지우기
-            </button>
-          </div>
-        ) : null}
-      </div>
-    </div>
+      ) : null}
+    </>
   );
 }

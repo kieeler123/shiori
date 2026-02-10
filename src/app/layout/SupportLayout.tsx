@@ -1,30 +1,46 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useSession } from "@/features/auth/useSession";
+import { Page } from "./Page";
+import { Surface } from "./Surface";
 import { tabActive, tabBase, tabIdle } from "../ui/btn";
 
 export default function SupportLayout() {
+  const { isAuthed } = useSession();
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="mx-auto max-w-3xl px-6 py-8">
-        <h1 className="text-2xl font-semibold tracking-tight">고객센터</h1>
-        <p className="mt-1 text-sm text-zinc-400">
-          문의 · 제보 · FAQ 관리 영역
-        </p>
+    <Page>
+      {/* ✅ Page가 컨테이너를 이미 갖고 있다면, 여기서 max-w/px/py를 또 주지 말기 */}
+      <div className="space-y-4">
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight  text-zinc-200">
+            고객센터
+          </h1>
+          <p className="mt-1 text-sm  text-zinc-200">
+            문의 · 제보 · FAQ 관리 영역
+          </p>
+        </header>
 
-        {/* 🔹 서브 메뉴 탭 */}
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Tab to="/support/faq" label="FAQ" />
-          <Tab to="/support/new" label="제보하기" />
+        {/* 탭 */}
+        <Surface className="flex flex-wrap gap-2">
           <Tab to="/support" label="전체 문의" end />
-          <Tab to="/support/mine" label="내 문의" />
-          <Tab to="/support/trash" label="휴지통" />
-        </div>
+          <Tab to="/support/faq" label="FAQ" />
 
-        {/* 🔹 실제 페이지 내용 */}
-        <div className="mt-6">
+          {/* 보호 라우트는 로그인 시에만 노출(UX 깔끔) */}
+          {isAuthed ? (
+            <>
+              <Tab to="/support/new" label="제보하기" />
+              <Tab to="/support/mine" label="내 문의" />
+              <Tab to="/support/trash" label="휴지통" />
+            </>
+          ) : null}
+        </Surface>
+
+        {/* 내용 */}
+        <Surface>
           <Outlet />
-        </div>
+        </Surface>
       </div>
-    </div>
+    </Page>
   );
 }
 

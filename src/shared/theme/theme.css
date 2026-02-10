@@ -1,0 +1,39 @@
+:root {
+  --bg-app:
+    radial-gradient(
+      900px circle at 50% -200px,
+      rgba(59, 130, 246, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px circle at 10% 20%,
+      rgba(99, 102, 241, 0.08),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #070b15 0%, #060913 100%);
+  --bg-elev-1: rgba(17, 24, 39, 0.55); /* 살짝 밝게 + 투명 */
+  --bg-elev-2: rgba(17, 24, 39, 0.75);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --text-main: #e5e7eb;
+  --text-sub: #a3a3a3;
+  --app-surface-1: 17 24 39; /* rgb 숫자만 */
+  --app-surface-2: 17 24 39;
+}
+
+[data-theme="dark"] {
+  /* Dark (quiet charcoal) */
+  --bg: #0f1115; /* 완전 검정 대신 차콜 */
+  --surface: #151821; /* 카드/패널은 bg보다 1단계 밝게 */
+  --fg: #e7e9ee; /* 완전 흰색 대신 오프화이트 */
+  --muted: #a1a7b3; /* 회색 텍스트 */
+  --border: rgba(255, 255, 255, 0.1);
+
+  --primary: #5b8cff; /* 다크에서 살짝 밝아진 블루 */
+  --primary-fg: #0b1020; /* 버튼 위 글씨는 어둡게(고급감) */
+
+  --ring: rgba(91, 140, 255, 0.35);
+
+  --radius: 16px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}

@@ -117,7 +117,7 @@ export default function SupportFaqPage() {
 
                 {isOpen ? (
                   <div className="px-4 pb-4">
-                    <div className="rounded-2xl border border-zinc-800/60 bg-zinc-950/30 p-4">
+                    <div className="rounded-2xl border border-zinc-800/60 bg-zinc-950/30 p-4 ">
                       <div className="text-sm text-zinc-200 whitespace-pre-wrap break-words">
                         {r.body}
                       </div>

@@ -5,6 +5,7 @@ import LogEditor from "@/features/shiori/components/LogEditor";
 import { dbCreate } from "@/features/shiori/repo/shioriRepo";
 import { useSession } from "@/features/auth/useSession";
 import { dbHardDelete } from "../../repo/trashRepo";
+import { Page } from "@/app/layout/Page";
 
 type EditorSubmitValue = { title: string; content: string; tags: string[] };
 
@@ -147,75 +148,73 @@ export default function NewLogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <div className="mx-auto max-w-3xl px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">새 글 작성</h2>
+    <Page>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">새 글 작성</h2>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className={actionBtn}
-              onClick={() => nav("/logs", { state: { refresh: true } })}
-              disabled={isMutating}
-            >
-              목록으로
-            </button>
-
-            <button
-              type="button"
-              className={actionBtn}
-              onClick={() => nav("/logs")}
-              disabled={isMutating}
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-
-        {/* Undo banner */}
-        {undo && (
-          <div
-            className="mt-4 mb-4 flex items-center justify-between rounded-2xl border border-zinc-800/60 bg-zinc-900/50 px-4 py-3"
-            onMouseEnter={() => setUndoPaused(true)}
-            onMouseLeave={() => {
-              setUndoPaused(false);
-              lastRef.current = performance.now();
-            }}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className={actionBtn}
+            onClick={() => nav("/logs", { state: { refresh: true } })}
+            disabled={isMutating}
           >
-            <span className="text-sm text-zinc-300">
-              작성됨 — <span className="text-zinc-400">{secondsLeft}초</span>
-              {undoPaused ? " (멈춤)" : ""} — 되돌릴까요?
-            </span>
+            목록으로
+          </button>
 
-            <button
-              type="button"
-              onClick={applyUndo}
-              disabled={isMutating}
-              className={
-                actionBtn + (isMutating ? " opacity-50 cursor-not-allowed" : "")
-              }
-            >
-              되돌리기
-            </button>
-          </div>
-        )}
-
-        {/* Editor */}
-        <div className="mt-4">
-          <LogEditor
-            submitLabel={isMutating ? "처리 중..." : "작성"}
-            onCancel={() => nav("/logs")}
-            onSubmit={onSubmit}
-          />
-        </div>
-
-        {/* Hint */}
-        <div className="mt-4 text-xs text-zinc-500">
-          작성 후 5초 동안 “되돌리기”로 방금 글을 삭제할 수 있어요.
+          <button
+            type="button"
+            className={actionBtn}
+            onClick={() => nav("/logs")}
+            disabled={isMutating}
+          >
+            닫기
+          </button>
         </div>
       </div>
-    </div>
+
+      {/* Undo banner */}
+      {undo && (
+        <div
+          className="mt-4 mb-4 flex items-center justify-between rounded-2xl border border-zinc-800/60 bg-zinc-900/50 px-4 py-3"
+          onMouseEnter={() => setUndoPaused(true)}
+          onMouseLeave={() => {
+            setUndoPaused(false);
+            lastRef.current = performance.now();
+          }}
+        >
+          <span className="text-sm text-zinc-300">
+            작성됨 — <span className="text-zinc-400">{secondsLeft}초</span>
+            {undoPaused ? " (멈춤)" : ""} — 되돌릴까요?
+          </span>
+
+          <button
+            type="button"
+            onClick={applyUndo}
+            disabled={isMutating}
+            className={
+              actionBtn + (isMutating ? " opacity-50 cursor-not-allowed" : "")
+            }
+          >
+            되돌리기
+          </button>
+        </div>
+      )}
+
+      {/* Editor */}
+      <div className="mt-4">
+        <LogEditor
+          submitLabel={isMutating ? "처리 중..." : "작성"}
+          onCancel={() => nav("/logs")}
+          onSubmit={onSubmit}
+        />
+      </div>
+
+      {/* Hint */}
+      <div className="mt-4 text-xs text-zinc-500">
+        작성 후 5초 동안 “되돌리기”로 방금 글을 삭제할 수 있어요.
+      </div>
+    </Page>
   );
 }

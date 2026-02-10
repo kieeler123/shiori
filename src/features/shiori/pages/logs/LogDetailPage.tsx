@@ -17,6 +17,8 @@ import { dbSoftDelete } from "@/features/shiori/repo/trashRepo";
 import RouteProblem from "@/features/shiori/components/RouteProblem";
 import { isUuid } from "@/features/shiori/utils/isUuid";
 import type { DbCommentRow } from "../../type";
+import { Card } from "@/shared/ui/primitives/Card";
+import { Button } from "@/shared/ui/primitives/Button";
 
 function chip(t: string) {
   return (
@@ -159,19 +161,17 @@ export default function LogDetailPage() {
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100">
-        <div className="mx-auto max-w-3xl px-6 py-8">
-          <button
-            className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
-            onClick={() => nav(-1)}
-          >
-            뒤로
-          </button>
-          <div className="mt-6 text-sm text-zinc-400">
-            존재하지 않는 글입니다.
-          </div>
+      <>
+        <button
+          className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+          onClick={() => nav(-1)}
+        >
+          뒤로
+        </button>
+        <div className="mt-6 text-sm text-zinc-400">
+          존재하지 않는 글입니다.
         </div>
-      </div>
+      </>
     );
   }
 
@@ -179,7 +179,7 @@ export default function LogDetailPage() {
   const viewCount = (item as any).view_count ?? 0;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-[calc(100vh-72px)] bg-[var(--bg-app)] text-[var(--text-main)]">
       <div className="mx-auto max-w-3xl px-6 py-8">
         {/* 상단 바 */}
         <div className="mb-6 flex items-center justify-between gap-3">
@@ -198,20 +198,20 @@ export default function LogDetailPage() {
         </div>
 
         {/* 제목 + 우측 버튼 */}
-        <div className="mt-1 flex items-start justify-between gap-4">
-          <h1 className="min-w-0 flex-1 truncate text-2xl font-semibold tracking-tight">
+        <Card variant="panel" className="bg-[var(--bg-elev-1)]/40">
+          <h1 className="min-w-0 flex-1 truncate text-2xl font-semibold tracking-tight text-zinc-200">
             {item.title || "(제목 없음)"}
           </h1>
 
           {isMine ? (
-            <div className="flex shrink-0 items-center gap-2">
-              <button
+            <div className="flex shrink-0 items-center gap-2 justify-end">
+              <Button
                 type="button"
                 onClick={() => nav(`/logs/${item.id}/edit`)}
                 className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
               >
                 수정
-              </button>
+              </Button>
 
               <button
                 type="button"
@@ -223,7 +223,7 @@ export default function LogDetailPage() {
               </button>
             </div>
           ) : null}
-        </div>
+        </Card>
 
         {/* 태그 */}
         {Array.isArray(item.tags) && item.tags.length > 0 ? (
