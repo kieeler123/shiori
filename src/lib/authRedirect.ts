@@ -27,5 +27,6 @@ export function clearNext() {
 }
 
 export function callbackUrl() {
-  return `${window.location.origin}/auth/callback`;
+  const base = import.meta.env.VITE_SUPABASE_URL || window.location.origin;
+  return `${base}/auth/callback`;
 }
