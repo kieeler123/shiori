@@ -8,7 +8,7 @@ export function ThemeToggle() {
       onClick={toggle}
       className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition"
     >
-      {theme === "light" ? "Dark" : "Light"}
+      {theme === "white" ? "black" : "white"}
     </button>
   );
 }

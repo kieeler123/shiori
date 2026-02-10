@@ -39,7 +39,6 @@ export default function TagChip({
   onClick,
   variant = "filter",
   size = "sm",
-  titlePrefix = variant === "filter" ? "태그 필터" : "태그",
   children,
   className,
 }: Props) {
@@ -77,10 +76,6 @@ export default function TagChip({
   } as const;
 
   const tone = active ? styles[variant].active : styles[variant].idle;
-
-  const title = tag
-    ? `${titlePrefix}: #${tag}${typeof count === "number" ? ` (${count})` : ""}`
-    : undefined;
 
   const content = children ?? (
     <>
