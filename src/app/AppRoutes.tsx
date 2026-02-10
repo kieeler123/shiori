@@ -8,7 +8,6 @@ import NewLogPage from "@/features/shiori/pages/logs/NewLogPage";
 import EditLogPage from "@/features/shiori/pages/logs/EditLogPage";
 
 import ProtectedRoute from "@/app/routes/ProtectedRoute";
-import PublicOnlyRoute from "@/app/routes/PublicOnlyRoute";
 
 // ✅ 여기 isAuthed는 네 실제 인증 상태로 연결
 // 예: const isAuthed = !!user; 또는 useAuthStore().user 등
