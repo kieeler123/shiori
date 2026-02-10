@@ -113,7 +113,9 @@ export default function EditLogPage() {
         </div>
       </div>
 
-      <h1 className="text-2xl font-semibold tracking-tight">수정</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-zinc-200">
+        수정
+      </h1>
 
       <div className="mt-6">
         <LogEditor

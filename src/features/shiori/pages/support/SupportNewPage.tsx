@@ -60,7 +60,7 @@ export default function SupportNewPage() {
     <div>
       {/* Header row */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold tracking-tight text-[var(--text-main)]">
+        <h2 className="text-lg font-semibold tracking-tight text-zinc-200">
           문의하기
         </h2>
 

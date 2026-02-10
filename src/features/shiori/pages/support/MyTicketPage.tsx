@@ -54,7 +54,7 @@ export default function MyTicketsPage() {
     <div className="space-y-4">
       {/* Top */}
       <div className="flex items-center justify-between gap-3">
-        <div className="text-xs text-[var(--text-sub)]">
+        <div className="text-xs text-zinc-200">
           {loading ? "불러오는 중…" : `${rows.length}건`}
         </div>
 
