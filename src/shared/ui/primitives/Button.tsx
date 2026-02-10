@@ -10,6 +10,7 @@ type Variant =
   | "icon"
   | "textAction"
   | "soft";
+
 export type Size = "sm" | "md";
 
 export type ButtonProps = Omit<
@@ -34,7 +35,7 @@ export function Button({
     "select-none whitespace-nowrap " +
     "rounded-xl text-sm font-medium " +
     "transition-all duration-200 " +
-    "focus:outline-none focus:ring-2 focus:ring-zinc-700/60 " +
+    "focus:outline-none focus:ring-2 focus:ring-[var(--ring)] " +
     "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none " +
     "active:scale-[0.98]";
 
@@ -44,59 +45,49 @@ export function Button({
   };
 
   const variants: Record<Variant, string> = {
-    /**
-     * Primary CTA: quiet but clear
-     */
     primary:
-      "bg-zinc-200 text-black " +
-      "hover:bg-zinc-100 " +
-      "border border-zinc-200/80",
+      "bg-[var(--btn-primary-bg)] text-[var(--btn-primary-fg)] " +
+      "hover:bg-[var(--btn-primary-hover-bg)] " +
+      "border border-[var(--btn-primary-border)]",
 
-    /**
-     * Secondary: subtle filled surface
-     */
     secondary:
-      "bg-zinc-900/60 text-zinc-100 " +
-      "hover:bg-zinc-900/80 " +
-      "border border-zinc-800/70",
+      "bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-fg)] " +
+      "hover:bg-[var(--btn-secondary-hover-bg)] " +
+      "border border-[var(--btn-secondary-border)]",
 
-    /**
-     * Ghost: text button
-     */
-    ghost: "text-zinc-300 hover:text-zinc-100 " + "hover:bg-zinc-900/60",
+    ghost:
+      "text-[var(--btn-ghost-fg)] " +
+      "hover:text-[var(--btn-ghost-hover-fg)] " +
+      "hover:bg-[var(--btn-ghost-hover-bg)]",
 
-    /**
-     * Outline: quiet border
-     */
     outline:
-      "border border-zinc-800/70 text-zinc-200 " +
-      "hover:bg-zinc-900/60 hover:border-zinc-700/70",
+      "border border-[var(--btn-outline-border)] " +
+      "text-[var(--btn-outline-fg)] " +
+      "hover:bg-[var(--btn-outline-hover-bg)]",
 
-    /**
-     * Danger: delete / destructive
-     */
     danger:
-      "border border-red-500/40 text-red-200 " +
-      "hover:bg-red-500/10 hover:border-red-500/60",
+      "border border-[var(--btn-danger-border)] " +
+      "text-[var(--btn-danger-fg)] " +
+      "hover:bg-[var(--btn-danger-hover-bg)]",
 
-    /**
-     * Icon: square button for hamburger / icons
-     */
     icon:
       "h-9 w-9 px-0 " +
-      "border border-zinc-800/70 text-zinc-200 " +
-      "hover:bg-zinc-900/60 hover:text-zinc-100",
+      "border border-[var(--border-soft)] " +
+      "text-[var(--btn-icon-fg)] " +
+      "hover:text-[var(--btn-icon-hover-fg)] " +
+      "hover:bg-[var(--btn-icon-hover-bg)]",
+
     textAction:
-      "cursor-pointer px-2 py-1 text-sm text-[var(--muted)] hover:text-[var(--fg)] transition",
+      "px-2 py-1 text-sm text-[var(--text-5)] " + "hover:text-[var(--text-3)]",
+
     soft:
-      "cursor-pointer rounded-xl px-3 py-2 text-sm transition " +
-      "text-zinc-200 hover:text-[var(--text-main)] " +
-      "border border-[var(--border-soft)] hover:border-[var(--border-strong)] " +
-      "bg-transparent hover:bg-[var(--bg-elev-1)] " +
-      "focus:outline-none focus:ring-2 focus:ring-[color:rgba(59,130,246,0.35)]",
+      "rounded-xl px-3 py-2 text-sm " +
+      "text-[var(--text-3)] hover:text-[var(--text-2)] " +
+      "border border-[var(--border-soft)] " +
+      "hover:border-[var(--border-strong)] " +
+      "bg-transparent hover:bg-[rgba(17,24,39,0.55)]",
   };
 
-  // icon variant ignores size padding by design
   const sizeClass = variant === "icon" ? "" : sizes[size];
 
   return (

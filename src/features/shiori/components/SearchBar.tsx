@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { Suggestion } from "../type/logs";
+import { SearchInput } from "@/shared/ui/primitives/SearchInput";
+import { Button } from "@/shared/ui/primitives/Button";
+import { DropdownMenuPanel } from "@/shared/ui/patterns/DropdownMenuPanel";
 
 type Props = {
   query: string;
@@ -175,9 +178,8 @@ export default function SearchBar({
 
   return (
     <div ref={wrapRef} className="relative w-full">
-      <form onSubmit={onSubmit} className="flex gap-2">
-        <input
-          ref={inputRef}
+      <form onSubmit={onSubmit} className="flex flex-wrap gap-2">
+        <SearchInput
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -186,115 +188,55 @@ export default function SearchBar({
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           placeholder="검색: 제목 / 내용 / 태그"
-          className="
-            flex-1 rounded-2xl border border-zinc-700/40
-            bg-zinc-900/60 px-4 py-3
-            text-sm text-zinc-100 placeholder:text-zinc-500
-            outline-none
-            focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/40
-            transition
-          "
         />
 
         {hasQuery ? (
-          <button
+          <Button
             type="button"
+            variant="soft"
             onClick={() => {
               setQuery("");
               setOpen(true);
               requestAnimationFrame(() => inputRef.current?.focus());
             }}
-            className="
-              cursor-pointer
-              px-4 py-2
-              rounded-xl
-              border border-zinc-700/70
-              bg-zinc-900/60
-              text-sm text-zinc-300
-              transition
-              hover:bg-zinc-800 hover:text-white
-              active:scale-[0.97]
-              focus:outline-none focus:ring-2 focus:ring-zinc-700/60
-            "
           >
             지우기
-          </button>
+          </Button>
         ) : null}
 
-        <button
-          type="submit"
-          className="
-            cursor-pointer
-            px-4 py-2
-            rounded-xl
-            border border-zinc-700/70
-            bg-zinc-900/60
-            text-sm text-zinc-300
-            transition
-            hover:bg-zinc-800 hover:text-white
-            active:scale-[0.97]
-            focus:outline-none focus:ring-2 focus:ring-zinc-700/60
-          "
-        >
+        <Button type="submit" variant="soft">
           검색
-        </button>
+        </Button>
 
         {onClear ? (
-          <button
+          <Button
             type="button"
+            variant="soft"
             onClick={() => {
               onClear();
               setOpen(false);
               setActiveIndex(-1);
             }}
-            className="
-              cursor-pointer
-              px-4 py-2
-              rounded-xl
-              border border-zinc-700/70
-              bg-zinc-900/60
-              text-sm text-zinc-300
-              transition
-              hover:bg-zinc-800 hover:text-white
-              active:scale-[0.97]
-              focus:outline-none focus:ring-2 focus:ring-zinc-700/60
-            "
           >
             필터 초기화
-          </button>
+          </Button>
         ) : null}
       </form>
 
       {open && sections.length > 0 ? (
-        <div
-          className="
-            absolute left-0 right-0 z-50 mt-2
-            rounded-2xl border border-zinc-800/70
-            bg-zinc-950/90 backdrop-blur
-            shadow-[0_20px_60px_rgba(0,0,0,0.35)]
-            p-2
-            hover:bg-zinc-800 hover:text-white
-            focus:outline-none focus:ring-2 focus:ring-zinc-700/60
-          "
-        >
+        <DropdownMenuPanel className="left-0 right-0 top-full mt-2 w-auto bg-[var(--menu-bg)] shadow-[var(--menu-shadow)]">
           {sections.map((sec) => (
             <div key={sec.type} className="p-1">
-              <div className="px-2 py-2 text-xs text-zinc-500">
-                {groupLabel(sec.type)}
-              </div>
+              <div className="px-2 py-2 text-xs t6">{groupLabel(sec.type)}</div>
 
               <div className="grid gap-1">
                 {sec.items.map((s, idx) => {
-                  // ✅ flat 인덱스를 계산해서 activeIndex와 비교
-                  // (sec 이전 섹션들의 길이 합 + idx)
-                  const flatIndex = (() => {
-                    let offset = 0;
-                    for (const x of sections) {
-                      if (x.type === sec.type) break;
-                      offset += x.items.length;
-                    }
-                    return offset + idx;
-                  })();
+                  let offset = 0;
+                  for (const x of sections) {
+                    if (x.type === sec.type) break;
+                    offset += x.items.length;
+                  }
+                  const flatIndex = offset + idx;
 
                   const isActive = flatIndex === activeIndex;
 
@@ -305,11 +247,10 @@ export default function SearchBar({
                       onClick={() => onPick(s)}
                       onMouseEnter={() => setActiveIndex(flatIndex)}
                       className={[
-                        "cursor-pointer",
                         "w-full text-left rounded-xl px-3 py-2 text-sm transition",
                         isActive
-                          ? "bg-zinc-900/80 text-zinc-100 ring-1 ring-indigo-400/20"
-                          : "text-zinc-300 hover:bg-zinc-900/70 hover:text-zinc-100",
+                          ? "bg-[rgba(17,24,39,0.75)] t2 ring-1 ring-[rgba(99,102,241,0.20)]"
+                          : "t5 hover:bg-[rgba(17,24,39,0.55)] hover:text-[var(--text-3)]",
                       ].join(" ")}
                     >
                       {sec.type === "tag" ? `#${s.value}` : s.value}
@@ -319,7 +260,7 @@ export default function SearchBar({
               </div>
             </div>
           ))}
-        </div>
+        </DropdownMenuPanel>
       ) : null}
     </div>
   );

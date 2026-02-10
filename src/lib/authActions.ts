@@ -17,9 +17,6 @@ export async function startGoogleLogin(next: string) {
 
   if (error) throw error;
 
-  // ✅ 안 사라지게 고정
-  alert(`redirectTo:\n${redirectTo}\n\noauth url:\n${data.url}`);
-
   // 확인 후 진행
   window.location.href = data.url;
 }

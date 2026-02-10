@@ -19,6 +19,9 @@ import { isUuid } from "@/features/shiori/utils/isUuid";
 import type { DbCommentRow } from "../../type";
 import { Card } from "@/shared/ui/primitives/Card";
 import { Button } from "@/shared/ui/primitives/Button";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { Textarea } from "@/shared/ui/primitives/Textarea";
+import { LogMetaInline } from "../../components/LogMetaInline";
 
 function chip(t: string) {
   return (
@@ -179,68 +182,67 @@ export default function LogDetailPage() {
   const viewCount = (item as any).view_count ?? 0;
 
   return (
-    <div className="min-h-[calc(100vh-72px)] bg-[var(--bg-app)] text-[var(--text-main)]">
+    <div className="min-h-[calc(100vh-72px)] bg-app t3">
       <div className="mx-auto max-w-3xl px-6 py-8">
-        {/* 상단 바 */}
+        {/* Top bar */}
         <div className="mb-6 flex items-center justify-between gap-3">
-          <button
-            className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
+          <Button
+            variant="soft"
             onClick={() => nav("/logs", { state: { refresh: true } })}
           >
             목록
-          </button>
+          </Button>
 
-          {/* 날짜 + 조회수 */}
-          <div className="text-xs text-zinc-500 flex items-center gap-3">
-            <span>{createdLabel}</span>
-            <span>👀 {viewCount}</span>
-          </div>
+          <LogMetaInline createdLabel={createdLabel} viewCount={viewCount} />
         </div>
 
-        {/* 제목 + 우측 버튼 */}
-        <Card variant="panel" className="bg-[var(--bg-elev-1)]/40">
-          <h1 className="min-w-0 flex-1 truncate text-2xl font-semibold tracking-tight text-zinc-200">
+        {/* Title + actions */}
+        <SurfaceCard
+          tone="panel"
+          className="flex items-start justify-between gap-3"
+        >
+          <h1 className="min-w-0 flex-1 truncate text-2xl font-semibold tracking-tight t2">
             {item.title || "(제목 없음)"}
           </h1>
 
           {isMine ? (
-            <div className="flex shrink-0 items-center gap-2 justify-end">
+            <div className="flex shrink-0 items-center gap-2">
               <Button
                 type="button"
+                variant="soft"
                 onClick={() => nav(`/logs/${item.id}/edit`)}
-                className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
               >
                 수정
               </Button>
 
-              <button
+              <Button
                 type="button"
+                variant="danger"
                 onClick={removeItem}
                 disabled={busy}
-                className="cursor-pointer rounded-xl border border-red-900/60 px-3 py-2 text-sm text-red-300 hover:bg-red-950/30 disabled:opacity-50"
               >
                 삭제
-              </button>
+              </Button>
             </div>
           ) : null}
-        </Card>
+        </SurfaceCard>
 
-        {/* 태그 */}
+        {/* Tags */}
         {Array.isArray(item.tags) && item.tags.length > 0 ? (
           <div className="mt-3 flex flex-wrap gap-2">{item.tags.map(chip)}</div>
         ) : null}
 
-        {/* 본문 */}
-        <div className="mt-5 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
-          <pre className="whitespace-pre-wrap break-words text-sm text-zinc-200">
+        {/* Content */}
+        <SurfaceCard tone="soft" className="mt-5 p-5">
+          <pre className="whitespace-pre-wrap break-words text-sm t4 leading-relaxed">
             {item.content}
           </pre>
-        </div>
+        </SurfaceCard>
 
-        {/* 댓글 */}
+        {/* Comments */}
         <div className="mt-10">
-          <div className="mb-3 text-sm text-zinc-300">
-            댓글 <span className="text-zinc-500">({comments.length})</span>
+          <div className="mb-3 text-sm t4">
+            댓글 <span className="t6">({comments.length})</span>
           </div>
 
           {!isAuthed ? (
@@ -248,60 +250,60 @@ export default function LogDetailPage() {
               <AuthPanel />
             </div>
           ) : (
-            <div className="mb-4 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-4">
-              <textarea
+            <SurfaceCard tone="soft" className="mb-4">
+              <Textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 rows={3}
                 placeholder="댓글을 입력..."
-                className="w-full rounded-xl border border-zinc-800/70 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:ring-2 focus:ring-zinc-700/60"
               />
-              <button
-                onClick={submitComment}
-                disabled={busy || !commentText.trim()}
-                className="mt-2 rounded-xl border border-zinc-700/70 bg-zinc-900/70 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-800 disabled:opacity-50"
-              >
-                {busy ? "처리 중..." : "댓글 작성"}
-              </button>
-            </div>
+
+              <div className="mt-2 flex justify-end">
+                <Button
+                  variant="soft"
+                  onClick={submitComment}
+                  disabled={busy || !commentText.trim()}
+                >
+                  {busy ? "처리 중..." : "댓글 작성"}
+                </Button>
+              </div>
+            </SurfaceCard>
           )}
 
           <div className="space-y-2">
             {comments.map((c) => {
               const mine = isAuthed && userId === c.user_id;
+
               return (
-                <div
-                  key={c.id}
-                  className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-4"
-                >
+                <SurfaceCard key={c.id} className="p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-xs t6">
                       {new Date(c.created_at).toLocaleString()}
-                      {mine ? (
-                        <span className="ml-2 text-zinc-400">(내 댓글)</span>
-                      ) : null}
+                      {mine ? <span className="ml-2 t5">(내 댓글)</span> : null}
                     </div>
 
                     {mine ? (
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => deleteComment(c.id)}
                         disabled={busy}
-                        className="cursor-pointer rounded-xl border border-zinc-800/70 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-900/60 disabled:opacity-50"
+                        className="h-7 px-2 text-xs"
                       >
                         삭제
-                      </button>
+                      </Button>
                     ) : null}
                   </div>
 
-                  <div className="mt-2 whitespace-pre-wrap break-words text-sm text-zinc-200">
+                  <div className="mt-2 whitespace-pre-wrap break-words text-sm t4 leading-relaxed">
                     {c.body}
                   </div>
-                </div>
+                </SurfaceCard>
               );
             })}
 
             {comments.length === 0 ? (
-              <div className="text-sm text-zinc-500">댓글이 아직 없습니다.</div>
+              <div className="text-sm t5">댓글이 아직 없습니다.</div>
             ) : null}
           </div>
         </div>

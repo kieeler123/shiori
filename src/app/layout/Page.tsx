@@ -19,7 +19,7 @@ export function Page({
 }: Props) {
   return (
     <div className={cn("min-h-[calc(100vh-72px)]", className)} {...props}>
-      <div className="mx-auto max-w-3xl px-6 py-6">
+      <div className="mt-5 rounded-2xl border border-[var(--border-2)] bg-[var(--surface-3)] p-5">
         {(title || right || description) && (
           <div className="mb-4 flex items-start justify-between gap-3">
             <div className="min-w-0">

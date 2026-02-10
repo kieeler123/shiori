@@ -14,6 +14,8 @@ import TagChip from "@/shared/ui/primitives/TagChip";
 import { Button } from "@/shared/ui/primitives/Button";
 import { CardButton } from "@/shared/ui/primitives/CardButton";
 import { Card } from "@/shared/ui/primitives/Card";
+import { getEmptyMessage } from "@/app/layout/getEmptyMessage";
+import { ListItemButton } from "@/shared/ui/patterns/ListItemButton";
 
 type NoteItem = {
   id: string;
@@ -157,8 +159,8 @@ export default function LogsPage() {
 
   if (!ready) {
     return (
-      <div className="min-h-[calc(100vh-72px)] bg-[var(--bg-app)] text-[var(--text-main)] grid place-items-center">
-        <div className="text-sm text-[var(--text-sub)]">세션 확인중…</div>
+      <div className="min-h-[calc(100vh-72px)] bg-app grid place-items-center">
+        <div className="text-sm t5">세션 확인중…</div>
       </div>
     );
   }
@@ -166,7 +168,7 @@ export default function LogsPage() {
   return (
     <>
       {/* Search */}
-      <Card variant="panel" className="bg-[var(--bg-elev-1)]/40">
+      <Card variant="panel">
         <SearchBar
           query={query}
           setQuery={setQuery}
@@ -181,8 +183,9 @@ export default function LogsPage() {
         />
 
         {isSearching ? (
-          <div className="mt-2 text-sm text-[var(--text-sub)]">
-            “{query}” 검색 결과 {logsToRender.length}개
+          <div className="mt-2 text-sm t5">
+            “<span className="t4">{query}</span>” 검색 결과{" "}
+            <span className="t3">{logsToRender.length}</span>개
           </div>
         ) : (
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -195,9 +198,8 @@ export default function LogsPage() {
             </Button>
 
             {selectedTag ? (
-              <div className="text-xs text-[var(--text-sub)]">
-                태그 필터:{" "}
-                <span className="text-[var(--text-main)]">#{selectedTag}</span>
+              <div className="text-xs t5">
+                태그 필터: <span className="t3">#{selectedTag}</span>
               </div>
             ) : null}
           </div>
@@ -207,47 +209,42 @@ export default function LogsPage() {
       {/* Tag filter (Top10) */}
       {!isSearching && tagStatsTop10.length > 0 ? (
         <div className="mt-4 flex flex-wrap gap-2">
-          {tagStatsTop10.map(([tag, count]) => {
-            const active = selectedTag === tag;
-            return (
-              <TagChip
-                key={tag}
-                tag={tag}
-                count={count}
-                active={active}
-                variant="filter"
-                onClick={(t) =>
-                  setSelectedTag((prev) => (prev === t ? null : t))
-                }
-              />
-            );
-          })}
+          {tagStatsTop10.map(([tag, count]) => (
+            <TagChip
+              key={tag}
+              tag={tag}
+              count={count}
+              active={selectedTag === tag}
+              variant="filter"
+              onClick={(t) => setSelectedTag((prev) => (prev === t ? null : t))}
+            />
+          ))}
         </div>
       ) : null}
 
       {/* List */}
       <section className="mt-6 space-y-3">
-        {logsToRender.map((log, index) => (
-          <CardButton
-            key={index}
-            className="bg-[rgb(var(--app-surface-1)/0.55)]"
+        {logsToRender.map((log) => (
+          <ListItemButton
+            key={log.id} // ✅ index -> id
+            className="surface-1"
             onClick={() => goDetail(log.id)}
             title="상세 보기"
           >
             <div className="min-w-0">
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="min-w-0 flex-1 truncate font-medium text-[var(--text-main)]">
+                <h3 className="min-w-0 flex-1 truncate font-medium t2">
                   {log.title || "(제목 없음)"}
                 </h3>
 
-                <div className="shrink-0 flex items-center gap-3 text-xs text-[var(--text-sub)]">
+                <div className="shrink-0 flex items-center gap-3 text-xs t5">
                   <span>{new Date(log.createdAt).toLocaleDateString()}</span>
                   <span>💬 {log.commentCount ?? 0}</span>
                   <span>👀 {log.viewCount ?? 0}</span>
                 </div>
               </div>
 
-              <p className="mt-2 text-sm text-[var(--text-sub)]">
+              <p className="mt-2 text-sm t4 leading-relaxed">
                 {previewText(log.content, 110)}
               </p>
 
@@ -259,18 +256,12 @@ export default function LogsPage() {
                 </div>
               ) : null}
             </div>
-          </CardButton>
+          </ListItemButton>
         ))}
 
         {logsToRender.length === 0 ? (
-          <div className="text-sm text-[var(--text-sub)]">
-            {isSearching
-              ? "검색 결과가 없습니다."
-              : onlyCommented
-                ? "댓글이 달린 글이 없습니다."
-                : selectedTag
-                  ? "해당 태그의 글이 없습니다."
-                  : "아직 로그가 없습니다."}
+          <div className="text-sm t5">
+            {getEmptyMessage({ isSearching, onlyCommented, selectedTag })}
           </div>
         ) : null}
       </section>

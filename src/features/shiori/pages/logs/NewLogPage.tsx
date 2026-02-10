@@ -6,6 +6,7 @@ import { dbCreate } from "@/features/shiori/repo/shioriRepo";
 import { useSession } from "@/features/auth/useSession";
 import { dbHardDelete } from "../../repo/trashRepo";
 import { Page } from "@/app/layout/Page";
+import { Button } from "@/shared/ui/primitives/Button";
 
 type EditorSubmitValue = { title: string; content: string; tags: string[] };
 
@@ -28,11 +29,6 @@ export default function NewLogPage() {
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number>(0);
   const undoIdRef = useRef<string | null>(null);
-
-  const actionBtn =
-    "cursor-pointer rounded-xl px-3 py-1 text-sm transition " +
-    "text-zinc-300 hover:text-zinc-100 " +
-    "hover:bg-zinc-900/60 focus:outline-none focus:ring-2 focus:ring-zinc-700/60";
 
   // Undo reset
   useEffect(() => {
@@ -151,54 +147,47 @@ export default function NewLogPage() {
     <Page>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">새 글 작성</h2>
+        <h2 className="text-xl font-semibold t2">새 글 작성</h2>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className={actionBtn}
+          <Button
+            variant="outline"
             onClick={() => nav("/logs", { state: { refresh: true } })}
             disabled={isMutating}
           >
             목록으로
-          </button>
+          </Button>
 
-          <button
-            type="button"
-            className={actionBtn}
+          <Button
+            variant="ghost"
             onClick={() => nav("/logs")}
             disabled={isMutating}
           >
             닫기
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Undo banner */}
       {undo && (
         <div
-          className="mt-4 mb-4 flex items-center justify-between rounded-2xl border border-zinc-800/60 bg-zinc-900/50 px-4 py-3"
+          className="mt-4 mb-4 flex items-center justify-between rounded-2xl
+                 border border-[var(--border-soft)]
+                 bg-[var(--bg-elev-1)]/70 px-4 py-3"
           onMouseEnter={() => setUndoPaused(true)}
           onMouseLeave={() => {
             setUndoPaused(false);
             lastRef.current = performance.now();
           }}
         >
-          <span className="text-sm text-zinc-300">
-            작성됨 — <span className="text-zinc-400">{secondsLeft}초</span>
+          <span className="text-sm t4">
+            작성됨 —<span className="t3 ml-1">{secondsLeft}초</span>
             {undoPaused ? " (멈춤)" : ""} — 되돌릴까요?
           </span>
 
-          <button
-            type="button"
-            onClick={applyUndo}
-            disabled={isMutating}
-            className={
-              actionBtn + (isMutating ? " opacity-50 cursor-not-allowed" : "")
-            }
-          >
+          <Button variant="soft" onClick={applyUndo} disabled={isMutating}>
             되돌리기
-          </button>
+          </Button>
         </div>
       )}
 
@@ -212,7 +201,7 @@ export default function NewLogPage() {
       </div>
 
       {/* Hint */}
-      <div className="mt-4 text-xs text-zinc-500">
+      <div className="mt-4 text-xs t5">
         작성 후 5초 동안 “되돌리기”로 방금 글을 삭제할 수 있어요.
       </div>
     </Page>

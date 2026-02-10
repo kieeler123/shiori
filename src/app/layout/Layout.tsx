@@ -3,8 +3,13 @@ import Header from "@/app/Header";
 import ToastProvider from "@/app/layout/ToastProvider";
 import { AccountProfileProvider } from "@/features/shiori/account/AccountProfileProvider";
 import { AppBackground } from "./AppBackground";
+import { useEffect } from "react";
+import { initTheme } from "@/lib/theme";
 
 export default function Layout() {
+  useEffect(() => {
+    initTheme();
+  }, []);
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#111827_0%,_#0b1120_40%,_#070b15_100%)] text-[var(--text-main)]">
       <AppBackground>
