@@ -1,83 +1,74 @@
 import { supabase } from "@/lib/supabaseClient";
-import type { DbLogRow, SupportTrashListRow } from "../type";
+import type { TrashListRow } from "../type"; // 너 타입명에 맞춰 수정
 
-const TABLE_BASE = "shiori_items";
-const TABLE_TRASH_VIEW = "shiori_trash_v";
+const LOGS_TABLE = "shiori_items"; // 실제 테이블명으로 수정
+const LOGS_TRASH_VIEW = "shiori_trash_v"; // 실제 뷰명으로 수정
 
-const SELECT_TRASH =
-  "id,user_id,title,content,tags,created_at,updated_at,comment_count,view_count,deleted_at,deleted_by";
-
-const SUPPORT_TRASH_VIEW = "support_trash_v";
-
-// ✅ 휴지통 목록: 최소 필드만 가져오기
-const SELECT_SUPPORT_TRASH_LIST = "id,title,deleted_at,deleted_by";
-
-export async function dbSupportMyTrashList(): Promise<SupportTrashListRow[]> {
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth.user;
-  if (!user) throw new Error("Not signed in");
-
-  const { data, error } = await supabase
-    .from(SUPPORT_TRASH_VIEW)
-    .select(SELECT_SUPPORT_TRASH_LIST)
-    .eq("deleted_by", user.id)
-    .order("deleted_at", { ascending: false });
-
-  if (error) throw error;
-  return (data ?? []) as any;
-}
-
-export async function dbSoftDelete(id: string): Promise<void> {
+/** ✅ (Logs) 휴지통으로 이동 = soft delete */
+export async function dbLogsTrashMove(id: string): Promise<void> {
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
   if (!user) throw new Error("Not signed in");
 
   const { error } = await supabase
-    .from(TABLE_BASE)
+    .from(LOGS_TABLE)
     .update({
       is_deleted: true,
       deleted_at: new Date().toISOString(),
       deleted_by: user.id,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", user.id);
 
   if (error) throw error;
 }
 
-export async function dbRestoreItem(id: string): Promise<void> {
-  const { error } = await supabase
-    .from(TABLE_BASE)
-    .update({
-      is_deleted: false,
-      deleted_at: null,
-      deleted_by: null,
-    })
-    .eq("id", id);
-
-  if (error) throw error;
-}
-
-export async function dbHardDelete(id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE_BASE).delete().eq("id", id);
-  if (error) throw error;
-}
-
-export async function dbMyTrash(): Promise<
-  (DbLogRow & {
-    deleted_at: string | null;
-    deleted_by: string | null;
-  })[]
-> {
+/** ✅ (Logs) 내 휴지통 목록 */
+export async function dbLogsTrashListMine(): Promise<TrashListRow[]> {
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
   if (!user) throw new Error("Not signed in");
 
   const { data, error } = await supabase
-    .from(TABLE_TRASH_VIEW)
-    .select(SELECT_TRASH)
+    .from(LOGS_TRASH_VIEW)
+    .select("id,title,content,deleted_at,deleted_by")
     .eq("deleted_by", user.id)
     .order("deleted_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as any;
+  return (data ?? []) as TrashListRow[];
+}
+
+/** ✅ (Logs) 휴지통에서 복구 */
+export async function dbLogsTrashRestore(id: string): Promise<void> {
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) throw new Error("Not signed in");
+
+  const { error } = await supabase
+    .from(LOGS_TABLE)
+    .update({
+      is_deleted: false,
+      deleted_at: null,
+      deleted_by: null,
+    })
+    .eq("id", id)
+    .eq("deleted_by", user.id);
+
+  if (error) throw error;
+}
+
+/** ✅ (Logs) 완전 삭제 */
+export async function dbLogsTrashHardDelete(id: string): Promise<void> {
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) throw new Error("Not signed in");
+
+  const { error } = await supabase
+    .from(LOGS_TABLE)
+    .delete()
+    .eq("id", id)
+    .eq("deleted_by", user.id);
+
+  if (error) throw error;
 }

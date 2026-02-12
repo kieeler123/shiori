@@ -1,4 +1,4 @@
-:root {
+:root[data-theme="navy"] {
   /* 다크 토큰을 기본으로 고정 */
   --text-1: #fafafa;
   --text-2: #f4f4f5;
@@ -13,29 +13,9 @@
   --header-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   --header-blur: 10px;
 
-  .header-shell {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-
-    border-bottom: 1px solid var(--header-border);
-    background: var(--header-bg);
-    backdrop-filter: blur(var(--header-blur));
-    box-shadow: var(--header-shadow);
-  }
-
-  .container-main {
-    margin: 0 auto;
-    max-width: 768px;
-    padding: 16px 24px;
-  }
-
   /* Surface ladder */
   --surface-3: rgba(24, 30, 45, 0.9); /* 작업면(작성/수정 카드) */
   --surface-2: rgba(17, 24, 39, 0.72); /* 입력면(필드) */
-  --border-1: rgba(255, 255, 255, 0.08);
-  --border-2: rgba(255, 255, 255, 0.12);
-
   --border-1: rgba(255, 255, 255, 0.08);
   --border-2: rgba(255, 255, 255, 0.12);
 
@@ -123,7 +103,7 @@
     ),
     linear-gradient(180deg, #070b15 0%, #060913 100%);
 
-  --bg-elev-1: rgba(17, 24, 39, 0.55);
+  --bg-elev-1: rgba(17, 24, 39, 0.75);
   --bg-elev-2: rgba(17, 24, 39, 0.75);
 
   --app-surface-1: 17 24 39;
@@ -158,4 +138,120 @@
 }
 .panel {
   background: var(--bg-elev-1);
+}
+
+:root[data-theme="pureDark"] {
+  /* Text (navy와 크게 안 바꿔도 됨) */
+  --text-1: #fafafa;
+  --text-2: #f4f4f5;
+  --text-3: #e4e4e7;
+  --text-4: #d4d4d8;
+  --text-5: #b3b3be; /* ✅ 살짝 밝게 */
+  --text-6: #8b8b98; /* ✅ 살짝 밝게 */
+
+  /* Background: ✅ blue tint 제거 */
+  --bg-app:
+    radial-gradient(
+      900px circle at 50% -200px,
+      rgba(255, 255, 255, 0.06),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px circle at 10% 20%,
+      rgba(255, 255, 255, 0.04),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #0b0d12 0%, #07080c 100%);
+
+  /* Header (중립 다크) */
+  --header-bg: rgba(15, 17, 22, 0.78);
+  --header-border: rgba(255, 255, 255, 0.12);
+  --header-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --header-blur: 10px;
+
+  /* Surface ladder (중립) */
+  --bg-elev-1: rgba(18, 20, 26, 0.78);
+  --bg-elev-2: rgba(22, 24, 31, 0.82);
+
+  --surface-3: rgba(26, 28, 36, 0.92);
+  --surface-2: rgba(18, 20, 26, 0.78);
+
+  /* Borders (✅ 대비 강화) */
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* List item (✅ 카드/리스트가 더 보여야 함) */
+  --item-bg: rgba(22, 24, 31, 0.72);
+  --item-border: rgba(255, 255, 255, 0.1);
+  --item-hover-bg: rgba(28, 31, 40, 0.8);
+  --item-hover-border: rgba(255, 255, 255, 0.16);
+  --item-hover-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+
+  /* Focus ring은 그대로 블루 유지 OK */
+  --ring: rgba(91, 140, 255, 0.38);
+
+  /* Buttons (navy값 유지해도 됨. 필요시만 조정) */
+}
+
+:root[data-theme="brownArchive"] {
+  /* Text */
+  --text-1: #f5f3ef;
+  --text-2: #e9e4dc;
+  --text-3: #d8d1c6;
+  --text-4: #b8aea0;
+  --text-5: #9c9182;
+  --text-6: #7c7266;
+
+  /* Background */
+  --bg-app:
+    radial-gradient(
+      900px circle at 50% -200px,
+      rgba(180, 120, 70, 0.12),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #1b1612 0%, #14110d 100%);
+
+  /* Header */
+  --header-bg: rgba(28, 22, 17, 0.82);
+  --header-border: rgba(255, 255, 255, 0.08);
+  --header-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  --header-blur: 10px;
+
+  /* Surfaces */
+  --bg-elev-1: rgba(34, 27, 21, 0.8);
+  --bg-elev-2: rgba(40, 32, 25, 0.85);
+
+  --surface-3: rgba(45, 36, 28, 0.92);
+  --surface-2: rgba(34, 27, 21, 0.8);
+
+  /* Borders */
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* List */
+  --item-bg: rgba(40, 32, 25, 0.75);
+  --item-border: rgba(255, 255, 255, 0.06);
+  --item-hover-bg: rgba(48, 38, 30, 0.82);
+  --item-hover-border: rgba(255, 255, 255, 0.12);
+
+  /* Focus (기술 느낌 30% 유지) */
+  --ring: rgba(91, 140, 255, 0.35);
+}
+
+/* 공통 규칙 */
+.header-shell {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  border-bottom: 1px solid var(--header-border);
+  background: var(--header-bg);
+  backdrop-filter: blur(var(--header-blur));
+  box-shadow: var(--header-shadow);
+}
+
+.container-main {
+  margin: 0 auto;
+  max-width: 768px;
+  padding: 16px 24px;
 }

@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAccountProfileCtx } from "@/features/shiori/account/AccountProfileProvider";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { PageContainer } from "@/app/layout/PageContainer";
 
 function fmtDate(v: string | null) {
   if (!v) return "-";
@@ -78,26 +80,18 @@ export default function AccountPage() {
   const authLastSignInAt = fmtDate(profile.auth.lastSignInAt);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-6">
-      <div className="flex items-start justify-between gap-3">
+    <PageContainer className="mx-auto max-w-3xl px-6 py-6">
+      <SurfaceCard className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-zinc-100">계정 설정</h1>
           <p className="mt-1 text-sm text-zinc-500">
             소셜 원본은 유지하고, 앱 내 프로필은 Shiori에서만 수정됩니다.
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={reload}
-          className="rounded-xl border border-zinc-800/60 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-900/60"
-        >
-          새로고침
-        </button>
-      </div>
+      </SurfaceCard>
 
       {/* Shiori 프로필 */}
-      <section className="mt-6 rounded-2xl border border-zinc-800/60 bg-zinc-950/60 p-4">
+      <SurfaceCard className="mt-6 p-4">
         <div className="flex items-center gap-3">
           {avatarUrl ? (
             <img
@@ -124,10 +118,10 @@ export default function AccountPage() {
           <InfoRow label="소개" value={bio} />
           <InfoRow label="웹사이트" value={website} />
         </div>
-      </section>
+      </SurfaceCard>
 
       {/* 소셜 원본 */}
-      <section className="mt-4 rounded-2xl border border-zinc-800/60 bg-zinc-950/40 p-4">
+      <SurfaceCard className="mt-4 p-4">
         <div className="text-sm font-semibold text-zinc-100">
           소셜 로그인 정보(읽기 전용)
         </div>
@@ -143,7 +137,7 @@ export default function AccountPage() {
         <p className="mt-3 text-xs text-zinc-600">
           ※ 이메일/비밀번호/구글 사진은 해당 소셜 계정에서 관리됩니다.
         </p>
-      </section>
+      </SurfaceCard>
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <button
@@ -162,6 +156,6 @@ export default function AccountPage() {
           회원 탈퇴
         </button>
       </div>
-    </div>
+    </PageContainer>
   );
 }

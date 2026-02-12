@@ -5,6 +5,7 @@ type Variant =
   | "primary"
   | "secondary"
   | "ghost"
+  | "nav"
   | "outline"
   | "danger"
   | "icon"
@@ -59,6 +60,8 @@ export function Button({
       "text-[var(--btn-ghost-fg)] " +
       "hover:text-[var(--btn-ghost-hover-fg)] " +
       "hover:bg-[var(--btn-ghost-hover-bg)]",
+
+    nav: "bg-zinc-800/40 text-zinc-200 border border-zinc-700 hover:bg-zinc-700/60 hover:border-zinc-500",
 
     outline:
       "border border-[var(--btn-outline-border)] " +

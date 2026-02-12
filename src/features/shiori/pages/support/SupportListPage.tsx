@@ -10,6 +10,8 @@ import type { SupportTicketListRow } from "../../type";
 import { Button } from "@/shared/ui/primitives/Button";
 import { CardButton } from "@/shared/ui/primitives/CardButton";
 import TagChip from "@/shared/ui/primitives/TagChip";
+import { ListItemButton } from "@/shared/ui/patterns/ListItemButton";
+import { previewText } from "../../utils/previewOneLine";
 
 export default function SupportListPage() {
   const nav = useNavigate();
@@ -53,10 +55,10 @@ export default function SupportListPage() {
   }, [ready, location.key]);
 
   return (
-    <div className="space-y-4">
+    <section className="mt-6 space-y-3">
       {/* Top actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="text-xs text-[var(--text-sub)]">
+        <div className="text-xs t5">
           {loading ? "불러오는 중…" : `${rows.length}건`}
         </div>
 
@@ -84,7 +86,7 @@ export default function SupportListPage() {
       ) : null}
 
       {/* List */}
-      <div className="space-y-2">
+      <div className="mt-6 space-y-3">
         {loading ? (
           <div className="text-sm text-[var(--text-sub)]">불러오는 중…</div>
         ) : rows.length === 0 ? (
@@ -93,18 +95,26 @@ export default function SupportListPage() {
           </div>
         ) : (
           rows.map((r) => (
-            <CardButton
+            <ListItemButton
               key={r.id}
+              className="surface-1"
               onClick={() => nav(`/support/${r.id}`)}
               title="상세 보기"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="truncate text-sm text-[var(--text-main)]">
+                  <div className="truncate text-sm t2">
                     {r.title || "(제목 없음)"}
                   </div>
 
-                  <div className="mt-1 text-xs text-[var(--text-sub)]">
+                  {/* ✅ 1줄 미리보기(원하면 content 매핑해서 넣어) */}
+                  {r.body ? (
+                    <div className="mt-1 truncate text-xs text-zinc-400">
+                      {previewText(r.body, 110)}
+                    </div>
+                  ) : null}
+
+                  <div className="mt-1 text-xs t5">
                     {r.nickname} · {new Date(r.created_at).toLocaleString()}
                   </div>
                 </div>
@@ -114,10 +124,10 @@ export default function SupportListPage() {
                   {r.status}
                 </TagChip>
               </div>
-            </CardButton>
+            </ListItemButton>
           ))
         )}
       </div>
-    </div>
+    </section>
   );
 }

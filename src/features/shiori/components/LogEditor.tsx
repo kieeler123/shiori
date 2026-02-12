@@ -5,6 +5,8 @@ import {
   fieldControl,
   submitBtn,
 } from "@/shared/theme/editor";
+import { Input } from "@/shared/ui/primitives/Input";
+import { Textarea } from "@/shared/ui/primitives/Textarea";
 import { useEffect, useMemo, useState } from "react";
 
 type SubmitValue = {
@@ -118,14 +120,14 @@ export default function LogEditor({
   return (
     <form onSubmit={handleSubmit} className={editorShell}>
       <div className="space-y-3">
-        <input
+        <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="제목"
           className={fieldControl}
         />
 
-        <textarea
+        <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="내용"
@@ -133,7 +135,7 @@ export default function LogEditor({
           className={fieldControl}
         />
 
-        <input
+        <Input
           value={tagText}
           onChange={(e) => setTagText(e.target.value)}
           placeholder="태그 (예: js, react, 일본어)"

@@ -1,45 +1,31 @@
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { ThemeContext } from "./useTheme";
+import type { ThemeName } from "./theme.types";
+import { getTheme, setThemeName } from "./theme.storage";
+import { applyThemeTokens } from "./theme.apply";
+import { findPreset } from "./themes";
 
-export type Theme = "white" | "black" | "blue";
-
-export type ThemeContextValue = {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
-  toggle: () => void;
-};
-
-export const ThemeContext = createContext<ThemeContextValue | null>(null);
-
-function getInitialTheme(): Theme {
-  // SSR 안전장치(혹시 나중에 Next로 옮겨도 안 터지게)
-  if (typeof window === "undefined") return "black";
-
-  const saved = localStorage.getItem("theme");
-  if (saved === "white" || saved === "black") return saved;
-
-  const systemPrefersDark = window.matchMedia(
-    "(prefers-color-scheme: dark)",
-  ).matches;
-
-  return systemPrefersDark ? "black" : "white";
-}
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+export default function ThemeProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [theme, setThemeState] = useState<ThemeName>(() => getTheme());
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+    // data-theme 세팅
+    setThemeName(theme);
 
-  const toggle = () =>
-    setTheme((prev) => (prev === "white" ? "black" : "white"));
+    // preset이면 토큰도 적용
+    if (theme === "custom") return;
+    const preset = findPreset(theme);
+    applyThemeTokens(preset.tokens);
+  }, [theme]);
 
   const value = useMemo(
     () => ({
       theme,
-      setTheme, // ✅ 이제 외부에서 직접 지정 가능
-      toggle,
+      setTheme: (t: ThemeName) => setThemeState(t),
     }),
     [theme],
   );

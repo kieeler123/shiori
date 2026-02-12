@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useSession } from "@/features/auth/useSession";
 import { dbSupportGet } from "@/features/shiori/repo/supportRepo";
-import { dbSupportSoftDelete } from "@/features/shiori/repo/supportTrashRepo";
 
 import type { SupportTicketDetailRow } from "../../type";
 import { isUuid } from "@/features/shiori/utils/isUuid";
@@ -11,7 +10,9 @@ import RouteProblem from "@/features/shiori/components/RouteProblem";
 
 import { Button } from "@/shared/ui/primitives/Button";
 import TagChip from "@/shared/ui/primitives/TagChip";
-import { Surface } from "@/app/layout/Surface";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
+import { dbSupportTrashMove } from "../../repo/supportTrashRepo";
 
 export default function SupportDetailPage() {
   const nav = useNavigate();
@@ -61,7 +62,7 @@ export default function SupportDetailPage() {
 
     setBusy(true);
     try {
-      await dbSupportSoftDelete(id!);
+      await dbSupportTrashMove(id!);
       nav("/support", { state: { refresh: true } });
     } finally {
       setBusy(false);
@@ -73,11 +74,7 @@ export default function SupportDetailPage() {
   // ------------------------
 
   if (!ready) {
-    return <div className="text-sm text-[var(--text-sub)]">세션 확인중…</div>;
-  }
-
-  if (loading) {
-    return <div className="text-sm text-[var(--text-sub)]">Loading…</div>;
+    return <LoadingText label="세션 확인중…" />;
   }
 
   if (!item) {
@@ -122,11 +119,11 @@ export default function SupportDetailPage() {
       </div>
 
       {/* 본문 */}
-      <Surface>
+      <SurfaceCard>
         <pre className="whitespace-pre-wrap break-words text-sm  text-zinc-200 leading-relaxed">
           {item.body}
         </pre>
-      </Surface>
+      </SurfaceCard>
 
       {/* 수정 / 삭제 */}
       {isMine && (

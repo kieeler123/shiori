@@ -12,7 +12,6 @@ import {
 } from "@/features/shiori/repo/commentsRepo";
 
 import { supabase } from "@/lib/supabaseClient";
-import { dbSoftDelete } from "@/features/shiori/repo/trashRepo";
 
 import RouteProblem from "@/features/shiori/components/RouteProblem";
 import { isUuid } from "@/features/shiori/utils/isUuid";
@@ -21,6 +20,8 @@ import { Button } from "@/shared/ui/primitives/Button";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { Textarea } from "@/shared/ui/primitives/Textarea";
 import { LogMetaInline } from "../../components/LogMetaInline";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
+import { dbLogsTrashMove } from "../../repo/trashRepo";
 
 function chip(t: string) {
   return (
@@ -144,7 +145,7 @@ export default function LogDetailPage() {
 
     setBusy(true);
     try {
-      await dbSoftDelete(id!);
+      await dbLogsTrashMove(id!);
       nav("/logs", { state: { refresh: true } });
     } finally {
       setBusy(false);
@@ -152,24 +153,13 @@ export default function LogDetailPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100">
-        <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-zinc-400">
-          Loading...
-        </div>
-      </div>
-    );
+    return <LoadingText label="Loading..." />;
   }
 
   if (!item) {
     return (
       <>
-        <button
-          className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
-          onClick={() => nav(-1)}
-        >
-          뒤로
-        </button>
+        <Button onClick={() => nav(-1)}>뒤로</Button>
         <div className="mt-6 text-sm text-zinc-400">
           존재하지 않는 글입니다.
         </div>
@@ -181,7 +171,7 @@ export default function LogDetailPage() {
   const viewCount = (item as any).view_count ?? 0;
 
   return (
-    <div className="min-h-[calc(100vh-72px)] bg-app t3">
+    <>
       <div className="mx-auto max-w-3xl px-6 py-8">
         {/* Top bar */}
         <div className="mb-6 flex items-center justify-between gap-3">
@@ -307,6 +297,6 @@ export default function LogDetailPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

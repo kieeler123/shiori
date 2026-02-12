@@ -1,14 +1,14 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
-import { Page } from "./Page";
-import { Surface } from "./Surface";
 import { tabActive, tabBase, tabIdle } from "../ui/btn";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { PageContainer } from "./PageContainer";
 
 export default function SupportLayout() {
   const { isAuthed } = useSession();
 
   return (
-    <Page>
+    <PageContainer>
       {/* ✅ Page가 컨테이너를 이미 갖고 있다면, 여기서 max-w/px/py를 또 주지 말기 */}
       <div className="space-y-4">
         <header>
@@ -21,7 +21,7 @@ export default function SupportLayout() {
         </header>
 
         {/* 탭 */}
-        <Surface className="flex flex-wrap gap-2">
+        <SurfaceCard className="flex flex-wrap gap-2">
           <Tab to="/support" label="전체 문의" end />
           <Tab to="/support/faq" label="FAQ" />
 
@@ -33,14 +33,14 @@ export default function SupportLayout() {
               <Tab to="/support/trash" label="휴지통" />
             </>
           ) : null}
-        </Surface>
+        </SurfaceCard>
 
         {/* 내용 */}
-        <Surface>
+        <SurfaceCard>
           <Outlet />
-        </Surface>
+        </SurfaceCard>
       </div>
-    </Page>
+    </PageContainer>
   );
 }
 

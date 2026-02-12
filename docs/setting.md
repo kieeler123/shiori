@@ -1,10 +1,10 @@
 docs/
   architecture/
-    auth-system.md
-    data-flow.md
-    design-decision-log.md
-    design-philosophy.md
-    overall-architecturi.md
+    auth-system.md 
+    data-flow.md 
+    design-decision-log.md 
+    design-philosophy.md 
+    overall-architecture.md 
     permission.md
     support-system-flow.md
     system-structure.md
@@ -28,118 +28,145 @@ docs/
     error-handling.md
     login-error.md
     pre-development.md
-    tag-system.md
-  setting.md
-
-src/
-
-  app/
-    layout/
-      Layout.tsx
-      RequireAuthOutlet.tsx
-      SupportLayout.tsx
-      toast.ts
-      ToastProvider.tsx
-
-    ui/
-      btn.ts
-  
-
-    App.tsx
-    Header.tsx
-
-  features/
-    auth/                         # 앱 전체 인증(Shiori뿐 아니라 전체 공용)
-      AuthBar.tsx
-      AuthButton.tsx
-      AuthCallback.tsx
-      AuthPanel.tsx
-      SessionProvider.tsx
-      useAuth.ts
-      useSession.ts
-
-    shiori/                        # Shiori 서비스 도메인 (공용 레이어 + 도메인별 전용)
-      account/
-        components/
-          DangerZone.tsx
-          PasswordSection.tsx
-          ProfileSection.tsx
-        hooks/
-          useAccountActions.ts
-          useAccountProfile.ts
-        AccountProfileProvider.tsx
-          
-      components/                  # Shiori 전역 공용 UI (도메인 독립)
-        LogEditor.tsx
-        RouteProblem.tsx
-        SearchBar.tsx
-        TagChip.tsx
-        TagSuggestions.tsx
-
-      hooks/                       # Shiori 전역 공용 hooks
-        useNoteSearch.ts
-        useTagAutocomplete.ts
-
-      pages/                       # ✅ 라우팅 전용(껍데기). 도메인 늘어나면 폴더만 추가
+    tag-system.md setting.md
+  src/
+    app/
+      layout/
+        AdminOnlyOutlet.tsx
+        AppBackground.tsx
+        CardButton.tsx
+        EditorShell.tsx
+        FormField.tsx
+        GetEmptyMessage.tsx
+        GuestOnlyOutlet.tsx
+        Layout.tsx Page.tsx
+        PageContainer.tsx
+        toast.ts
+        ToastProvider.tsx
+        RequireAuthOutlet.tsx
+        SupportLayout.tsx
+        toast.ts
+        ToastProvider.tsx
+      App.tsx
+      AppRoutes.tsx
+      Header.tsx
+    features/
+      auth/ # 앱 전체 인증(Shiori뿐 아니라 전체 공용)
+        AuthBar.tsx
+        AuthButton.tsx
+        AuthCallback.tsx
+        AuthPanel.tsx
+        SessionProvider
+        tsx useAuth.ts
+        useSession.ts
+      shiori/ # Shiori 서비스 도메인 (공용 레이어 + 도메인별 전용)
         account/
-          AccountDeletePage.tsx
-          AccountEditPage.tsx
-          AccountPage.tsx
-          
-        account/
-          AccountPage.tsx
-
-        auth/
-          AuthPage.tsx
-
-        logs/
-          EditLogPage.tsx
-          LogDetailPage.tsx
-          LogsPage.tsx
-          NewLogPage.tsx
-          TrashPage.tsx            # logs 휴지통 페이지(도메인 전용)
-
-        support/                   # ✅ feedbacks → support 로 통일
-          AdminSupportPage.tsx     # (옵션) 관리자: 답변/FAQ관리
-          MyTicketsPage.tsx        # 내가 한 질문 모아보기
-          SupportDetailPage.tsx    # 문의 상세
-          SupportEditPage.tsx
-          SupportFaqPage.tsx
-          SupportListPage.tsx
-          SupportNewPage.tsx       # 문의하기
-          SupportTrashPage.tsx     # 문의 휴지통(soft delete)
-
-      repo/                        # Shiori 전역 공용 repo(데이터 접근 레이어)
-        commentsRepo.ts
-        shioriRepo.ts              # logs/notes 관련
-        supportFaqRepo.ts
-        supportRepo.ts             # ✅ support: tickets(문의)
-        supportTrashRepo.ts
-        trashRepo.ts               # logs 휴지통(또는 공용 휴지통 정책이면 유지)
-
-      type/
-        account.ts
-        comment.ts
-        common.ts
-        index.ts
-        log.ts
-        support.ts
-
-      utils/                       # Shiori 전역 공용 유틸
-        isUuid.ts
-        recentSearch.ts
-        searchIndex.ts
-        storage.ts
-        tagRank.ts
-        tags.ts
-        textParser.ts
-  
-  lib/
-    auth.ts
-    authActions.ts
-    authRedirect.ts
-    avatarStarage.ts
-    supabaseClient.ts
-
-  index.css
-  main.tsx
+          components/
+            DangerZone.tsx
+            PasswordSection.tsx
+            ProfileSection.tsx
+          hooks/
+            useAccountActions.ts
+            useAccountProfile.ts
+          AccountProfileProvider.tsx
+        components/ # Shiori 전역 공용 UI (도메인 독립)
+          LogEditor.tsx
+          LogMetaInline.tsx
+          RouteProblem.tsx
+          SearchBar.tsx
+          ShioriTagChip.tsx
+          TagSuggestions.tsx
+        hooks/ # Shiori 전역 공용 hooks
+          useNoteSearch.ts
+          useTagAutocomplete.ts
+        pages/ # ✅ 라우팅 전용(껍데기). 도메인 늘어나면 폴더만 추가
+          account/
+            AccountDeletePage.tsx
+            AccountEditPage.tsx
+            AccountPage.tsx
+          auth/
+            AuthPage.tsx
+          logs/
+            EditLogPage.tsx
+            LogDetailPage.tsx
+            LogsPage.tsx
+            NewLogPage.tsx
+            TrashPage.tsx # logs 휴지통 페이지(도메인 전용)
+          support/ # ✅ feedbacks → support 로 통일
+            AdminSupportPage.tsx # (옵션) 관리자: 답변/FAQ관리
+            MyTicketsPage.tsx # 내가 한 질문 모아보기
+            SupportDetailPage.tsx # 문의 상세
+            SupportEditPage.tsx
+            SupportFaqPage.tsx
+            SupportListPage.tsx
+            SupportNewPage.tsx # 문의하기
+            SupportTrashPage.tsx # 문의 휴지통(soft delete)
+        repo/ # Shiori 전역 공용 repo(데이터 접근 레이어)
+          commentsRepo.ts
+          shioriRepo.ts # logs/notes 관련
+          supportFaqRepo.ts
+          supportRepo.ts # ✅ support: tickets(문의)
+          supportTrashRepo.ts
+          trashRepo.ts # logs 휴지통(또는 공용 휴지통 정책이면 유지)
+        type/
+          account.ts
+          comment.ts
+          common.ts
+          index.ts
+          log.ts
+          support.ts
+        utils/ # Shiori 전역 공용 유틸
+          isUuid.ts recentSearch.ts
+          searchIndex.ts
+          storage.ts
+          tagRank.ts
+          tags.ts
+          textParser.ts
+    lib/
+      auth.ts
+      authActions.ts
+      authRedirect.ts
+      avatarStorage.ts
+      supabaseClient.ts
+      theme.ts
+    shared/
+      theme/
+        buttonStyle.ts
+        editor.ts
+        menuStyles.ts
+        theme.css
+        ThemeProvider.tsx
+        tokens.ts
+        useTheme.ts
+          ui/
+            feedback/
+              EmptyState.tsx
+            patterns/
+              DropdownMenuPanel.tsx
+              EmptyState.tsx
+              index.ts
+              ListItemButton.tsx
+              PageContainer.tsx
+              StickyBar.tsx
+              SurfaceCard.tsx
+              UserChipButtontsx
+            primitives/
+              Button.tsx
+              Card.tsx
+              CardButton.tsx
+              index.ts
+              input.tsx
+              SearchInput.tsx
+              TagChip.tsx
+              Textarea.tsx
+            styles/
+              buttonStyle.ts
+              index.ts
+              menuStyles.ts
+              textStyles.ts
+            utils/
+              cn.ts
+            ThemeSwitcher.tsx
+            ThemeToggle.tsx
+      index.css
+      main.tsx

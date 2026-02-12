@@ -5,7 +5,6 @@ import { useSession } from "@/features/auth/useSession";
 import { dbGet, dbUpdate } from "@/features/shiori/repo/shioriRepo";
 import LogEditor from "@/features/shiori/components/LogEditor";
 import type { DbLogRow } from "../../type";
-import { Page } from "@/app/layout/Page";
 
 type EditorSubmitValue = { title: string; content: string; tags: string[] };
 
@@ -82,7 +81,7 @@ export default function EditLogPage() {
 
   if (!isAuthed || !isMine) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <>
         <div className="mx-auto max-w-3xl px-6 py-8">
           <button
             className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
@@ -94,20 +93,13 @@ export default function EditLogPage() {
             이 글은 작성자만 수정할 수 있어요.
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <Page>
+    <>
       <div className="mb-6 flex items-center justify-between gap-3">
-        <button
-          className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
-          onClick={() => nav(`/logs/${item.id}`)}
-          disabled={busy}
-        >
-          취소
-        </button>
         <div className="text-xs text-zinc-500">
           {new Date(item.created_at).toLocaleString()}
         </div>
@@ -128,6 +120,6 @@ export default function EditLogPage() {
           onSubmit={onSubmit}
         />
       </div>
-    </Page>
+    </>
   );
 }

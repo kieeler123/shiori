@@ -67,3 +67,15 @@ export type DbLogRow = {
   comment_count: number;
   view_count: number;
 };
+
+export type TrashListRow = {
+  id: string;
+  user_id: string | null;
+  title: string;
+  content: string;
+  tags: string[];
+  created_at: string;
+  updated_at: string | null;
+  deleted_at: string;
+  deleted_by: String;
+};

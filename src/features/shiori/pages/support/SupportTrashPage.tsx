@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom";
 
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
-
-import { dbSupportMyTrashList } from "../../repo/trashRepo";
 import type { SupportTrashListRow } from "../../type";
 
 import { Button } from "@/shared/ui/primitives/Button";
-import { Surface } from "@/app/layout/Surface";
+import { PageContainer } from "@/app/layout/PageContainer";
+import { previewText } from "../../utils/previewOneLine";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import {
+  dbSupportTrashHardDelete,
+  dbSupportTrashListMine,
+  dbSupportTrashRestore,
+} from "../../repo/supportTrashRepo";
 
 export default function SupportTrashPage() {
   const nav = useNavigate();
@@ -18,11 +23,13 @@ export default function SupportTrashPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  const [busy, setBusy] = useState(false);
+
   const load = useCallback(async () => {
     setErr(null);
     setLoading(true);
     try {
-      const data = await dbSupportMyTrashList();
+      const data = await dbSupportTrashListMine();
       setRows(data);
     } catch (e) {
       console.error("support trash load failed:", e);
@@ -37,6 +44,21 @@ export default function SupportTrashPage() {
     if (!isAuthed) return;
     load().catch(console.error);
   }, [ready, isAuthed, load]);
+
+  async function restore(id: string) {
+    setBusy(true);
+    await dbSupportTrashRestore(id);
+    await load();
+    setBusy(false);
+  }
+
+  async function hardDelete(id: string) {
+    if (!confirm("완전 삭제됩니다. 복구 불가")) return;
+    setBusy(true);
+    await dbSupportTrashHardDelete(id);
+    await load();
+    setBusy(false);
+  }
 
   // SupportLayout 안에서 쓰는 전제: 로그인 없으면 안내 + AuthPanel
   if (!ready) {
@@ -58,7 +80,7 @@ export default function SupportTrashPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <PageContainer>
       {/* 헤더 */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
@@ -84,29 +106,55 @@ export default function SupportTrashPage() {
 
       {/* 에러 */}
       {err ? (
-        <Surface className="border border-red-900/50 bg-red-950/15">
+        <SurfaceCard className="border border-red-900/50 bg-red-950/15">
           <div className="text-sm text-red-200">{err}</div>
-        </Surface>
+        </SurfaceCard>
       ) : null}
 
       {/* 리스트 */}
       {loading ? (
-        <div className="text-sm text-zinc-300]">불러오는 중…</div>
+        <div className="text-sm text-zinc-300">불러오는 중…</div>
       ) : rows.length === 0 ? (
         <div className="text-sm text-zinc-300">휴지통이 비어있어요.</div>
       ) : (
         <div className="space-y-2">
           {rows.map((r) => (
-            <Surface key={r.id}>
+            <SurfaceCard
+              key={r.id}
+              className="space-y-2 text-left rounded-2xl p-4"
+            >
               <div className="text-zinc-200">{r.title || "(제목 없음)"}</div>
+              {/* ✅ 1줄 미리보기(원하면 content 매핑해서 넣어) */}
+              {r.body ? (
+                <div className="mt-1 truncate text-xs text-zinc-400">
+                  {previewText(r.body, 110)}
+                </div>
+              ) : null}
               <div className="mt-1 text-xs text-zinc-300">
                 삭제일:{" "}
                 {r.deleted_at ? new Date(r.deleted_at).toLocaleString() : "-"}
               </div>
-            </Surface>
+              <div className="mt-3 flex gap-2">
+                <Button
+                  variant="soft"
+                  onClick={() => restore(r.id)}
+                  disabled={busy}
+                >
+                  복구
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => hardDelete(r.id)}
+                  disabled={busy}
+                  className="px-3 py-1 rounded border text-xs text-red-400"
+                >
+                  완전삭제
+                </Button>
+              </div>
+            </SurfaceCard>
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

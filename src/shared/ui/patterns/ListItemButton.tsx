@@ -9,6 +9,7 @@ export function ListItemButton({
     <button
       type="button"
       className={cn(
+        "cursor-pointer",
         "w-full text-left rounded-2xl p-4",
         "border border-[var(--item-border)]",
         "bg-[var(--item-bg)]",

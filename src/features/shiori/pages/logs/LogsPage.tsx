@@ -5,7 +5,7 @@ import SearchBar from "@/features/shiori/components/SearchBar";
 import { useNoteSearch } from "@/features/shiori/hooks/useNoteSearch";
 
 import { loadLogs, saveLogs } from "@/features/shiori/utils/storage";
-import type { DbLogRow, LogItem } from "@/features/shiori/type/logs";
+import type { DbLogRow, LogItem, NoteItem } from "@/features/shiori/type/logs";
 
 import { useSession } from "@/features/auth/useSession";
 import { dbList } from "@/features/shiori/repo/shioriRepo";
@@ -15,22 +15,8 @@ import { Button } from "@/shared/ui/primitives/Button";
 import { Card } from "@/shared/ui/primitives/Card";
 import { getEmptyMessage } from "@/app/layout/getEmptyMessage";
 import { ListItemButton } from "@/shared/ui/patterns/ListItemButton";
-
-type NoteItem = {
-  id: string;
-  title: string;
-  body: string;
-  tags: string[];
-  createdAt?: number;
-  updatedAt?: number;
-};
-
-function previewText(s: string, max = 110) {
-  const oneLine = String(s ?? "")
-    .replace(/\s+/g, " ")
-    .trim();
-  return oneLine.length > max ? oneLine.slice(0, max) + "…" : oneLine;
-}
+import { previewText } from "../../utils/previewOneLine";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
 
 function toLogItem(r: DbLogRow): LogItem {
   return {
@@ -156,13 +142,7 @@ export default function LogsPage() {
     nav(`/logs/${id}`);
   }
 
-  if (!ready) {
-    return (
-      <div className="min-h-[calc(100vh-72px)] bg-app grid place-items-center">
-        <div className="text-sm t5">세션 확인중…</div>
-      </div>
-    );
-  }
+  if (!ready) return <LoadingText label="세션확인중..." />;
 
   return (
     <>
@@ -225,7 +205,7 @@ export default function LogsPage() {
       <section className="mt-6 space-y-3">
         {logsToRender.map((log) => (
           <ListItemButton
-            key={log.id} // ✅ index -> id
+            key={log.id}
             className="surface-1"
             onClick={() => goDetail(log.id)}
             title="상세 보기"

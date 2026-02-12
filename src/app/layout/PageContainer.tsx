@@ -1,4 +1,3 @@
-// src/app/layout/PageContainer.tsx
 import type { HTMLAttributes } from "react";
 import { cn } from "@/shared/ui/utils/cn";
 
@@ -7,11 +6,12 @@ export function PageContainer({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className="container-main">
-      <div
-        className={cn("flex items-center justify-between gap-3", className)}
-        {...props}
-      ></div>
-    </div>
+    <div
+      className={cn(
+        "mx-auto w-full max-w-3xl px-6 py-8 space-y-4 t2",
+        className,
+      )}
+      {...props}
+    />
   );
 }

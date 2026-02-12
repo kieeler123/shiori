@@ -8,6 +8,11 @@ import {
   dbSupportUpdate,
 } from "@/features/shiori/repo/supportRepo";
 import AuthPanel from "@/features/auth/AuthPanel"; // ✅ 로그인 UI 제공(선택)
+import { Button } from "@/shared/ui/primitives/Button";
+import { Input } from "@/shared/ui/primitives/Input";
+import { Textarea } from "@/shared/ui/primitives/Textarea";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
 
 export default function SupportEditPage() {
   const nav = useNavigate();
@@ -111,13 +116,7 @@ export default function SupportEditPage() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100">
-        <div className="mx-auto max-w-3xl px-6 py-8 text-sm text-zinc-400">
-          Loading…
-        </div>
-      </div>
-    );
+    return <LoadingText label="Loading…" />;
   }
 
   if (!isMine) {
@@ -131,40 +130,30 @@ export default function SupportEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <>
       <div className="mx-auto max-w-3xl px-6 py-8">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">문의 수정</h2>
-          <button
-            className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
-            onClick={() => nav(`/support/${id}`)}
-            disabled={busy}
-          >
+          <Button onClick={() => nav(`/support/${id}`)} disabled={busy}>
             닫기
-          </button>
+          </Button>
         </div>
 
-        <div className="mt-6 space-y-3">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-xl border border-zinc-800/70 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-zinc-700/60"
-          />
-          <textarea
+        <SurfaceCard className="mt-6 space-y-3">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={10}
-            className="w-full rounded-xl border border-zinc-800/70 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-zinc-700/60"
           />
-          <button
+          <Button
             onClick={save}
             disabled={busy || !title.trim() || !body.trim()}
-            className="rounded-xl border border-zinc-700/70 bg-zinc-100 px-3 py-2 text-sm text-zinc-900 hover:bg-white disabled:opacity-50"
           >
             {busy ? "처리 중..." : "저장"}
-          </button>
-        </div>
+          </Button>
+        </SurfaceCard>
       </div>
-    </div>
+    </>
   );
 }

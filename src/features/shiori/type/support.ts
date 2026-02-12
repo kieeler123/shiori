@@ -28,6 +28,7 @@ export type SupportTicketListRow = {
   user_id: string;
   nickname: string;
   title: string;
+  body: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -47,6 +48,7 @@ export type SupportTicketDetailRow = {
 export type SupportTrashListRow = {
   id: string;
   title: string | null;
+  body: string;
   deleted_at: string | null;
   deleted_by: string | null;
 };

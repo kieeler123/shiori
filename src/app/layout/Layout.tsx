@@ -2,17 +2,17 @@ import { Outlet } from "react-router-dom";
 import Header from "@/app/Header";
 import ToastProvider from "@/app/layout/ToastProvider";
 import { AccountProfileProvider } from "@/features/shiori/account/AccountProfileProvider";
-import { AppBackground } from "./AppBackground";
 import { useEffect } from "react";
-import { initTheme } from "@/lib/theme";
+import { PageContainer } from "./PageContainer";
+import { initThemeName } from "@/shared/theme/theme.storage";
 
 export default function Layout() {
   useEffect(() => {
-    initTheme();
+    initThemeName();
   }, []);
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#111827_0%,_#0b1120_40%,_#070b15_100%)] text-[var(--text-main)]">
-      <AppBackground>
+      <PageContainer>
         <AccountProfileProvider>
           <Header />
 
@@ -20,7 +20,7 @@ export default function Layout() {
             <Outlet />
           </main>
         </AccountProfileProvider>
-      </AppBackground>
+      </PageContainer>
 
       <footer className="border-t border-[var(--border-soft)] px-6 py-4 text-xs text-[var(--text-sub)]">
         <div className="mx-auto max-w-3xl flex justify-between">

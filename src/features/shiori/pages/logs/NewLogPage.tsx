@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import LogEditor from "@/features/shiori/components/LogEditor";
 import { dbCreate } from "@/features/shiori/repo/shioriRepo";
 import { useSession } from "@/features/auth/useSession";
-import { dbHardDelete } from "../../repo/trashRepo";
-import { Page } from "@/app/layout/Page";
+import { dbLogsTrashHardDelete } from "../../repo/trashRepo";
 import { Button } from "@/shared/ui/primitives/Button";
+import { PageContainer } from "@/app/layout/PageContainer";
 
 type EditorSubmitValue = { title: string; content: string; tags: string[] };
 
@@ -117,7 +117,7 @@ export default function NewLogPage() {
     setIsMutating(true);
 
     try {
-      await dbHardDelete(undo.createdId); // ✅
+      await dbLogsTrashHardDelete(undo.createdId); // ✅
       setUndo(null);
     } catch (e) {
       console.error("undo failed:", e);
@@ -144,7 +144,7 @@ export default function NewLogPage() {
   }
 
   return (
-    <Page>
+    <PageContainer>
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold t2">새 글 작성</h2>
@@ -204,6 +204,6 @@ export default function NewLogPage() {
       <div className="mt-4 text-xs t5">
         작성 후 5초 동안 “되돌리기”로 방금 글을 삭제할 수 있어요.
       </div>
-    </Page>
+    </PageContainer>
   );
 }
