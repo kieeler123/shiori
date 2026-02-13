@@ -8,4 +8,6 @@ useEffect(() => {
 ## 디자인안먹힐때 확인방법
 ```tsx
 document.documentElement.getAttribute("data-theme")
+
+getComputedStyle(document.documentElement).getPropertyValue("--header-bg")
 ```

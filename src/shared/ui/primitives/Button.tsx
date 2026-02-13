@@ -61,7 +61,10 @@ export function Button({
       "hover:text-[var(--btn-ghost-hover-fg)] " +
       "hover:bg-[var(--btn-ghost-hover-bg)]",
 
-    nav: "bg-zinc-800/40 text-zinc-200 border border-zinc-700 hover:bg-zinc-700/60 hover:border-zinc-500",
+    nav:
+      "bg-[var(--btn-nav-bg)] text-[var(--btn-nav-fg)] " +
+      "border border-[var(--btn-nav-border)] " +
+      "hover:bg-[var(--btn-nav-hover-bg)] hover:border-[var(--btn-nav-hover-border)]",
 
     outline:
       "border border-[var(--btn-outline-border)] " +
@@ -88,7 +91,7 @@ export function Button({
       "text-[var(--text-3)] hover:text-[var(--text-2)] " +
       "border border-[var(--border-soft)] " +
       "hover:border-[var(--border-strong)] " +
-      "bg-transparent hover:bg-[rgba(17,24,39,0.55)]",
+      "bg-transparent hover:bg-[var(--btn-soft-hover-bg)]",
   };
 
   const sizeClass = variant === "icon" ? "" : sizes[size];

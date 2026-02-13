@@ -5,6 +5,7 @@ const DEFAULT_THEME: ThemeName = "navy";
 
 export function getTheme(): ThemeName {
   const v = localStorage.getItem(KEY);
+
   if (
     v === "pureDark" ||
     v === "darkGray" ||
@@ -14,6 +15,7 @@ export function getTheme(): ThemeName {
   ) {
     return v;
   }
+
   return DEFAULT_THEME;
 }
 

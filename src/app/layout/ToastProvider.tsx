@@ -26,14 +26,18 @@ export default function ToastProvider() {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`px-4 py-3 rounded-lg shadow-lg text-sm
-            ${
+          className="px-4 py-3 rounded-lg text-sm border"
+          style={{
+            color: "var(--toast-fg)",
+            borderColor: "var(--toast-border)",
+            boxShadow: "var(--toast-shadow)",
+            background:
               t.type === "success"
-                ? "bg-emerald-600"
+                ? "var(--toast-success-bg)"
                 : t.type === "error"
-                  ? "bg-red-600"
-                  : "bg-zinc-700"
-            }`}
+                  ? "var(--toast-error-bg)"
+                  : "var(--toast-info-bg)",
+          }}
         >
           {t.message}
         </div>

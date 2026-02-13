@@ -7,24 +7,15 @@ import { Button } from "@/shared/ui/primitives/Button";
 import { StickyBar } from "@/shared/ui/patterns/StickyBar";
 import { PageHeaderRow } from "./layout/PageHeaderRow";
 import { DropdownMenuPanel } from "@/shared/ui/patterns/DropdownMenuPanel";
-import { getTheme, setThemeName } from "@/shared/theme/theme.storage";
 import { THEME_PRESETS } from "@/shared/theme/themes";
-import type { ThemeName } from "@/shared/theme/theme.types";
+import { useTheme } from "@/shared/theme/useTheme";
 function ThemeSelect() {
-  const [theme, setThemeState] = useState<ThemeName>("navy");
-
-  useEffect(() => {
-    setThemeState(getTheme());
-  }, []);
+  const { theme, setTheme } = useTheme();
 
   return (
     <select
-      value={theme === "custom" ? "navy" : theme}
-      onChange={(e) => {
-        const next = e.target.value as ThemeName;
-        setThemeState(next);
-        setThemeName(next); // ✅ 이게 핵심
-      }}
+      value={theme}
+      onChange={(e) => setTheme(e.target.value as any)}
       className="rounded-xl border border-[var(--border-soft)] bg-[var(--item-bg)] px-3 py-2 text-sm t2"
     >
       {THEME_PRESETS.map((p) => (

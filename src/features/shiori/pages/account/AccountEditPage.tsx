@@ -49,7 +49,6 @@ export default function AccountEditPage() {
         return;
       }
 
-      // 업로드 성공 → URL 폼에 반영 (미리보기 즉시 변경)
       setAvatarUrl(res.url);
     } catch (e) {
       console.error("avatar upload failed:", e);
@@ -89,17 +88,24 @@ export default function AccountEditPage() {
     }
   }
 
-  // ✅ 입력 UI 통일(필요하면 나중에 shared Input 컴포넌트로 빼도 됨)
+  // ✅ 토큰 기반 필드
   const field =
-    "mt-2 w-full rounded-xl border border-zinc-800/60 bg-zinc-950/40 px-3 py-2 text-sm text-zinc-100 outline-none focus:ring-2 focus:ring-zinc-700/60";
+    "mt-2 w-full rounded-xl px-3 py-2 text-sm outline-none " +
+    "border border-[var(--border-soft)] " +
+    "bg-[var(--field-bg)] text-[var(--text-2)] " +
+    "placeholder:text-[color:var(--field-placeholder)] " +
+    "focus:ring-2 focus:ring-[var(--ring)]";
+
+  const label = "block text-xs t5";
+  const help = "mt-1 text-xs t6";
 
   // --- Guards ---
   if (loading) {
     return (
       <PageContainer className="space-y-4">
         <SurfaceCard className="space-y-1">
-          <h1 className="text-xl font-semibold text-zinc-100">프로필 수정</h1>
-          <p className="text-sm text-zinc-400">불러오는 중…</p>
+          <h1 className="text-xl font-semibold t2">프로필 수정</h1>
+          <p className="text-sm t5">불러오는 중…</p>
         </SurfaceCard>
       </PageContainer>
     );
@@ -110,15 +116,15 @@ export default function AccountEditPage() {
       <PageContainer className="space-y-4">
         <SurfaceCard className="space-y-3">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold text-zinc-100">프로필 수정</h1>
-            <p className="text-sm text-red-300">{error}</p>
+            <h1 className="text-xl font-semibold t2">프로필 수정</h1>
+            <p className="text-sm text-[var(--btn-danger-fg)]">{error}</p>
           </div>
 
           <div className="flex items-center gap-2">
             <Button variant="soft" onClick={reload}>
               다시 시도
             </Button>
-            <Button variant="nav" onClick={() => nav("/settings/account")}>
+            <Button variant="soft" onClick={() => nav("/settings/account")}>
               ← 돌아가기
             </Button>
           </div>
@@ -132,15 +138,15 @@ export default function AccountEditPage() {
       <PageContainer className="space-y-4">
         <SurfaceCard className="space-y-3">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold text-zinc-100">프로필 수정</h1>
-            <p className="text-sm text-zinc-400">로그인이 필요합니다.</p>
+            <h1 className="text-xl font-semibold t2">프로필 수정</h1>
+            <p className="text-sm t5">로그인이 필요합니다.</p>
           </div>
 
           <div className="flex items-center gap-2">
             <Button variant="soft" onClick={() => nav("/auth")}>
               로그인 페이지로 이동
             </Button>
-            <Button variant="nav" onClick={() => nav("/settings/account")}>
+            <Button variant="soft" onClick={() => nav("/settings/account")}>
               ← 돌아가기
             </Button>
           </div>
@@ -155,15 +161,15 @@ export default function AccountEditPage() {
       {/* Header */}
       <SurfaceCard className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="text-xl font-semibold text-zinc-100">프로필 수정</h1>
-          <p className="text-sm text-zinc-500">
+          <h1 className="text-xl font-semibold t2">프로필 수정</h1>
+          <p className="text-sm t5">
             이 앱에서만 표시되는 프로필을 수정합니다.
           </p>
         </div>
 
         <Button
           onClick={() => nav("/settings/account")}
-          variant="nav"
+          variant="soft"
           disabled={disabled}
         >
           ← 돌아가기
@@ -179,23 +185,22 @@ export default function AccountEditPage() {
               <img
                 src={avatarUrl}
                 alt="preview"
-                className="h-12 w-12 rounded-full border border-zinc-700/60 object-cover"
+                className="h-12 w-12 rounded-full border border-[var(--border-soft)] object-cover"
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="h-12 w-12 rounded-full border border-zinc-700/60 bg-zinc-950/40" />
+              <div className="h-12 w-12 rounded-full border border-[var(--border-soft)] bg-[var(--bg-elev-2)]" />
             )}
-            <div className="text-xs text-zinc-500">미리보기</div>
+
+            <div className="text-xs t6">미리보기</div>
           </div>
 
-          {uploading ? (
-            <div className="text-xs text-zinc-400">업로드 중…</div>
-          ) : null}
+          {uploading ? <div className="text-xs t5">업로드 중…</div> : null}
         </div>
 
         <div className="mt-4 grid gap-3">
           <div>
-            <label className="block text-xs text-zinc-500">닉네임</label>
+            <label className={label}>닉네임</label>
             <input
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
@@ -208,9 +213,7 @@ export default function AccountEditPage() {
 
           {/* 파일 업로드 */}
           <div>
-            <label className="block text-xs text-zinc-500">
-              썸네일 파일 업로드(avatars bucket)
-            </label>
+            <label className={label}>썸네일 파일 업로드(avatars bucket)</label>
             <input
               type="file"
               accept="image/*"
@@ -221,18 +224,24 @@ export default function AccountEditPage() {
                 onPickFile(f);
                 e.currentTarget.value = "";
               }}
-              className="mt-2 block w-full text-sm text-zinc-200 file:mr-4 file:rounded-xl file:border file:border-zinc-800/60 file:bg-zinc-950/50 file:px-3 file:py-2 file:text-sm file:text-zinc-200 hover:file:bg-zinc-900/60"
+              className={
+                "mt-2 block w-full text-sm t4 " +
+                "file:mr-4 file:rounded-xl file:border " +
+                "file:border-[var(--border-soft)] " +
+                "file:bg-[var(--bg-elev-2)] " +
+                "file:px-3 file:py-2 file:text-sm " +
+                "file:text-[var(--text-3)] " +
+                "hover:file:bg-[var(--item-hover-bg)]"
+              }
             />
-            <p className="mt-1 text-xs text-zinc-600">
+            <p className={help}>
               이미지 3MB 이하 권장. 업로드 후 URL이 자동으로 들어갑니다.
             </p>
           </div>
 
           {/* URL 입력 */}
           <div>
-            <label className="block text-xs text-zinc-500">
-              썸네일 URL(직접 입력)
-            </label>
+            <label className={label}>썸네일 URL(직접 입력)</label>
             <input
               value={avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
@@ -243,7 +252,7 @@ export default function AccountEditPage() {
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-500">소개(bio)</label>
+            <label className={label}>소개(bio)</label>
             <input
               value={bio}
               onChange={(e) => setBio(e.target.value)}
@@ -255,7 +264,7 @@ export default function AccountEditPage() {
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-500">웹사이트</label>
+            <label className={label}>웹사이트</label>
             <input
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
@@ -267,7 +276,7 @@ export default function AccountEditPage() {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-xs text-zinc-500">지역</label>
+              <label className={label}>지역</label>
               <input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
@@ -278,7 +287,7 @@ export default function AccountEditPage() {
             </div>
 
             <div>
-              <label className="block text-xs text-zinc-500">언어</label>
+              <label className={label}>언어</label>
               <input
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
@@ -289,7 +298,7 @@ export default function AccountEditPage() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs text-zinc-500">타임존</label>
+              <label className={label}>타임존</label>
               <input
                 value={timezone}
                 onChange={(e) => setTimezone(e.target.value)}
@@ -302,7 +311,7 @@ export default function AccountEditPage() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Button variant="soft" onClick={onSave} disabled={disabled}>
+          <Button variant="primary" onClick={onSave} disabled={disabled}>
             {saving ? "저장 중..." : "저장"}
           </Button>
 
@@ -314,7 +323,7 @@ export default function AccountEditPage() {
             취소
           </Button>
 
-          <span className="text-xs text-zinc-700">
+          <span className="text-xs t6">
             ※ 소셜 로그인이라 비밀번호 섹션은 없습니다.
           </span>
         </div>

@@ -40,7 +40,7 @@ export default function SupportNewPage() {
   if (!ready) {
     return (
       <div className="grid place-items-center py-16">
-        <div className="text-sm text-[var(--text-sub)]">세션 확인중…</div>
+        <div className="text-sm t5">세션 확인중…</div>
       </div>
     );
   }
@@ -48,9 +48,7 @@ export default function SupportNewPage() {
   if (!isAuthed) {
     return (
       <div className="py-6">
-        <div className="text-sm text-[var(--text-sub)] mb-3">
-          로그인 후 문의할 수 있어요.
-        </div>
+        <div className="text-sm t5 mb-3">로그인 후 문의할 수 있어요.</div>
         <AuthPanel />
       </div>
     );
@@ -60,9 +58,7 @@ export default function SupportNewPage() {
     <div>
       {/* Header row */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold tracking-tight text-zinc-200">
-          문의하기
-        </h2>
+        <h2 className="text-lg font-semibold tracking-tight t2">문의하기</h2>
 
         <Button variant="ghost" onClick={() => nav("/support")} disabled={busy}>
           닫기
@@ -86,7 +82,7 @@ export default function SupportNewPage() {
         />
 
         <div className="flex items-center justify-between gap-3">
-          <div className="text-xs text-[var(--text-sub)]">
+          <div className="text-xs t5">
             {busy
               ? "등록 중…"
               : canSubmit

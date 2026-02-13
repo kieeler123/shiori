@@ -1,3 +1,21 @@
+/* 공통으로 쓰거나, 각 :root[data-theme="..."] 안에 넣어도 됨 */
+:root {
+  --btn-nav-bg: rgba(17, 24, 39, 0.4);
+  --btn-nav-fg: var(--text-3);
+  --btn-nav-border: var(--border-strong);
+  --btn-nav-hover-bg: rgba(17, 24, 39, 0.6);
+  --btn-nav-hover-border: rgba(255, 255, 255, 0.2);
+
+  --btn-soft-hover-bg: rgba(255, 255, 255, 0.04); /* 기본값 */
+
+  --toast-success-bg: rgba(16, 185, 129, 0.95); /* emerald 느낌 */
+  --toast-error-bg: rgba(239, 68, 68, 0.95); /* red 느낌 */
+  --toast-info-bg: rgba(39, 39, 42, 0.9); /* zinc 느낌 */
+  --toast-fg: var(--text-2);
+  --toast-border: var(--border-soft);
+  --toast-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+}
+
 :root[data-theme="navy"] {
   /* 다크 토큰을 기본으로 고정 */
   --text-1: #fafafa;
@@ -212,7 +230,7 @@
     linear-gradient(180deg, #1b1612 0%, #14110d 100%);
 
   /* Header */
-  --header-bg: rgba(28, 22, 17, 0.82);
+  --header-bg: rgba(255, 0, 0, 0.9);
   --header-border: rgba(255, 255, 255, 0.08);
   --header-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
   --header-blur: 10px;

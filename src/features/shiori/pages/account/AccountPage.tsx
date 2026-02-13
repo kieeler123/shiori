@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAccountProfileCtx } from "@/features/shiori/account/AccountProfileProvider";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { PageContainer } from "@/app/layout/PageContainer";
+import { Button } from "@/shared/ui/primitives/Button";
 
 function fmtDate(v: string | null) {
   if (!v) return "-";
@@ -11,9 +12,16 @@ function fmtDate(v: string | null) {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-zinc-800/60 bg-zinc-950/40 px-3 py-2">
-      <span className="text-xs text-zinc-500">{label}</span>
-      <span className="text-xs text-zinc-200 truncate">{value}</span>
+    <div
+      className="
+        flex items-center justify-between gap-3
+        rounded-xl px-3 py-2
+        border border-[var(--border-soft)]
+        bg-[var(--bg-elev-2)]
+      "
+    >
+      <span className="text-xs t6">{label}</span>
+      <span className="text-xs t3 truncate">{value}</span>
     </div>
   );
 }
@@ -22,46 +30,57 @@ export default function AccountPage() {
   const nav = useNavigate();
   const { loading, profile, error, reload } = useAccountProfileCtx();
 
+  // ✅ 공통 레이아웃: PageContainer가 컨테이너를 맡는다면 여기서 mx/max-w/px를 또 주지 말기
+  const Shell = ({ children }: { children: React.ReactNode }) => (
+    <PageContainer className="space-y-4">{children}</PageContainer>
+  );
+
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-6">
-        <h1 className="text-xl font-semibold text-zinc-100">계정 설정</h1>
-        <p className="mt-4 text-sm text-zinc-400">불러오는 중...</p>
-      </div>
+      <Shell>
+        <SurfaceCard className="space-y-2">
+          <h1 className="text-xl font-semibold t2">계정 설정</h1>
+          <p className="text-sm t5">불러오는 중...</p>
+        </SurfaceCard>
+      </Shell>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-6">
-        <h1 className="text-xl font-semibold text-zinc-100">계정 설정</h1>
-        <p className="mt-4 text-sm text-red-300">{error}</p>
+      <Shell>
+        <SurfaceCard className="space-y-3">
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold t2">계정 설정</h1>
+            <p className="text-sm text-[var(--btn-danger-fg)]">{error}</p>
+          </div>
 
-        <button
-          type="button"
-          onClick={reload}
-          className="mt-4 rounded-xl border border-zinc-800/60 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-900/60"
-        >
-          다시 시도
-        </button>
-      </div>
+          <div className="flex items-center gap-2">
+            <Button variant="soft" onClick={reload}>
+              다시 시도
+            </Button>
+          </div>
+        </SurfaceCard>
+      </Shell>
     );
   }
 
   if (!profile) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-6">
-        <h1 className="text-xl font-semibold text-zinc-100">계정 설정</h1>
-        <p className="mt-4 text-sm text-zinc-400">로그인이 필요합니다.</p>
+      <Shell>
+        <SurfaceCard className="space-y-3">
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold t2">계정 설정</h1>
+            <p className="text-sm t5">로그인이 필요합니다.</p>
+          </div>
 
-        <button
-          type="button"
-          onClick={() => nav("/auth")}
-          className="mt-4 rounded-xl border border-zinc-800/60 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-900/60"
-        >
-          로그인 페이지로 이동
-        </button>
-      </div>
+          <div className="flex items-center gap-2">
+            <Button variant="soft" onClick={() => nav("/auth")}>
+              로그인 페이지로 이동
+            </Button>
+          </div>
+        </SurfaceCard>
+      </Shell>
     );
   }
 
@@ -80,35 +99,32 @@ export default function AccountPage() {
   const authLastSignInAt = fmtDate(profile.auth.lastSignInAt);
 
   return (
-    <PageContainer className="mx-auto max-w-3xl px-6 py-6">
-      <SurfaceCard className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-zinc-100">계정 설정</h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            소셜 원본은 유지하고, 앱 내 프로필은 Shiori에서만 수정됩니다.
-          </p>
-        </div>
+    <Shell>
+      {/* Header */}
+      <SurfaceCard className="space-y-1">
+        <h1 className="text-xl font-semibold t2">계정 설정</h1>
+        <p className="text-sm t5">
+          소셜 원본은 유지하고, 앱 내 프로필은 Shiori에서만 수정됩니다.
+        </p>
       </SurfaceCard>
 
       {/* Shiori 프로필 */}
-      <SurfaceCard className="mt-6 p-4">
+      <SurfaceCard className="p-4">
         <div className="flex items-center gap-3">
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt="avatar"
-              className="h-12 w-12 rounded-full border border-zinc-800/60 object-cover"
+              className="h-12 w-12 rounded-full border border-[var(--border-soft)] object-cover"
               referrerPolicy="no-referrer"
             />
           ) : (
-            <div className="h-12 w-12 rounded-full border border-zinc-800/60 bg-zinc-900/30" />
+            <div className="h-12 w-12 rounded-full border border-[var(--border-soft)] bg-[var(--bg-elev-2)]" />
           )}
 
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-zinc-100">
-              {nickname}
-            </div>
-            <div className="truncate text-xs text-zinc-500">
+            <div className="truncate text-sm font-semibold t2">{nickname}</div>
+            <div className="truncate text-xs t6">
               {location} · {language} · {timezone}
             </div>
           </div>
@@ -121,8 +137,8 @@ export default function AccountPage() {
       </SurfaceCard>
 
       {/* 소셜 원본 */}
-      <SurfaceCard className="mt-4 p-4">
-        <div className="text-sm font-semibold text-zinc-100">
+      <SurfaceCard className="p-4">
+        <div className="text-sm font-semibold t2">
           소셜 로그인 정보(읽기 전용)
         </div>
 
@@ -134,28 +150,30 @@ export default function AccountPage() {
           <InfoRow label="최근 로그인" value={authLastSignInAt} />
         </div>
 
-        <p className="mt-3 text-xs text-zinc-600">
+        <p className="mt-3 text-xs t6">
           ※ 이메일/비밀번호/구글 사진은 해당 소셜 계정에서 관리됩니다.
         </p>
       </SurfaceCard>
 
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <button
-          type="button"
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button
+          variant="soft"
+          size="md"
+          className="w-full"
           onClick={() => nav("/settings/account/edit")}
-          className="w-full rounded-xl border border-zinc-800/60 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-900/60"
         >
           프로필 수정
-        </button>
+        </Button>
 
-        <button
-          type="button"
+        <Button
+          variant="danger"
+          size="md"
+          className="w-full"
           onClick={() => nav("/settings/account/delete")}
-          className="w-full rounded-xl border border-red-900/40 px-3 py-2 text-sm text-red-200 hover:bg-red-950/30"
         >
           회원 탈퇴
-        </button>
+        </Button>
       </div>
-    </PageContainer>
+    </Shell>
   );
 }

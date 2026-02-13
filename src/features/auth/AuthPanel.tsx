@@ -3,6 +3,9 @@ import { useSession } from "@/features/auth/useSession";
 import { buildNext } from "@/lib/authRedirect";
 import { startGoogleLogin, logout } from "@/lib/authActions";
 
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { Button } from "@/shared/ui/primitives/Button";
+
 export default function AuthPanel() {
   const { isAuthed, user } = useSession();
   const location = useLocation();
@@ -10,30 +13,31 @@ export default function AuthPanel() {
 
   if (isAuthed) {
     return (
-      <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-4">
-        <div className="text-sm text-zinc-300">
-          로그인됨:{" "}
-          <span className="text-zinc-100">{user?.email ?? user?.id}</span>
+      <SurfaceCard className="p-4 space-y-3">
+        <div className="text-sm t4">
+          로그인됨: <span className="t2">{user?.email ?? user?.id}</span>
         </div>
-        <button
+
+        <Button
+          variant="outline"
           onClick={() => logout().catch((e) => alert(e.message))}
-          className="mt-3 rounded-xl border border-zinc-700/70 px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-800"
         >
           로그아웃
-        </button>
-      </div>
+        </Button>
+      </SurfaceCard>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-4">
-      <div className="text-sm text-zinc-300 mb-3">작성/댓글은 로그인 필요</div>
-      <button
+    <SurfaceCard className="p-4 space-y-3">
+      <div className="text-sm t4">작성/댓글은 로그인 필요</div>
+
+      <Button
+        variant="primary"
         onClick={() => startGoogleLogin(next).catch((e) => alert(e.message))}
-        className="rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
       >
         Google로 로그인
-      </button>
-    </div>
+      </Button>
+    </SurfaceCard>
   );
 }
