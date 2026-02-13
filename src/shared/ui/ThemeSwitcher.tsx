@@ -5,9 +5,10 @@ export function ThemeSwitcher() {
 
   return (
     <div className="flex gap-2">
-      <button onClick={() => setTheme("white")}>White</button>
-      <button onClick={() => setTheme("black")}>Black</button>
-      <button onClick={() => setTheme("blue")}>Blue</button>
+      <button onClick={() => setTheme("navy")}>navy</button>
+      <button onClick={() => setTheme("darkGray")}>darkGray</button>
+      <button onClick={() => setTheme("pureDark")}>pureDark</button>
+      <button onClick={() => setTheme("brownArchive")}>brownArchive</button>
     </div>
   );
 }

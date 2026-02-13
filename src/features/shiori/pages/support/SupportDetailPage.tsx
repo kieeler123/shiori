@@ -74,7 +74,11 @@ export default function SupportDetailPage() {
   // ------------------------
 
   if (!ready) {
-    return <LoadingText label="세션 확인중…" />;
+    return <LoadingText>세션 확인중…</LoadingText>;
+  }
+
+  if (loading) {
+    return <div className="text-sm text-[var(--text-sub)]">Loading…</div>;
   }
 
   if (!item) {

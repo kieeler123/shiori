@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
 import { dbSupportList } from "@/features/shiori/repo/supportRepo";
-import { dbSupportSoftDelete } from "@/features/shiori/repo/supportTrashRepo";
 import { actionBtn } from "@/app/ui/btn";
 import type { SupportTicketListRow } from "../../type";
+import { dbSupportTrashMove } from "../../repo/supportTrashRepo";
 
 export default function AdminFeedbackPage() {
   const nav = useNavigate();
@@ -33,7 +33,7 @@ export default function AdminFeedbackPage() {
     if (!confirm("삭제할까요?")) return;
     setBusy(true);
     try {
-      await dbSupportSoftDelete(id);
+      await dbSupportTrashMove(id);
       await refresh();
     } finally {
       setBusy(false);

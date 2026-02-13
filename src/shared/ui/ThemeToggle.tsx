@@ -1,14 +1,18 @@
+// src/shared/ui/ThemeToggle.tsx
 import { useTheme } from "@/shared/theme/useTheme";
+import { THEME_PRESETS } from "@/shared/theme/themes";
+import type { ThemeName } from "@/shared/theme/theme.types";
 
-export function ThemeToggle() {
-  const { toggle, theme } = useTheme();
+export default function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+
+  const names = THEME_PRESETS.map((p) => p.name) as ThemeName[];
+  const idx = Math.max(0, names.indexOf(theme));
+  const next = names[(idx + 1) % names.length] ?? "navy";
 
   return (
-    <button
-      onClick={toggle}
-      className="text-sm text-[var(--muted)] hover:text-[var(--fg)] transition"
-    >
-      {theme === "white" ? "black" : "white"}
+    <button type="button" onClick={() => setTheme(next)}>
+      Theme: {theme} → {next}
     </button>
   );
 }

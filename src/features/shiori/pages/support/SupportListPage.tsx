@@ -8,7 +8,6 @@ import { dbSupportList } from "@/features/shiori/repo/supportRepo";
 import type { SupportTicketListRow } from "../../type";
 
 import { Button } from "@/shared/ui/primitives/Button";
-import { CardButton } from "@/shared/ui/primitives/CardButton";
 import TagChip from "@/shared/ui/primitives/TagChip";
 import { ListItemButton } from "@/shared/ui/patterns/ListItemButton";
 import { previewText } from "../../utils/previewOneLine";
