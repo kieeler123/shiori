@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { dbFaqList } from "@/features/shiori/repo/supportFaqRepo";
 import type { SupportFaqRow } from "../../type";
 
-import { Button } from "@/shared/ui/primitives/Button";
 import { Input } from "@/shared/ui/primitives/Input";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 
