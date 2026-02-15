@@ -8,6 +8,7 @@ import type { DbLogRow } from "../../type";
 
 import { Button } from "@/shared/ui/primitives/Button";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { PageSection } from "@/app/layout/PageSection";
 // 있으면 사용 (없으면 아래 주석 참고)
 // import { PageLoadingCard } from "@/shared/ui/patterns/PageLoadingCard";
 
@@ -101,7 +102,7 @@ export default function EditLogPage() {
   }
 
   return (
-    <>
+    <PageSection>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="text-xs t5">
           {new Date(item.created_at).toLocaleString()}
@@ -129,6 +130,6 @@ export default function EditLogPage() {
           onSubmit={onSubmit}
         />
       </div>
-    </>
+    </PageSection>
   );
 }

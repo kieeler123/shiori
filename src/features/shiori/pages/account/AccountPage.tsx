@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAccountProfileCtx } from "@/features/shiori/account/AccountProfileProvider";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
-import { PageContainer } from "@/app/layout/PageContainer";
+import { PageSection } from "@/app/layout/PageSection";
 import { Button } from "@/shared/ui/primitives/Button";
 
 function fmtDate(v: string | null) {
@@ -32,7 +32,7 @@ export default function AccountPage() {
 
   // ✅ 공통 레이아웃: PageContainer가 컨테이너를 맡는다면 여기서 mx/max-w/px를 또 주지 말기
   const Shell = ({ children }: { children: React.ReactNode }) => (
-    <PageContainer className="space-y-4">{children}</PageContainer>
+    <PageSection className="space-y-4">{children}</PageSection>
   );
 
   if (loading) {

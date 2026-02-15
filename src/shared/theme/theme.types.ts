@@ -1,8 +1,12 @@
 export type ThemeName =
-  | "pureDark"
-  | "darkGray"
   | "navy"
   | "brownArchive"
+  | "pureDark"
+  | "darkGray"
+  | "whitePaper"
+  | "tealGlass"
+  | "sageMist"
+  | "plumNight"
   | "custom";
 
 /** CSS 변수 토큰 묶음 */

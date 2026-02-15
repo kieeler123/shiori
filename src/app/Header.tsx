@@ -7,25 +7,7 @@ import { Button } from "@/shared/ui/primitives/Button";
 import { StickyBar } from "@/shared/ui/patterns/StickyBar";
 import { PageHeaderRow } from "./layout/PageHeaderRow";
 import { DropdownMenuPanel } from "@/shared/ui/patterns/DropdownMenuPanel";
-import { THEME_PRESETS } from "@/shared/theme/themes";
-import { useTheme } from "@/shared/theme/useTheme";
-function ThemeSelect() {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <select
-      value={theme}
-      onChange={(e) => setTheme(e.target.value as any)}
-      className="rounded-xl border border-[var(--border-soft)] bg-[var(--item-bg)] px-3 py-2 text-sm t2"
-    >
-      {THEME_PRESETS.map((p) => (
-        <option key={p.name} value={p.name}>
-          {p.label}
-        </option>
-      ))}
-    </select>
-  );
-}
+import { ThemeSelect } from "@/shared/theme/ThemeSelect";
 export default function Header({
   title = "Shiori",
   versionText = "v0",
@@ -59,12 +41,9 @@ export default function Header({
   }, [open]);
   return (
     <StickyBar>
-      {" "}
       <PageHeaderRow>
-        {" "}
-        {/* Left */}{" "}
+        {/* Left */}
         <div className="flex items-center gap-2 min-w-0">
-          {" "}
           <Button
             variant="icon"
             aria-label="menu"
@@ -72,25 +51,22 @@ export default function Header({
             onClick={() => setOpen((v) => !v)}
             title="Menu"
           >
-            {" "}
             <span className="flex flex-col justify-center gap-1">
-              {" "}
-              <span className="block h-[2px] w-4 bg-current opacity-80" />{" "}
-              <span className="block h-[2px] w-4 bg-current opacity-80" />{" "}
-              <span className="block h-[2px] w-4 bg-current opacity-80" />{" "}
-            </span>{" "}
-          </Button>{" "}
+              <span className="block h-[2px] w-4 bg-current opacity-80" />
+              <span className="block h-[2px] w-4 bg-current opacity-80" />
+              <span className="block h-[2px] w-4 bg-current opacity-80" />
+            </span>
+          </Button>
           <button
             type="button"
             onClick={() => nav("/")}
             className="cursor-pointer min-w-0 truncate text-lg sm:text-xl font-semibold tracking-tight t2 hover:opacity-90"
             title="Home"
           >
-            {" "}
-            {title}{" "}
-          </button>{" "}
-          <span className="shrink-0 text-xs t5">{versionText}</span>{" "}
-          {/* Dropdown */}{" "}
+            {title}
+          </button>
+          <span className="shrink-0 text-xs t5">{versionText}</span>
+          {/* Dropdown */}
           {open && (
             <DropdownMenuPanel
               role="menu"
@@ -99,82 +75,73 @@ export default function Header({
               onClick={(e) => e.stopPropagation()}
               className="left-1/2 -translate-x-1/2 top-full mt-2"
             >
-              {" "}
-              <div className="px-2 py-1 text-xs t5">고객센터</div>{" "}
+              <div className="px-2 py-1 text-xs t5">고객센터</div>
               <Button
                 variant="ghost"
                 role="menuitem"
                 onClick={() => (nav("/support"), setOpen(false))}
+                className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
               >
-                {" "}
-                📋 전체 문의{" "}
-              </Button>{" "}
+                📋 전체 문의
+              </Button>
               <Button
                 variant="ghost"
                 role="menuitem"
                 onClick={() => (nav("/support/faq"), setOpen(false))}
               >
-                {" "}
-                ❓ FAQ{" "}
-              </Button>{" "}
+                ❓ FAQ
+              </Button>
               <Button
                 variant="ghost"
                 role="menuitem"
                 onClick={() => (nav("/support/new"), setOpen(false))}
               >
-                {" "}
-                📝 제보하기{" "}
-              </Button>{" "}
+                📝 제보하기
+              </Button>
               <Button
                 variant="ghost"
                 role="menuitem"
                 onClick={() => (nav("/support/mine"), setOpen(false))}
               >
-                {" "}
-                🙋 내 문의{" "}
-              </Button>{" "}
+                🙋 내 문의
+              </Button>
               <Button
                 variant="ghost"
                 role="menuitem"
                 onClick={() => (nav("/support/trash"), setOpen(false))}
               >
-                {" "}
-                🗑 고객센터 휴지통{" "}
-              </Button>{" "}
+                🗑 고객센터 휴지통
+              </Button>
               <Button
                 variant="ghost"
                 role="menuitem"
                 onClick={() => (nav("/settings/account"), setOpen(false))}
               >
-                {" "}
-                ⚙️ 계정 설정{" "}
-              </Button>{" "}
-              <div className="my-2 border-t border-[var(--border-soft)]" />{" "}
-              <div className="px-2 py-1 text-xs t5">기타</div>{" "}
+                ⚙️ 계정 설정
+              </Button>
+              <div className="my-2 border-t border-[var(--border-soft)]" />
+              <div className="px-2 py-1 text-xs t5">기타</div>
               <Button
                 variant="ghost"
                 role="menuitem"
                 onClick={() => (nav("/trash"), setOpen(false))}
               >
-                {" "}
-                🗑 일반 휴지통{" "}
-              </Button>{" "}
+                🗑 일반 휴지통
+              </Button>
             </DropdownMenuPanel>
-          )}{" "}
-        </div>{" "}
-        {/* Right */}{" "}
+          )}
+        </div>
+        {/* Right */}
         <div className="flex items-center gap-2 shrink-0">
-          {" "}
-          <ThemeSelect />{" "}
+          <ThemeSelect />
           {isAuthed ? (
             <Button variant="ghost" onClick={() => nav("/logs/new")}>
-              {" "}
-              + 작성{" "}
+              + 작성
             </Button>
-          ) : null}{" "}
-          <AuthButton />{" "}
-        </div>{" "}
-      </PageHeaderRow>{" "}
+          ) : null}
+          <AuthButton />
+        </div>
+      </PageHeaderRow>
     </StickyBar>
   );
 }

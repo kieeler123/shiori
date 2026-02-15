@@ -2,8 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { dbFaqList } from "@/features/shiori/repo/supportFaqRepo";
 import type { SupportFaqRow } from "../../type";
 
+import { Button } from "@/shared/ui/primitives/Button";
+import { Input } from "@/shared/ui/primitives/Input";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+
 function normalize(s: string) {
-  return s.trim().toLowerCase();
+  return String(s ?? "")
+    .trim()
+    .toLowerCase();
 }
 
 export default function SupportFaqPage() {
@@ -34,6 +40,7 @@ export default function SupportFaqPage() {
   const filtered = useMemo(() => {
     const nq = normalize(q);
     if (!nq) return rows;
+
     return rows.filter((r) => {
       const hay = `${r.title}\n${r.body}\n${r.category ?? ""}`.toLowerCase();
       return hay.includes(nq);
@@ -42,74 +49,68 @@ export default function SupportFaqPage() {
 
   return (
     <div>
-      {/* 상단 검색 */}
+      {/* 상단 */}
       <div className="flex items-center justify-between gap-3">
-        <div className="text-sm text-zinc-400">
+        <div className="text-sm t5">
           {loading ? "불러오는 중…" : `FAQ ${filtered.length}개`}
         </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            setOpenId(null);
-            setQ("");
-            load();
-          }}
-          className="cursor-pointer rounded-xl border border-zinc-800/70 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900/60"
-          disabled={loading}
-        >
-          새로고침
-        </button>
       </div>
 
+      {/* 검색 */}
       <div className="mt-3">
-        <input
+        <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="검색: 로그인, 휴지통, 삭제, 문의…"
-          className="w-full rounded-2xl border border-zinc-800/70 bg-zinc-950/40 px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:ring-2 focus:ring-zinc-700/60"
         />
       </div>
 
+      {/* 에러 */}
       {err ? (
-        <div className="mt-4 rounded-2xl border border-red-900/50 bg-red-950/20 p-4 text-sm text-red-200">
-          {err}
-        </div>
+        <SurfaceCard className="mt-4 border-[color:var(--danger-border)] bg-[var(--danger-bg)]">
+          <div className="text-sm text-[var(--danger-fg)]">{err}</div>
+        </SurfaceCard>
       ) : null}
 
-      {/* FAQ 리스트 */}
+      {/* 리스트 */}
       <div className="mt-4 space-y-2">
         {loading ? (
-          <div className="text-sm text-zinc-400">불러오는 중…</div>
+          <div className="text-sm t5">불러오는 중…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-sm text-zinc-500">검색 결과가 없습니다.</div>
+          <div className="text-sm t6">검색 결과가 없습니다.</div>
         ) : (
           filtered.map((r) => {
             const isOpen = openId === r.id;
+
             return (
-              <div
+              <SurfaceCard
                 key={r.id}
-                className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30"
+                className="p-0 overflow-hidden"
+                tone="soft"
               >
                 <button
                   type="button"
                   onClick={() =>
                     setOpenId((cur) => (cur === r.id ? null : r.id))
                   }
-                  className="cursor-pointer w-full text-left p-4 hover:bg-zinc-900/40 rounded-2xl"
+                  className={[
+                    "w-full text-left p-4 rounded-2xl transition",
+                    "hover:bg-[rgba(255,255,255,0.03)]",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+                  ].join(" ")}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       {r.category ? (
-                        <div className="text-xs text-zinc-500">
-                          {r.category}
-                        </div>
+                        <div className="text-xs t6">{r.category}</div>
                       ) : null}
-                      <div className="mt-1 text-sm text-zinc-100">
+
+                      <div className="mt-1 text-sm t2 truncate">
                         Q. {r.title}
                       </div>
                     </div>
-                    <div className="shrink-0 text-xs text-zinc-500">
+
+                    <div className="shrink-0 text-xs t6">
                       {isOpen ? "닫기" : "열기"}
                     </div>
                   </div>
@@ -117,24 +118,24 @@ export default function SupportFaqPage() {
 
                 {isOpen ? (
                   <div className="px-4 pb-4">
-                    <div className="rounded-2xl border border-zinc-800/60 bg-zinc-950/30 p-4 ">
-                      <div className="text-sm text-zinc-200 whitespace-pre-wrap break-words">
+                    <SurfaceCard tone="panel" className="p-4">
+                      <div className="text-sm t4 whitespace-pre-wrap break-words">
                         {r.body}
                       </div>
-                      <div className="mt-3 text-xs text-zinc-600">
+                      <div className="mt-3 text-xs t6">
                         업데이트: {new Date(r.updated_at).toLocaleString()}
                       </div>
-                    </div>
+                    </SurfaceCard>
                   </div>
                 ) : null}
-              </div>
+              </SurfaceCard>
             );
           })
         )}
       </div>
 
       {/* 하단 안내 */}
-      <div className="mt-6 text-xs text-zinc-600">
+      <div className="mt-6 text-xs t6">
         FAQ를 읽어도 해결되지 않으면, 상단 탭에서 “제보하기”로 문의해 주세요.
       </div>
     </div>

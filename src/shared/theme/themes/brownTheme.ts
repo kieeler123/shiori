@@ -1,5 +1,6 @@
-export const brownTheme: Record<string, string> = {
-  /* Text */
+// brownArchiveTheme.ts
+export const brownArchiveTheme: Record<string, string> = {
+  /* TEXT */
   "--text-1": "#f5f3ef",
   "--text-2": "#e9e4dc",
   "--text-3": "#d8d1c6",
@@ -7,35 +8,91 @@ export const brownTheme: Record<string, string> = {
   "--text-5": "#9c9182",
   "--text-6": "#7c7266",
 
-  /* Background */
+  /* APP BACKGROUND */
   "--bg-app": [
     "radial-gradient(900px circle at 50% -200px, rgba(180, 120, 70, 0.12), transparent 60%)",
     "linear-gradient(180deg, #1b1612 0%, #14110d 100%)",
   ].join(","),
 
-  /* Header */
+  /* HEADER */
   "--header-bg": "rgba(28, 22, 17, 0.82)",
   "--header-border": "rgba(255, 255, 255, 0.08)",
   "--header-shadow": "0 12px 35px rgba(0, 0, 0, 0.4)",
   "--header-blur": "10px",
 
-  /* Surfaces */
+  "--menu-bg": "rgba(40, 32, 25, 0.92)", // ✅ 메뉴판 더 잘 보이게(불투명 ↑)
+  "--menu-border": "rgba(255,255,255,0.10)",
+  "--menu-shadow": "0 18px 45px rgba(0,0,0,0.45)",
+
+  "--overlay-bg": "rgba(0,0,0,0.28)", // ✅ 뒤 글자만 죽이는 정도(너무 어둡지 않게)
+  "--overlay-blur": "2px",
+
+  /* SURFACE */
   "--bg-elev-1": "rgba(34, 27, 21, 0.8)",
   "--bg-elev-2": "rgba(40, 32, 25, 0.85)",
-
   "--surface-3": "rgba(45, 36, 28, 0.92)",
   "--surface-2": "rgba(34, 27, 21, 0.8)",
 
-  /* Borders */
-  "--border-soft": "rgba(255, 255, 255, 0.06)",
-  "--border-strong": "rgba(255, 255, 255, 0.12)",
+  /* BORDERS */
+  "--border-soft": "rgba(255, 255, 255, 0.08)", // ✅ 조금 더 또렷하게
+  "--border-strong": "rgba(255, 255, 255, 0.14)",
 
-  /* List */
+  /* LIST ITEM */
   "--item-bg": "rgba(40, 32, 25, 0.75)",
-  "--item-border": "rgba(255, 255, 255, 0.06)",
+  "--item-border": "rgba(255, 255, 255, 0.08)",
   "--item-hover-bg": "rgba(48, 38, 30, 0.82)",
-  "--item-hover-border": "rgba(255, 255, 255, 0.12)",
+  "--item-hover-border": "rgba(255, 255, 255, 0.14)",
+  "--item-hover-shadow": "0 10px 30px rgba(0, 0, 0, 0.35)",
+  "--item-active-scale": "0.995",
 
-  /* Focus (기술 느낌 30% 유지) */
-  "--ring": "rgba(91, 140, 255, 0.35)",
+  /* FIELD */
+  "--field-bg": "rgba(40, 32, 25, 0.75)",
+  "--field-border": "rgba(255, 255, 255, 0.10)", // ✅ 테두리 더 보이게
+  "--field-focus-border": "rgba(180, 120, 70, 0.45)", // ✅ 브라운 포인트
+  "--field-placeholder": "rgba(156, 145, 130, 0.75)",
+
+  /* FOCUS */
+  "--ring": "rgba(180, 120, 70, 0.35)", // ✅ 이제 브라운에서 파란 링 안 남음
+
+  /* BUTTON */
+  "--btn-primary-bg": "#f5f3ef",
+  "--btn-primary-fg": "#1b1612",
+  "--btn-primary-border": "rgba(245, 243, 239, 0.6)",
+  "--btn-primary-hover-bg": "#ffffff",
+
+  "--btn-secondary-bg": "rgba(40, 32, 25, 0.75)",
+  "--btn-secondary-fg": "var(--text-3)",
+  "--btn-secondary-border": "rgba(255,255,255,0.10)",
+  "--btn-secondary-hover-bg": "rgba(48, 38, 30, 0.88)",
+
+  "--btn-ghost-fg": "var(--text-3)",
+  "--btn-ghost-hover-fg": "var(--text-2)",
+  "--btn-ghost-hover-bg": "rgba(255,255,255,0.05)",
+
+  "--btn-outline-border": "rgba(255,255,255,0.10)",
+  "--btn-outline-fg": "var(--text-3)",
+  "--btn-outline-hover-bg": "rgba(255,255,255,0.05)",
+
+  "--btn-danger-border": "rgba(239, 68, 68, 0.42)",
+  "--btn-danger-fg": "#fca5a5",
+  "--btn-danger-hover-bg": "rgba(239, 68, 68, 0.14)",
+
+  "--btn-soft-hover-bg": "rgba(255,255,255,0.05)",
+
+  /* ICON BTN (header menu 등) */
+  "--btn-icon-fg": "var(--text-3)",
+  "--btn-icon-hover-fg": "var(--text-2)",
+  "--btn-icon-hover-bg": "rgba(255,255,255,0.06)",
+
+  /* EDITOR */
+  "--editor-bg": "var(--bg-elev-1)",
+  "--editor-border": "var(--border-soft)",
+
+  /* USER CHIP (헤더 로그인/로그아웃) */
+  "--userchip-bg": "rgba(40, 32, 25, 0.55)",
+  "--userchip-hover-bg": "rgba(48, 38, 30, 0.78)",
+  "--userchip-border": "rgba(255,255,255,0.10)",
+  "--userchip-avatar-bg": "rgba(34, 27, 21, 0.85)",
+  "--userchip-text": "var(--text-3)",
+  "--userchip-subtext": "var(--text-6)",
 };

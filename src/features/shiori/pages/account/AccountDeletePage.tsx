@@ -67,8 +67,6 @@ export default function AccountDeletePage() {
   }
 
   return (
-    // PageContainer로 바꾸면 더 통일감 좋아짐
-    // <PageContainer>
     <div className="mx-auto max-w-3xl px-6 py-6">
       <div className="flex items-start justify-between gap-3">
         <div>

@@ -147,43 +147,45 @@ export default function LogsPage() {
   return (
     <>
       {/* Search */}
-      <Card variant="panel">
-        <SearchBar
-          query={query}
-          setQuery={setQuery}
-          suggestions={suggestions}
-          commitSearch={commitSearch}
-          pickSuggestion={pickSuggestion}
-          onClear={() => {
-            setSelectedTag(null);
-            setOnlyCommented(false);
-          }}
-          onRequestNavigateFirst={() => setPendingNavToFirst(true)}
-        />
+      <div className="sticky top-16 z-20">
+        <Card variant="panel">
+          <SearchBar
+            query={query}
+            setQuery={setQuery}
+            suggestions={suggestions}
+            commitSearch={commitSearch}
+            pickSuggestion={pickSuggestion}
+            onClear={() => {
+              setSelectedTag(null);
+              setOnlyCommented(false);
+            }}
+            onRequestNavigateFirst={() => setPendingNavToFirst(true)}
+          />
 
-        {isSearching ? (
-          <div className="mt-2 text-sm t5">
-            “<span className="t4">{query}</span>” 검색 결과{" "}
-            <span className="t3">{logsToRender.length}</span>개
-          </div>
-        ) : (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="soft"
-              onClick={() => setOnlyCommented((v) => !v)}
-            >
-              {onlyCommented ? "전체 글 보기" : "댓글 있는 글만"}
-            </Button>
+          {isSearching ? (
+            <div className="mt-2 text-sm t5">
+              “<span className="t4">{query}</span>” 검색 결과{" "}
+              <span className="t3">{logsToRender.length}</span>개
+            </div>
+          ) : (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="soft"
+                onClick={() => setOnlyCommented((v) => !v)}
+              >
+                {onlyCommented ? "전체 글 보기" : "댓글 있는 글만"}
+              </Button>
 
-            {selectedTag ? (
-              <div className="text-xs t5">
-                태그 필터: <span className="t3">#{selectedTag}</span>
-              </div>
-            ) : null}
-          </div>
-        )}
-      </Card>
+              {selectedTag ? (
+                <div className="text-xs t5">
+                  태그 필터: <span className="t3">#{selectedTag}</span>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </Card>
+      </div>
 
       {/* Tag filter (Top10) */}
       {!isSearching && tagStatsTop10.length > 0 ? (

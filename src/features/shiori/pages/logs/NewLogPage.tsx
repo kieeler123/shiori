@@ -6,7 +6,7 @@ import { dbCreate } from "@/features/shiori/repo/shioriRepo";
 import { useSession } from "@/features/auth/useSession";
 import { dbLogsTrashHardDelete } from "../../repo/trashRepo";
 import { Button } from "@/shared/ui/primitives/Button";
-import { PageContainer } from "@/app/layout/PageContainer";
+import { PageSection } from "@/app/layout/PageSection";
 
 type EditorSubmitValue = { title: string; content: string; tags: string[] };
 
@@ -129,22 +129,24 @@ export default function NewLogPage() {
 
   if (!ready) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 grid place-items-center">
-        <div className="text-sm text-zinc-400">세션 확인중…</div>
+      <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-2)] grid place-items-center">
+        <div className="text-sm text-[var(--text-5)]">세션 확인중…</div>
       </div>
     );
   }
 
   if (!isAuthed) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 grid place-items-center">
-        <div className="text-sm text-zinc-400">로그인 후 작성할 수 있어요.</div>
+      <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-2)] grid place-items-center">
+        <div className="text-sm text-[var(--text-5)]">
+          로그인 후 작성할 수 있어요.
+        </div>
       </div>
     );
   }
 
   return (
-    <PageContainer>
+    <PageSection>
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold t2">새 글 작성</h2>
@@ -204,6 +206,6 @@ export default function NewLogPage() {
       <div className="mt-4 text-xs t5">
         작성 후 5초 동안 “되돌리기”로 방금 글을 삭제할 수 있어요.
       </div>
-    </PageContainer>
+    </PageSection>
   );
 }

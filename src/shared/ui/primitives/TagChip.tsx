@@ -47,7 +47,7 @@ export default function TagChip({
   const base = cn(
     "select-none inline-flex items-center gap-1 rounded-full border",
     "transition-all duration-200",
-    "focus:outline-none focus:ring-2 focus:ring-zinc-700/60",
+    "focus:outline-none focus:ring-2 focus:ring-[var(--ring)]",
     clickable ? "cursor-pointer" : "cursor-default",
   );
 
@@ -60,18 +60,20 @@ export default function TagChip({
   const styles = {
     filter: {
       idle: cn(
-        "border-zinc-800/70 text-zinc-400 bg-zinc-900/40",
+        "border border-[var(--border-soft)] text-[var(--text-5)] bg-[var(--bg-elev-1)]",
         clickable &&
-          "hover:bg-zinc-900/70 hover:text-zinc-100 hover:border-zinc-700/70",
+          "hover:bg-[var(--bg-elev-2)] hover:text-[var(--text-2)] hover:border-[var(--border-strong)]",
       ),
       active: cn(
-        "border-zinc-700/80 bg-zinc-900/85 text-zinc-100",
-        clickable && "hover:bg-zinc-900 hover:border-zinc-600/80",
+        "border border-[var(--border-strong)] bg-[var(--bg-elev-2)] text-[var(--text-2)]",
+        clickable &&
+          "hover:bg-[var(--surface-3)] hover:border-[var(--border-strong)]",
       ),
     },
     display: {
-      idle: "border-zinc-800/70 text-zinc-400 bg-zinc-900/30",
-      active: "border-zinc-700/80 text-zinc-200 bg-zinc-900/60",
+      idle: "border border-[var(--border-soft)] text-[var(--text-5)] bg-[var(--bg-elev-1)]",
+      active:
+        "border border-[var(--border-strong)] text-[var(--text-3)] bg-[var(--bg-elev-2)]",
     },
   } as const;
 

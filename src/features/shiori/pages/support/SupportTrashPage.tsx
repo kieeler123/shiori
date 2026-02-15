@@ -6,7 +6,7 @@ import AuthPanel from "@/features/auth/AuthPanel";
 import type { SupportTrashListRow } from "../../type";
 
 import { Button } from "@/shared/ui/primitives/Button";
-import { PageContainer } from "@/app/layout/PageContainer";
+import { PageSection } from "@/app/layout/PageSection";
 import { previewText } from "../../utils/previewOneLine";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import {
@@ -80,7 +80,7 @@ export default function SupportTrashPage() {
   }
 
   return (
-    <PageContainer>
+    <PageSection>
       {/* 헤더 */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
@@ -155,6 +155,6 @@ export default function SupportTrashPage() {
           ))}
         </div>
       )}
-    </PageContainer>
+    </PageSection>
   );
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import { Button } from "@/shared/ui/primitives/Button";
-import { PageContainer } from "@/app/layout/PageContainer";
+import { PageSection } from "@/app/layout/PageSection";
 import { previewText } from "../../utils/previewOneLine";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import {
@@ -45,7 +45,7 @@ export default function TrashPage() {
   if (!isAuthed) return <div className="p-6">로그인 필요</div>;
 
   return (
-    <PageContainer>
+    <PageSection>
       <h1 className="mb-6 text-xl font-semibold">🗑 휴지통</h1>
 
       {items.length === 0 ? (
@@ -95,6 +95,6 @@ export default function TrashPage() {
       <Button variant="nav" onClick={() => nav(-1)} className="mt-6">
         뒤로
       </Button>
-    </PageContainer>
+    </PageSection>
   );
 }

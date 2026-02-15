@@ -31,6 +31,22 @@
   --header-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   --header-blur: 10px;
 
+  --menu-bg: rgba(17, 24, 39, 0.88);
+  --menu-border: rgba(255, 255, 255, 0.1);
+  --menu-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  --menu-blur: 10px;
+
+  --menu-item-fg: var(--text-3);
+  --menu-item-hover-bg: rgba(255, 255, 255, 0.05);
+  --menu-item-hover-fg: var(--text-2);
+
+  --userchip-bg: rgba(17, 24, 39, 0.45);
+  --userchip-hover-bg: rgba(17, 24, 39, 0.65)
+    --userchip-border: rgba(255, 255, 255, 0.08);
+  --userchip-avatar-bg: rgba(17, 24, 39, 0.6);
+  --userchip-text: var(--text-3);
+  --userchip-subtext: var(--text-6);
+
   /* Surface ladder */
   --surface-3: rgba(24, 30, 45, 0.9); /* 작업면(작성/수정 카드) */
   --surface-2: rgba(17, 24, 39, 0.72); /* 입력면(필드) */
@@ -39,8 +55,8 @@
 
   /* Search */
   --field-bg: rgba(17, 24, 39, 0.55);
-  --field-border: rgba(255, 255, 255, 0.1);
-  --field-border-focus: rgba(99, 102, 241, 0.55); /* indigo 느낌 */
+  --field-border: rgba(148, 163, 184, 0.18);
+  --field-focus-border: rgba(91, 140, 255, 0.45);
   --field-ring: rgba(99, 102, 241, 0.3);
   --field-placeholder: var(--text-6);
 
@@ -104,9 +120,9 @@
   --btn-icon-hover-bg: rgba(255, 255, 255, 0.05);
 
   --border-soft: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.18);
 
-  --ring: rgba(91, 140, 255, 0.35);
+  --ring: rgba(91, 140, 255, 0.38);
 
   --bg-app:
     radial-gradient(
@@ -121,8 +137,9 @@
     ),
     linear-gradient(180deg, #070b15 0%, #060913 100%);
 
-  --bg-elev-1: rgba(17, 24, 39, 0.75);
-  --bg-elev-2: rgba(17, 24, 39, 0.75);
+  --bg-elev-1: rgba(17, 24, 39, 0.7);
+  --bg-elev-2: rgba(20, 28, 45, 0.82);
+  --surface-3: rgba(24, 34, 60, 0.92);
 
   --app-surface-1: 17 24 39;
   --app-surface-2: 17 24 39;
@@ -159,15 +176,15 @@
 }
 
 :root[data-theme="pureDark"] {
-  /* Text (navy와 크게 안 바꿔도 됨) */
+  /* TEXT */
   --text-1: #fafafa;
   --text-2: #f4f4f5;
   --text-3: #e4e4e7;
   --text-4: #d4d4d8;
-  --text-5: #b3b3be; /* ✅ 살짝 밝게 */
-  --text-6: #8b8b98; /* ✅ 살짝 밝게 */
+  --text-5: #b3b3be;
+  --text-6: #8b8b98;
 
-  /* Background: ✅ blue tint 제거 */
+  /* APP BACKGROUND (neutral, no blue tint) */
   --bg-app:
     radial-gradient(
       900px circle at 50% -200px,
@@ -181,38 +198,89 @@
     ),
     linear-gradient(180deg, #0b0d12 0%, #07080c 100%);
 
-  /* Header (중립 다크) */
+  /* HEADER */
   --header-bg: rgba(15, 17, 22, 0.78);
   --header-border: rgba(255, 255, 255, 0.12);
   --header-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   --header-blur: 10px;
 
-  /* Surface ladder (중립) */
-  --bg-elev-1: rgba(18, 20, 26, 0.78);
-  --bg-elev-2: rgba(22, 24, 31, 0.82);
+  --menu-bg: rgba(0, 0, 0, 0.92);
+  --menu-border: rgba(255, 255, 255, 0.08);
+  --menu-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+  --menu-blur: 8px;
 
-  --surface-3: rgba(26, 28, 36, 0.92);
+  --menu-item-fg: var(--text-3);
+  --menu-item-hover-bg: rgba(255, 255, 255, 0.06);
+  --menu-item-hover-fg: #ffffff;
+
+  --userchip-bg: rgba(20, 20, 20, 0.7);
+  --userchip-hover-bg: rgba(30, 30, 30, 0.9);
+  --userchip-border: rgba(255, 255, 255, 0.08);
+  --userchip-avatar-bg: rgba(30, 30, 30, 0.9);
+  --userchip-text: var(--text-3);
+  --userchip-subtext: var(--text-5);
+
+  /* SURFACE LADDER */
+  --bg-elev-1: rgba(18, 18, 18, 0.85);
+  --bg-elev-2: rgba(28, 28, 28, 0.95);
+
   --surface-2: rgba(18, 20, 26, 0.78);
+  --surface-3: rgba(35, 35, 35, 1);
 
-  /* Borders (✅ 대비 강화) */
+  /* BORDERS */
   --border-soft: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.22);
 
-  /* List item (✅ 카드/리스트가 더 보여야 함) */
+  /* LIST ITEM */
   --item-bg: rgba(22, 24, 31, 0.72);
   --item-border: rgba(255, 255, 255, 0.1);
   --item-hover-bg: rgba(28, 31, 40, 0.8);
   --item-hover-border: rgba(255, 255, 255, 0.16);
   --item-hover-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+  --item-active-scale: 0.995;
 
-  /* Focus ring은 그대로 블루 유지 OK */
-  --ring: rgba(91, 140, 255, 0.38);
+  /* FIELD */
+  --field-bg: rgba(22, 24, 31, 0.72);
+  --field-border: rgba(255, 255, 255, 0.1);
+  --field-focus-border: rgba(255, 255, 255, 0.3);
+  --field-placeholder: rgba(179, 179, 190, 0.65);
 
-  /* Buttons (navy값 유지해도 됨. 필요시만 조정) */
+  /* BUTTON - Primary (navy와 동일 철학 유지: 밝은 primary) */
+  --btn-primary-bg: #f4f4f5;
+  --btn-primary-fg: #0b0d12;
+  --btn-primary-border: rgba(244, 244, 245, 0.6);
+  --btn-primary-hover-bg: #ffffff;
+
+  /* BUTTON - Secondary */
+  --btn-secondary-bg: rgba(22, 24, 31, 0.72);
+  --btn-secondary-fg: var(--text-3);
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --btn-secondary-hover-bg: rgba(28, 31, 40, 0.85);
+
+  /* BUTTON - Ghost */
+  --btn-ghost-fg: var(--text-3);
+  --btn-ghost-hover-fg: var(--text-2);
+  --btn-ghost-hover-bg: rgba(255, 255, 255, 0.04);
+
+  /* BUTTON - Outline */
+  --btn-outline-border: rgba(255, 255, 255, 0.1);
+  --btn-outline-fg: var(--text-3);
+  --btn-outline-hover-bg: rgba(255, 255, 255, 0.04);
+
+  /* BUTTON - Danger */
+  --btn-danger-border: rgba(239, 68, 68, 0.4);
+  --btn-danger-fg: #fca5a5;
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.12);
+
+  /* FOCUS RING */
+  --ring: rgba(255, 255, 255, 0.25);
+
+  --editor-bg: rgba(18, 18, 18, 0.92);
+  --editor-border: rgba(255, 255, 255, 0.08);
 }
 
 :root[data-theme="brownArchive"] {
-  /* Text */
+  /* TEXT */
   --text-1: #f5f3ef;
   --text-2: #e9e4dc;
   --text-3: #d8d1c6;
@@ -220,7 +288,7 @@
   --text-5: #9c9182;
   --text-6: #7c7266;
 
-  /* Background */
+  /* APP BG */
   --bg-app:
     radial-gradient(
       900px circle at 50% -200px,
@@ -229,31 +297,450 @@
     ),
     linear-gradient(180deg, #1b1612 0%, #14110d 100%);
 
-  /* Header */
-  --header-bg: rgba(255, 0, 0, 0.9);
+  /* HEADER */
+  --header-bg: rgba(28, 22, 17, 0.82);
   --header-border: rgba(255, 255, 255, 0.08);
   --header-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
   --header-blur: 10px;
 
-  /* Surfaces */
+  /* SURFACE */
   --bg-elev-1: rgba(34, 27, 21, 0.8);
   --bg-elev-2: rgba(40, 32, 25, 0.85);
-
   --surface-3: rgba(45, 36, 28, 0.92);
   --surface-2: rgba(34, 27, 21, 0.8);
 
-  /* Borders */
+  /* BORDERS */
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* LIST */
+  --item-bg: rgba(40, 32, 25, 0.75);
+  --item-border: rgba(255, 255, 255, 0.08);
+  --item-hover-bg: rgba(48, 38, 30, 0.82);
+  --item-hover-border: rgba(255, 255, 255, 0.14);
+  --item-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --item-active-scale: 0.995;
+
+  /* FIELD */
+  --field-bg: rgba(40, 32, 25, 0.75);
+  --field-border: rgba(255, 255, 255, 0.1);
+  --field-focus-border: rgba(180, 120, 70, 0.45);
+  --field-placeholder: rgba(156, 145, 130, 0.75);
+
+  /* FOCUS */
+  --ring: rgba(180, 120, 70, 0.35);
+
+  /* BUTTON */
+  --btn-primary-bg: #f5f3ef;
+  --btn-primary-fg: #1b1612;
+  --btn-primary-border: rgba(245, 243, 239, 0.6);
+  --btn-primary-hover-bg: #ffffff;
+
+  --btn-secondary-bg: rgba(40, 32, 25, 0.75);
+  --btn-secondary-fg: var(--text-3);
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+  --btn-secondary-hover-bg: rgba(48, 38, 30, 0.88);
+
+  --btn-ghost-fg: var(--text-3);
+  --btn-ghost-hover-fg: var(--text-2);
+  --btn-ghost-hover-bg: rgba(255, 255, 255, 0.05);
+
+  --btn-outline-border: rgba(255, 255, 255, 0.1);
+  --btn-outline-fg: var(--text-3);
+  --btn-outline-hover-bg: rgba(255, 255, 255, 0.05);
+
+  --btn-danger-border: rgba(239, 68, 68, 0.42);
+  --btn-danger-fg: #fca5a5;
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.14);
+
+  --btn-soft-hover-bg: rgba(255, 255, 255, 0.05);
+
+  /* ICON BTN */
+  --btn-icon-fg: var(--text-3);
+  --btn-icon-hover-fg: var(--text-2);
+  --btn-icon-hover-bg: rgba(255, 255, 255, 0.06);
+
+  /* EDITOR */
+  --editor-bg: var(--bg-elev-1);
+  --editor-border: var(--border-soft);
+
+  /* USER CHIP */
+  --userchip-bg: rgba(40, 32, 25, 0.55);
+  --userchip-hover-bg: rgba(48, 38, 30, 0.78);
+  --userchip-border: rgba(255, 255, 255, 0.1);
+  --userchip-avatar-bg: rgba(34, 27, 21, 0.85);
+  --userchip-text: var(--text-3);
+  --userchip-subtext: var(--text-6);
+}
+
+:root[data-theme="darkGray"] {
+  /* TEXT */
+  --text-1: #f5f5f5;
+  --text-2: #e5e5e5;
+  --text-3: #d4d4d4;
+  --text-4: #a3a3a3;
+  --text-5: #737373;
+  --text-6: #525252;
+
+  /* APP BACKGROUND */
+  --bg-app:
+    radial-gradient(
+      900px circle at 50% -220px,
+      rgba(255, 255, 255, 0.04),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #0f0f11 0%, #0a0a0c 100%);
+
+  /* HEADER */
+  --header-bg: rgba(24, 24, 27, 0.78);
+  --header-border: rgba(255, 255, 255, 0.1);
+  --header-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --header-blur: 10px;
+
+  --menu-bg: rgba(24, 24, 27, 0.92);
+  --menu-border: rgba(255, 255, 255, 0.1);
+  --menu-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+  --menu-blur: 10px;
+
+  --menu-item-fg: var(--text-3);
+  --menu-item-hover-bg: rgba(255, 255, 255, 0.05);
+  --menu-item-hover-fg: var(--text-1);
+
+  /* SURFACE */
+  --bg-elev-1: rgba(28, 28, 30, 0.82);
+  --bg-elev-2: rgba(36, 36, 38, 0.9);
+  --surface-2: rgba(24, 24, 27, 0.8);
+  --surface-3: rgba(45, 45, 48, 0.98);
+
+  /* BORDERS */
   --border-soft: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.12);
 
-  /* List */
-  --item-bg: rgba(40, 32, 25, 0.75);
+  /* LIST ITEM */
+  --item-bg: rgba(24, 24, 27, 0.7);
   --item-border: rgba(255, 255, 255, 0.06);
-  --item-hover-bg: rgba(48, 38, 30, 0.82);
+  --item-hover-bg: rgba(40, 40, 40, 0.85);
   --item-hover-border: rgba(255, 255, 255, 0.12);
+  --item-hover-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --item-active-scale: 0.995;
 
-  /* Focus (기술 느낌 30% 유지) */
-  --ring: rgba(91, 140, 255, 0.35);
+  /* FIELD */
+  --field-bg: rgba(30, 30, 30, 0.8);
+  --field-border: rgba(200, 200, 200, 0.15);
+  --field-focus-border: rgba(220, 220, 220, 0.35);
+  --field-placeholder: rgba(150, 150, 150, 0.7);
+
+  /* BUTTON - Primary */
+  --btn-primary-bg: #e5e5e5;
+  --btn-primary-fg: #111111;
+  --btn-primary-border: rgba(255, 255, 255, 0.4);
+  --btn-primary-hover-bg: #ffffff;
+
+  /* BUTTON - Secondary */
+  --btn-secondary-bg: rgba(40, 40, 40, 0.7);
+  --btn-secondary-fg: var(--text-3);
+  --btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --btn-secondary-hover-bg: rgba(50, 50, 50, 0.9);
+
+  /* BUTTON - Ghost */
+  --btn-ghost-fg: var(--text-3);
+  --btn-ghost-hover-fg: var(--text-1);
+  --btn-ghost-hover-bg: rgba(255, 255, 255, 0.04);
+
+  /* BUTTON - Outline */
+  --btn-outline-border: rgba(255, 255, 255, 0.08);
+  --btn-outline-fg: var(--text-3);
+  --btn-outline-hover-bg: rgba(255, 255, 255, 0.04);
+
+  /* BUTTON - Danger */
+  --btn-danger-border: rgba(239, 68, 68, 0.4);
+  --btn-danger-fg: #fca5a5;
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.12);
+
+  /* FOCUS RING */
+  --ring: rgba(200, 200, 200, 0.3);
+
+  --editor-bg: rgba(32, 32, 36, 0.88);
+  --editor-border: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="whitePaper"] {
+  /* TEXT */
+  --text-1: #111111;
+  --text-2: #1f2937;
+  --text-3: #374151;
+  --text-4: #4b5563;
+  --text-5: #6b7280;
+  --text-6: #9ca3af;
+
+  /* APP BACKGROUND */
+  --bg-app:
+    radial-gradient(
+      800px circle at 50% -200px,
+      rgba(120, 90, 60, 0.05),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #f7f4ef 0%, #f1ede6 100%);
+
+  /* HEADER */
+  --header-bg: rgba(247, 244, 239, 0.85);
+  --header-border: rgba(80, 60, 40, 0.12);
+  --header-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  --header-blur: 8px;
+
+  /* SURFACE */
+  --bg-elev-1: rgba(255, 255, 255, 0.75);
+  --bg-elev-2: rgba(255, 255, 255, 0.95);
+  --surface-3: #ffffff;
+  --surface-2: rgba(255, 255, 255, 0.85);
+
+  /* BORDERS */
+  --border-soft: rgba(90, 70, 50, 0.08);
+  --border-strong: rgba(90, 70, 50, 0.15);
+
+  --menu-bg: rgba(255, 255, 255, 0.92);
+  --menu-border: rgba(120, 90, 60, 0.14);
+  --menu-shadow: 0 18px 45px rgba(0, 0, 0, 0.1);
+
+  --menu-item-hover-bg: rgba(120, 90, 60, 0.08);
+  --menu-item-hover-fg: var(--text-1);
+
+  --userchip-bg: rgba(255, 255, 255, 0.7);
+  --userchip-hover-bg: rgba(245, 241, 235, 0.9);
+  --userchip-border: rgba(0, 0, 0, 0.1);
+  --userchip-avatar-bg: rgba(0, 0, 0, 0.05);
+  --userchip-text: var(--text-2);
+  --userchip-subtext: var(--text-5);
+
+  /* LIST */
+  --item-bg: rgba(255, 255, 255, 0.9);
+  --item-border: rgba(90, 70, 50, 0.12);
+  --item-hover-bg: #f3eee6;
+  --item-hover-border: rgba(90, 70, 50, 0.2);
+  --item-hover-shadow: 0 12px 25px rgba(0, 0, 0, 0.05);
+  --item-active-scale: 0.998;
+
+  /* FIELD */
+  --field-bg: #ffffff;
+  --field-border: rgba(0, 0, 0, 0.15);
+  --field-focus-border: #a67c52; /* 브라운 포인트 */
+  --field-placeholder: rgba(0, 0, 0, 0.4);
+
+  /* BUTTON */
+  --btn-primary-bg: #2f2a24;
+  --btn-primary-fg: #ffffff;
+  --btn-primary-border: rgba(0, 0, 0, 0.2);
+  --btn-primary-hover-bg: #1f1a15;
+
+  --btn-secondary-bg: rgba(120, 90, 60, 0.08);
+  --btn-secondary-fg: var(--text-3);
+  --btn-secondary-border: rgba(120, 90, 60, 0.15);
+  --btn-secondary-hover-bg: rgba(120, 90, 60, 0.12);
+
+  --btn-ghost-fg: var(--text-3);
+  --btn-ghost-hover-fg: var(--text-1);
+  --btn-ghost-hover-bg: rgba(120, 90, 60, 0.08);
+
+  --btn-outline-border: rgba(120, 90, 60, 0.2);
+  --btn-outline-fg: var(--text-3);
+  --btn-outline-hover-bg: rgba(120, 90, 60, 0.08);
+
+  --btn-danger-border: rgba(239, 68, 68, 0.4);
+  --btn-danger-fg: #b91c1c;
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.1);
+
+  /* RING */
+  --ring: rgba(120, 90, 60, 0.35);
+  --tw-ring-color: var(--ring);
+
+  --editor-bg: var(--bg-elev-2);
+  --editor-border: var(--border-soft);
+}
+
+:root[data-theme="tealGlass"] {
+  /* TEXT */
+  --text-1: #e6fffb;
+  --text-2: #ccfbf1;
+  --text-3: #99f6e4;
+  --text-4: #5eead4;
+  --text-5: #2dd4bf;
+  --text-6: #0f766e;
+
+  /* BACKGROUND */
+  --bg-app:
+    radial-gradient(
+      900px circle at 50% -200px,
+      rgba(45, 212, 191, 0.15),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #0f172a 0%, #0b1a1c 100%);
+
+  /* SURFACE */
+  --bg-elev-1: rgba(18, 30, 32, 0.65);
+  --bg-elev-2: rgba(18, 30, 32, 0.78);
+
+  /* BORDER */
+  --border-soft: rgba(45, 212, 191, 0.15);
+  --border-strong: rgba(45, 212, 191, 0.35);
+
+  /* FIELD */
+  --field-bg: rgba(18, 30, 32, 0.75);
+  --field-border: rgba(45, 212, 191, 0.25);
+  --field-focus-border: #2dd4bf;
+  --field-placeholder: rgba(153, 246, 228, 0.5);
+
+  /* FOCUS */
+  --ring: rgba(45, 212, 191, 0.35);
+  --tw-ring-color: var(--ring);
+
+  /* MENU */
+  --menu-bg: rgba(18, 30, 32, 0.82);
+  --menu-border: rgba(45, 212, 191, 0.25);
+  --menu-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
+
+  --overlay-bg: rgba(0, 0, 0, 0.28);
+  --overlay-blur: 3px;
+}
+
+:root[data-theme="sageMist"] {
+  --text-1: #0f1412;
+  --text-2: #1b2420;
+  --text-3: #2f3a35;
+  --text-4: #4b5a53;
+  --text-5: #6b7a73;
+  --text-6: #8a9891;
+
+  --bg-app:
+    radial-gradient(
+      900px circle at 50% -220px,
+      rgba(34, 197, 94, 0.12),
+      transparent 62%
+    ),
+    radial-gradient(
+      700px circle at 12% 18%,
+      rgba(148, 163, 184, 0.18),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #f3f5f4 0%, #e9eeec 100%);
+
+  --header-bg: rgba(243, 245, 244, 0.72);
+  --header-border: rgba(15, 20, 18, 0.1);
+  --header-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --header-blur: 10px;
+
+  --bg-elev-1: rgba(255, 255, 255, 0.78);
+  --bg-elev-2: rgba(255, 255, 255, 0.62);
+  --surface-3: rgba(255, 255, 255, 0.88);
+  --surface-2: rgba(255, 255, 255, 0.72);
+
+  --border-soft: rgba(15, 20, 18, 0.1);
+  --border-strong: rgba(15, 20, 18, 0.16);
+
+  --item-bg: rgba(255, 255, 255, 0.62);
+  --item-border: rgba(15, 20, 18, 0.12);
+  --item-hover-bg: rgba(255, 255, 255, 0.78);
+  --item-hover-border: rgba(15, 20, 18, 0.18);
+  --item-hover-shadow: 0 16px 45px rgba(0, 0, 0, 0.1);
+  --item-active-scale: 0.995;
+
+  --field-bg: rgba(255, 255, 255, 0.86);
+  --field-border: rgba(15, 20, 18, 0.14);
+  --field-focus-border: rgba(34, 197, 94, 0.55);
+  --field-placeholder: rgba(75, 90, 83, 0.55);
+
+  --ring: rgba(34, 197, 94, 0.35);
+  --tw-ring-color: var(--ring);
+
+  --menu-bg: rgba(255, 255, 255, 0.82);
+  --menu-border: rgba(15, 20, 18, 0.12);
+  --menu-shadow: 0 22px 60px rgba(0, 0, 0, 0.14);
+
+  --overlay-bg: rgba(15, 20, 18, 0.18);
+  --overlay-blur: 3px;
+
+  --editor-bg: var(--bg-elev-1);
+  --editor-border: var(--border-soft);
+}
+
+:root[data-theme="plumNight"] {
+  --text-1: #faf7ff;
+  --text-2: #f1eaff;
+  --text-3: #e5dcff;
+  --text-4: #cbbcff;
+  --text-5: #a992f2;
+  --text-6: #7e6bb8;
+
+  --bg-app:
+    radial-gradient(
+      900px circle at 50% -240px,
+      rgba(168, 85, 247, 0.18),
+      transparent 62%
+    ),
+    radial-gradient(
+      700px circle at 15% 20%,
+      rgba(236, 72, 153, 0.1),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #0b0713 0%, #07050d 100%);
+
+  --header-bg: rgba(18, 10, 30, 0.74);
+  --header-border: rgba(255, 255, 255, 0.1);
+  --header-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+  --header-blur: 10px;
+
+  --bg-elev-1: rgba(18, 10, 30, 0.78);
+  --bg-elev-2: rgba(24, 13, 40, 0.82);
+  --surface-3: rgba(28, 15, 48, 0.92);
+  --surface-2: rgba(18, 10, 30, 0.78);
+
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  --item-bg: rgba(24, 13, 40, 0.72);
+  --item-border: rgba(255, 255, 255, 0.08);
+  --item-hover-bg: rgba(32, 16, 54, 0.82);
+  --item-hover-border: rgba(255, 255, 255, 0.16);
+  --item-hover-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+  --item-active-scale: 0.995;
+
+  --field-bg: rgba(24, 13, 40, 0.78);
+  --field-border: rgba(255, 255, 255, 0.1);
+  --field-focus-border: rgba(168, 85, 247, 0.55);
+  --field-placeholder: rgba(169, 146, 242, 0.6);
+
+  --ring: rgba(168, 85, 247, 0.35);
+  --tw-ring-color: var(--ring);
+
+  --menu-bg: rgba(24, 13, 40, 0.88);
+  --menu-border: rgba(255, 255, 255, 0.1);
+  --menu-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+
+  --overlay-bg: rgba(0, 0, 0, 0.3);
+  --overlay-blur: 4px;
+
+  --editor-bg: var(--bg-elev-1);
+  --editor-border: var(--border-soft);
+
+  /* =========================
+     LOGIN / HEADER BUTTON TOKENS
+     (헤더 로그인 버튼 = authchip / nav 버튼 계열)
+     ========================= */
+  --btn-nav-bg: rgba(24, 13, 40, 0.55);
+  --btn-nav-fg: var(--text-3);
+  --btn-nav-border: rgba(255, 255, 255, 0.12);
+  --btn-nav-hover-bg: rgba(32, 16, 54, 0.72);
+  --btn-nav-hover-border: rgba(255, 255, 255, 0.18);
+
+  /* (옵션) userchip도 같이 쓰는 경우 */
+  --userchip-bg: rgba(24, 13, 40, 0.55);
+  --userchip-hover-bg: rgba(32, 16, 54, 0.72);
+  --userchip-border: rgba(255, 255, 255, 0.12);
+  --userchip-avatar-bg: rgba(18, 10, 30, 0.85);
+  --userchip-text: var(--text-3);
+  --userchip-subtext: var(--text-6);
+
+  /* (옵션) ghost/soft hover 기본 */
+  --btn-soft-hover-bg: rgba(255, 255, 255, 0.05);
 }
 
 /* 공통 규칙 */
@@ -272,4 +759,20 @@
   margin: 0 auto;
   max-width: 768px;
   padding: 16px 24px;
+}
+
+.menu-item {
+  border-radius: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+  justify-content: flex-start;
+  color: var(--menu-item-fg);
+}
+.menu-item:hover {
+  background: var(--menu-item-hover-bg);
+  color: var(--menu-item-hover-fg);
+}
+.menu-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
 }

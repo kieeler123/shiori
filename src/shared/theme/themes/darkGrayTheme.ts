@@ -1,5 +1,5 @@
 // darkGrayTheme.ts
-export const darkGrayTheme = {
+export const darkGrayTheme: Record<string, string> = {
   /* TEXT */
   "--text-1": "#f5f5f5",
   "--text-2": "#e5e5e5",
@@ -8,11 +8,50 @@ export const darkGrayTheme = {
   "--text-5": "#737373",
   "--text-6": "#525252",
 
+  /* APP BACKGROUND */
+  "--bg-app": `
+    radial-gradient(
+      900px circle at 50% -220px,
+      rgba(255,255,255,0.04),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #0f0f11 0%, #0a0a0c 100%)
+  `,
+
   /* HEADER */
   "--header-bg": "rgba(24, 24, 27, 0.78)",
-  "--header-border": "rgba(255, 255, 255, 0.1)",
+  "--header-border": "rgba(255, 255, 255, 0.10)",
   "--header-shadow": "0 10px 30px rgba(0, 0, 0, 0.4)",
   "--header-blur": "10px",
+
+  /* MENU */
+  "--menu-bg": "rgba(24, 24, 27, 0.92)",
+  "--menu-border": "rgba(255,255,255,0.08)",
+  "--menu-shadow": "0 20px 60px rgba(0,0,0,0.55)",
+  "--menu-blur": "10px",
+
+  "--menu-item-fg": "var(--text-3)",
+  "--menu-item-hover-fg": "var(--text-1)",
+  "--menu-item-hover-bg": "rgba(255,255,255,0.05)",
+
+  /* LOGIN / NAV BUTTON */
+  "--btn-nav-bg": "rgba(40,40,40,0.6)",
+  "--btn-nav-fg": "var(--text-3)",
+  "--btn-nav-border": "rgba(255,255,255,0.08)",
+  "--btn-nav-hover-bg": "rgba(50,50,50,0.9)",
+  "--btn-nav-hover-border": "rgba(255,255,255,0.14)",
+
+  /* USER CHIP */
+  "--userchip-bg": "rgba(40,40,40,0.55)",
+  "--userchip-hover-bg": "rgba(55,55,55,0.9)",
+  "--userchip-border": "rgba(255,255,255,0.08)",
+  "--userchip-avatar-bg": "rgba(30,30,30,0.85)",
+  "--userchip-text": "var(--text-3)",
+  "--userchip-subtext": "var(--text-6)",
+
+  /* OVERLAY */
+  "--overlay-bg": "rgba(0,0,0,0.35)",
+  "--overlay-blur": "3px",
 
   /* SURFACE */
   "--bg-elev-1": "rgba(24, 24, 27, 0.85)",
@@ -20,50 +59,55 @@ export const darkGrayTheme = {
   "--surface-3": "rgba(30, 30, 30, 0.95)",
   "--surface-2": "rgba(24, 24, 27, 0.8)",
 
-  /* BORDER */
+  /* BORDERS */
   "--border-soft": "rgba(255,255,255,0.06)",
-  "--border-strong": "rgba(255,255,255,0.1)",
+  "--border-strong": "rgba(255,255,255,0.12)",
 
-  /* LIST */
+  /* LIST ITEM */
   "--item-bg": "rgba(24, 24, 27, 0.7)",
-  "--item-border": "rgba(255,255,255,0.06)",
-  "--item-hover-bg": "rgba(40, 40, 40, 0.85)",
-  "--item-hover-border": "rgba(255,255,255,0.1)",
-  "--item-hover-shadow": "0 10px 30px rgba(0,0,0,0.4)",
+  "--item-border": "rgba(255,255,255,0.08)",
+  "--item-hover-bg": "rgba(40, 40, 40, 0.8)",
+  "--item-hover-border": "rgba(255,255,255,0.12)",
+  "--item-hover-shadow": "0 10px 30px rgba(0,0,0,0.45)",
   "--item-active-scale": "0.995",
 
   /* FIELD */
   "--field-bg": "rgba(30,30,30,0.8)",
   "--field-border": "rgba(255,255,255,0.08)",
-  "--field-focus-border": "rgba(160,160,160,0.4)",
+  "--field-focus-border": "rgba(200,200,200,0.35)",
   "--field-placeholder": "rgba(150,150,150,0.7)",
 
-  /* BUTTON */
+  /* BUTTON - Primary */
   "--btn-primary-bg": "#e5e5e5",
   "--btn-primary-fg": "#111111",
   "--btn-primary-border": "rgba(255,255,255,0.4)",
   "--btn-primary-hover-bg": "#ffffff",
 
+  /* BUTTON - Secondary */
   "--btn-secondary-bg": "rgba(40,40,40,0.7)",
   "--btn-secondary-fg": "var(--text-3)",
   "--btn-secondary-border": "rgba(255,255,255,0.08)",
   "--btn-secondary-hover-bg": "rgba(50,50,50,0.9)",
 
+  /* BUTTON - Ghost */
   "--btn-ghost-fg": "var(--text-3)",
   "--btn-ghost-hover-fg": "var(--text-1)",
   "--btn-ghost-hover-bg": "rgba(255,255,255,0.04)",
 
+  /* BUTTON - Outline */
   "--btn-outline-border": "rgba(255,255,255,0.08)",
   "--btn-outline-fg": "var(--text-3)",
   "--btn-outline-hover-bg": "rgba(255,255,255,0.04)",
 
+  /* BUTTON - Danger */
   "--btn-danger-border": "rgba(239,68,68,0.4)",
   "--btn-danger-fg": "#fca5a5",
   "--btn-danger-hover-bg": "rgba(239,68,68,0.12)",
 
+  /* FOCUS RING */
   "--ring": "rgba(200,200,200,0.3)",
+  "--tw-ring-color": "var(--ring)",
 
-  "--bg-app": `
-    linear-gradient(180deg, #0f0f11 0%, #0a0a0c 100%)
-  `,
+  "--editor-bg": "var(--bg-elev-1)",
+  "--editor-border": "var(--border-soft)",
 };

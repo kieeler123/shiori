@@ -10,4 +10,6 @@ useEffect(() => {
 document.documentElement.getAttribute("data-theme")
 
 getComputedStyle(document.documentElement).getPropertyValue("--header-bg")
+
+document.documentElement.dataset.theme = "brownArchive"
 ```

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAccountProfileCtx } from "@/features/shiori/account/AccountProfileProvider";
 import { uploadAvatar } from "@/lib/avatarStorage";
 
-import { PageContainer } from "@/app/layout/PageContainer";
+import { PageSection } from "@/app/layout/PageSection";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { Button } from "@/shared/ui/primitives/Button";
 
@@ -102,18 +102,18 @@ export default function AccountEditPage() {
   // --- Guards ---
   if (loading) {
     return (
-      <PageContainer className="space-y-4">
+      <PageSection className="space-y-4">
         <SurfaceCard className="space-y-1">
           <h1 className="text-xl font-semibold t2">프로필 수정</h1>
           <p className="text-sm t5">불러오는 중…</p>
         </SurfaceCard>
-      </PageContainer>
+      </PageSection>
     );
   }
 
   if (error) {
     return (
-      <PageContainer className="space-y-4">
+      <PageSection className="space-y-4">
         <SurfaceCard className="space-y-3">
           <div className="space-y-1">
             <h1 className="text-xl font-semibold t2">프로필 수정</h1>
@@ -129,13 +129,13 @@ export default function AccountEditPage() {
             </Button>
           </div>
         </SurfaceCard>
-      </PageContainer>
+      </PageSection>
     );
   }
 
   if (!profile) {
     return (
-      <PageContainer className="space-y-4">
+      <PageSection className="space-y-4">
         <SurfaceCard className="space-y-3">
           <div className="space-y-1">
             <h1 className="text-xl font-semibold t2">프로필 수정</h1>
@@ -151,13 +151,13 @@ export default function AccountEditPage() {
             </Button>
           </div>
         </SurfaceCard>
-      </PageContainer>
+      </PageSection>
     );
   }
 
   // --- Main ---
   return (
-    <PageContainer className="space-y-4">
+    <PageSection className="space-y-4">
       {/* Header */}
       <SurfaceCard className="flex items-start justify-between gap-3">
         <div className="space-y-1">
@@ -328,6 +328,6 @@ export default function AccountEditPage() {
           </span>
         </div>
       </SurfaceCard>
-    </PageContainer>
+    </PageSection>
   );
 }

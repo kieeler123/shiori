@@ -11,6 +11,10 @@ export function getTheme(): ThemeName {
     v === "darkGray" ||
     v === "navy" ||
     v === "brownArchive" ||
+    v === "whitePaper" ||
+    v === "sageMist" ||
+    v === "plumNight" ||
+    v === "tealGlass" ||
     v === "custom"
   ) {
     return v;

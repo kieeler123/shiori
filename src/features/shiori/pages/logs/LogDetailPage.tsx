@@ -27,7 +27,7 @@ function chip(t: string) {
   return (
     <span
       key={t}
-      className="select-none rounded-full border border-zinc-800/70 px-2 py-1 text-xs text-zinc-400"
+      className="select-none rounded-full border border-[color:var(--border-soft)] px-2 py-1 text-xs text-[var(--text-5)]"
     >
       #{t}
     </span>
@@ -160,9 +160,7 @@ export default function LogDetailPage() {
     return (
       <>
         <Button onClick={() => nav(-1)}>뒤로</Button>
-        <div className="mt-6 text-sm text-zinc-400">
-          존재하지 않는 글입니다.
-        </div>
+        <div className="mt-6 text-sm t5">존재하지 않는 글입니다.</div>
       </>
     );
   }
@@ -186,10 +184,7 @@ export default function LogDetailPage() {
         </div>
 
         {/* Title + actions */}
-        <SurfaceCard
-          tone="panel"
-          className="flex items-start justify-between gap-3"
-        >
+        <SurfaceCard className="flex items-start justify-between gap-3">
           <h1 className="min-w-0 flex-1 truncate text-2xl font-semibold tracking-tight t2">
             {item.title || "(제목 없음)"}
           </h1>

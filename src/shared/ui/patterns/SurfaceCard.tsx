@@ -9,9 +9,8 @@ export function SurfaceCard({
   ...props
 }: HTMLAttributes<HTMLDivElement> & { tone?: Tone }) {
   const tones: Record<Tone, string> = {
-    panel:
-      "bg-[var(--bg-elev-1)]/40 border border-[var(--var(--border-strong))]",
-    soft: "bg-[rgba(17,24,39,0.40)] border border-[var(--border-soft)]",
+    panel: "bg-[var(--bg-elev-1)] border border-[color:var(--border-strong)]",
+    soft: "bg-[var(--bg-elev-2)] border border-[color:var(--border-soft)]",
   };
 
   return (

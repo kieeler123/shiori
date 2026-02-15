@@ -8,12 +8,11 @@ export function Textarea({ className, ...props }: Props) {
   return (
     <textarea
       className={cn(
-        "w-full rounded-xl px-3 py-2 text-sm",
-        "border border-[var(--border-soft)] bg-[var(--bg-elev-1)]",
-        "text-[var(--text-main)] placeholder:text-[var(--text-sub)]/70",
-        "outline-none",
-        "focus:ring-2 focus:ring-[color:rgba(59,130,246,0.35)]",
-        "focus:border-[color:rgba(59,130,246,0.35)] text-zinc-200",
+        "w-full rounded-xl px-3 py-2 text-sm outline-none transition",
+        "bg-[var(--field-bg)] border border-[color:var(--field-border)]",
+        "text-[color:var(--text-2)] placeholder:text-[color:var(--field-placeholder)]",
+        "focus:ring-2 focus:ring-[color:var(--ring)]",
+        "focus:border-[color:var(--field-focus-border)]",
         className,
       )}
       {...props}
