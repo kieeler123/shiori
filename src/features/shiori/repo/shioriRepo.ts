@@ -5,7 +5,7 @@ const TABLE_VIEW = "shiori_items_v"; // ✅ 화면은 뷰만 본다
 const TABLE_BASE = "shiori_items"; // ✅ 생성/수정은 원본
 
 const SELECT_BASE =
-  "id,user_id,title,content,tags,created_at,updated_at,comment_count,view_count";
+  "id,user_id,title,content,tags,created_at,updated_at,comment_count,view_count,profile:profiles(nickname)";
 
 export async function dbList(): Promise<DbLogRow[]> {
   const { data, error } = await supabase
@@ -14,7 +14,11 @@ export async function dbList(): Promise<DbLogRow[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as DbLogRow[];
+
+  console.log("row sample", data?.[0]);
+  console.log("profile sample", (data as any)?.[0]?.profile);
+
+  return (data ?? []) as unknown as DbLogRow[];
 }
 
 export async function dbGet(id: string): Promise<DbLogRow | null> {
@@ -25,7 +29,7 @@ export async function dbGet(id: string): Promise<DbLogRow | null> {
     .maybeSingle();
 
   if (error) throw error;
-  return (data ?? null) as DbLogRow | null;
+  return (data ?? null) as unknown as DbLogRow | null;
 }
 
 export async function dbCreate(input: {
@@ -34,7 +38,6 @@ export async function dbCreate(input: {
   tags: string[];
 }): Promise<DbLogRow> {
   const { data: auth } = await supabase.auth.getUser();
-  console.log("create user:", auth.user);
   const user = auth.user;
   if (!user) throw new Error("Not signed in");
 
@@ -46,18 +49,21 @@ export async function dbCreate(input: {
       content: input.content,
       tags: input.tags,
     })
-    .select(SELECT_BASE)
+    .select("id") // ✅ id만
     .single();
 
   if (error) throw error;
-  return data as DbLogRow;
+
+  const row = await dbGet(data.id);
+  if (!row) throw new Error("Created row not found in view");
+  return row;
 }
 
 export async function dbUpdate(
   id: string,
   input: { title: string; content: string; tags: string[] },
 ): Promise<DbLogRow> {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from(TABLE_BASE)
     .update({
       title: input.title.trim(),
@@ -65,10 +71,11 @@ export async function dbUpdate(
       tags: input.tags,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id)
-    .select(SELECT_BASE)
-    .single();
+    .eq("id", id);
 
   if (error) throw error;
-  return data as DbLogRow;
+
+  const row = await dbGet(id);
+  if (!row) throw new Error("Updated row not found in view");
+  return row;
 }

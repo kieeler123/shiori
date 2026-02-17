@@ -8,6 +8,8 @@ export type LogItem = {
   updatedAt: string | null;
   commentCount: number;
   viewCount: number;
+
+  profile: { nickname: string | null } | null;
 };
 
 export interface NoteItem {
@@ -63,9 +65,10 @@ export type DbLogRow = {
   tags: string[];
   created_at: string;
   updated_at: string | null;
-
   comment_count: number;
   view_count: number;
+
+  profile: { nickname: string | null } | null;
 };
 
 export type TrashListRow = {

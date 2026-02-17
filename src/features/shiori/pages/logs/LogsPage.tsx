@@ -29,6 +29,7 @@ function toLogItem(r: DbLogRow): LogItem {
     updatedAt: (r as any).updated_at ?? null,
     commentCount: (r as any).comment_count ?? 0,
     viewCount: (r as any).view_count ?? 0,
+    profile: r.profile ? { nickname: r.profile.nickname } : null,
   };
 }
 
@@ -222,6 +223,11 @@ export default function LogsPage() {
                   <span>{new Date(log.createdAt).toLocaleDateString()}</span>
                   <span>💬 {log.commentCount ?? 0}</span>
                   <span>👀 {log.viewCount ?? 0}</span>
+                </div>
+                <div className="shrink-0 flex items-center gap-3 text-xs t5">
+                  <span className="text-sm text-zinc-400">
+                    {log.profile?.nickname ?? "익명"}
+                  </span>
                 </div>
               </div>
 
