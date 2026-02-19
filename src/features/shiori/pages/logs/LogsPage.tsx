@@ -65,7 +65,7 @@ export default function LogsPage() {
   });
 
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [onlyCommented, setOnlyCommented] = useState(false);
+  const [onlyCommented, _setOnlyCommented] = useState(false);
   const [pendingNavToFirst, setPendingNavToFirst] = useState(false);
 
   const refreshFromDb = useCallback(async () => {
@@ -121,19 +121,6 @@ export default function LogsPage() {
 
     return arr;
   }, [logs, selectedTag, onlyCommented]);
-
-  const noteItems = useMemo<NoteItem[]>(() => {
-    return filteredLogs.map((l) => ({
-      id: l.id,
-      title: l.title,
-      body: l.content,
-      tags: l.tags,
-      createdAt: Date.parse(l.createdAt),
-      updatedAt: l.updatedAt
-        ? Date.parse(String(l.updatedAt))
-        : Date.parse(l.createdAt),
-    }));
-  }, [filteredLogs]);
 
   const { query } = useShioriSearch();
   const isSearching = query.trim().length > 0;

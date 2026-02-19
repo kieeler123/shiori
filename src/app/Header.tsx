@@ -9,7 +9,6 @@ import { PageHeaderRow } from "./layout/PageHeaderRow";
 import { DropdownMenuPanel } from "@/shared/ui/patterns/DropdownMenuPanel";
 import { ThemeSelect } from "@/shared/theme/ThemeSelect";
 import { useShioriSearch } from "@/features/shiori/components/search/SearchContext";
-import { Input } from "@/shared/ui/primitives/Input";
 import { HeaderSearchBar } from "@/features/shiori/components/HeaderSearchBar";
 
 export default function Header({
@@ -23,7 +22,7 @@ export default function Header({
   const [open, setOpen] = useState(false);
 
   // 헤더 검색(필요하면 상위로 끌어올리기)
-  const [q, setQ] = useState("");
+  const [q, _setQ] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -31,8 +30,7 @@ export default function Header({
 
   const isHome = useMemo(() => location.pathname === "/", [location.pathname]);
 
-  const { query, setQuery, clearQuery } = useShioriSearch();
-  const hasQuery = query.trim().length > 0;
+  const { clearQuery } = useShioriSearch();
 
   useEffect(() => {
     setOpen(false);
@@ -58,18 +56,6 @@ export default function Header({
       document.removeEventListener("keydown", onEsc);
     };
   }, [open]);
-
-  function submitSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const query = q.trim();
-    if (!query) return;
-
-    // TODO: 실제 검색 연결
-    // 예) nav(`/?q=${encodeURIComponent(query)}`)
-    // 또는 상위 상태로 setSearchQuery(query)
-    if (!isHome) nav("/");
-    setMobileSearchOpen(false);
-  }
 
   return (
     <StickyBar>

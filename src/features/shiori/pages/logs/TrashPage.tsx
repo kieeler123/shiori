@@ -18,7 +18,7 @@ export default function TrashPage() {
   const [items, setItems] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
 
-  const [deleteStatus, setDeleteStatus] = useState<{
+  const [_deleteStatus, setDeleteStatus] = useState<{
     is_deleted: boolean;
     deleted_at: string | null;
     purge_at: string | null;
@@ -28,8 +28,6 @@ export default function TrashPage() {
     if (!isAuthed) return;
     dbGetMyDeleteStatus().then(setDeleteStatus).catch(console.error);
   }, [isAuthed]);
-
-  const isAccountDeleted = deleteStatus?.is_deleted === true;
 
   async function load() {
     if (!isAuthed) return;
