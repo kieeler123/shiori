@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { clearLogsCache, supabase } from "@/lib/supabaseClient";
 import { callbackUrl, saveNext } from "@/lib/authRedirect";
 import type { OAuthProvider } from "@/features/shiori/type";
 
@@ -34,5 +34,6 @@ export async function startOAuthLogin(provider: OAuthProvider, next: string) {
 
 export async function logout() {
   const { error } = await supabase.auth.signOut();
+  clearLogsCache();
   if (error) throw error;
 }

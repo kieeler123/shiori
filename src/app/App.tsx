@@ -19,11 +19,12 @@ import SupportEditPage from "@/features/shiori/pages/support/SupportEditPage";
 import AuthPage from "@/features/shiori/pages/auths/AuthPage";
 import AuthCallback from "@/features/auth/AuthCallback";
 
-import AccountPage from "@/features/shiori/pages/account/AccountPage";
 import AccountEditPage from "@/features/shiori/pages/account/AccountEditPage";
 import AccountDeletePage from "@/features/shiori/pages/account/AccountDeletePage";
 
 import { RequireAuthOutlet } from "@/app/layout/RequireAuthOutlet";
+import AccountLayout from "./layout/AccountLayout";
+import AccountOverviewPage from "@/features/shiori/pages/account/AccountOverviewPage";
 
 export default function App() {
   return (
@@ -57,12 +58,11 @@ export default function App() {
           <Route path="/logs/:id/edit" element={<EditLogPage />} />
           <Route path="/trash" element={<TrashPage />} />
 
-          <Route path="/settings/account" element={<AccountPage />} />
-          <Route path="/settings/account/edit" element={<AccountEditPage />} />
-          <Route
-            path="/settings/account/delete"
-            element={<AccountDeletePage />}
-          />
+          <Route path="/settings/account" element={<AccountLayout />}>
+            <Route index element={<AccountOverviewPage />} />
+            <Route path="edit" element={<AccountEditPage />} />
+            <Route path="delete" element={<AccountDeletePage />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useAccountProfileCtx } from "@/features/shiori/account/AccountProfileProvider";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
-import { PageSection } from "@/app/layout/PageSection";
 import { Button } from "@/shared/ui/primitives/Button";
+import { logout } from "@/lib/authActions";
 
 function fmtDate(v: string | null) {
   if (!v) return "-";
@@ -26,61 +26,47 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function AccountPage() {
+export default function AccountOverviewPage() {
   const nav = useNavigate();
   const { loading, profile, error, reload } = useAccountProfileCtx();
 
-  // ✅ 공통 레이아웃: PageContainer가 컨테이너를 맡는다면 여기서 mx/max-w/px를 또 주지 말기
-  const Shell = ({ children }: { children: React.ReactNode }) => (
-    <PageSection className="space-y-4">{children}</PageSection>
-  );
+  async function handleLogout() {
+    if (!confirm("로그아웃 하시겠습니까?")) return;
+    await logout();
+    nav("/", { replace: true });
+  }
 
   if (loading) {
     return (
-      <Shell>
-        <SurfaceCard className="space-y-2">
-          <h1 className="text-xl font-semibold t2">계정 설정</h1>
-          <p className="text-sm t5">불러오는 중...</p>
-        </SurfaceCard>
-      </Shell>
+      <SurfaceCard className="space-y-2">
+        <p className="text-sm t5">불러오는 중...</p>
+      </SurfaceCard>
     );
   }
 
   if (error) {
     return (
-      <Shell>
-        <SurfaceCard className="space-y-3">
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold t2">계정 설정</h1>
-            <p className="text-sm text-[var(--btn-danger-fg)]">{error}</p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button variant="soft" onClick={reload}>
-              다시 시도
-            </Button>
-          </div>
-        </SurfaceCard>
-      </Shell>
+      <SurfaceCard className="space-y-3">
+        <p className="text-sm text-[var(--btn-danger-fg)]">{error}</p>
+        <div className="flex items-center gap-2">
+          <Button variant="soft" onClick={reload}>
+            다시 시도
+          </Button>
+        </div>
+      </SurfaceCard>
     );
   }
 
   if (!profile) {
     return (
-      <Shell>
-        <SurfaceCard className="space-y-3">
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold t2">계정 설정</h1>
-            <p className="text-sm t5">로그인이 필요합니다.</p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button variant="soft" onClick={() => nav("/auth")}>
-              로그인 페이지로 이동
-            </Button>
-          </div>
-        </SurfaceCard>
-      </Shell>
+      <SurfaceCard className="space-y-3">
+        <p className="text-sm t5">로그인이 필요합니다.</p>
+        <div className="flex items-center gap-2">
+          <Button variant="soft" onClick={() => nav("/auth")}>
+            로그인 페이지로 이동
+          </Button>
+        </div>
+      </SurfaceCard>
     );
   }
 
@@ -99,15 +85,7 @@ export default function AccountPage() {
   const authLastSignInAt = fmtDate(profile.auth.lastSignInAt);
 
   return (
-    <Shell>
-      {/* Header */}
-      <SurfaceCard className="space-y-1">
-        <h1 className="text-xl font-semibold t2">계정 설정</h1>
-        <p className="text-sm t5">
-          소셜 원본은 유지하고, 앱 내 프로필은 Shiori에서만 수정됩니다.
-        </p>
-      </SurfaceCard>
-
+    <>
       {/* Shiori 프로필 */}
       <SurfaceCard className="p-4">
         <div className="flex items-center gap-3">
@@ -166,6 +144,15 @@ export default function AccountPage() {
         </Button>
 
         <Button
+          variant="outline"
+          size="md"
+          className="w-full"
+          onClick={handleLogout}
+        >
+          로그아웃
+        </Button>
+
+        <Button
           variant="danger"
           size="md"
           className="w-full"
@@ -174,6 +161,6 @@ export default function AccountPage() {
           회원 탈퇴
         </Button>
       </div>
-    </Shell>
+    </>
   );
 }

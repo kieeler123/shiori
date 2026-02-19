@@ -10,12 +10,26 @@ import {
   dbLogsTrashListMine,
   dbLogsTrashRestore,
 } from "../../repo/trashRepo";
+import { dbGetMyDeleteStatus } from "../../repo/AccountTrashRepo";
 
 export default function TrashPage() {
   const { isAuthed } = useSession();
   const nav = useNavigate();
   const [items, setItems] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
+
+  const [deleteStatus, setDeleteStatus] = useState<{
+    is_deleted: boolean;
+    deleted_at: string | null;
+    purge_at: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!isAuthed) return;
+    dbGetMyDeleteStatus().then(setDeleteStatus).catch(console.error);
+  }, [isAuthed]);
+
+  const isAccountDeleted = deleteStatus?.is_deleted === true;
 
   async function load() {
     if (!isAuthed) return;
@@ -67,7 +81,7 @@ export default function TrashPage() {
               ) : null}
 
               <div className="text-xs text-zinc-500 mt-1">
-                {new Date(it.created_at).toLocaleString()}
+                {new Date(it.deleted_at).toLocaleString()}
               </div>
 
               <div className="mt-3 flex gap-2">

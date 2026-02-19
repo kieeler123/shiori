@@ -1,12 +1,16 @@
-// shared/ui/primitives/Input.tsx
+import { forwardRef } from "react";
 import type { InputHTMLAttributes } from "react";
 import { cn } from "@/shared/ui/utils/cn";
 
 type Props = InputHTMLAttributes<HTMLInputElement>;
 
-export function Input({ className, ...props }: Props) {
+export const Input = forwardRef<HTMLInputElement, Props>(function Input(
+  { className, ...props },
+  ref,
+) {
   return (
     <input
+      ref={ref}
       className={cn(
         "w-full rounded-xl px-3 py-2 text-sm outline-none transition",
         "bg-[var(--field-bg)] border border-[color:var(--field-border)]",
@@ -18,4 +22,4 @@ export function Input({ className, ...props }: Props) {
       {...props}
     />
   );
-}
+});

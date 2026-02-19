@@ -5,11 +5,11 @@ const TABLE_VIEW = "shiori_items_v"; // ✅ 화면은 뷰만 본다
 const TABLE_BASE = "shiori_items"; // ✅ 생성/수정은 원본
 
 const SELECT_BASE =
-  "id,user_id,title,content,tags,created_at,updated_at,comment_count,view_count,profile:profiles(nickname)";
+  "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted )";
 
 export async function dbList(): Promise<DbLogRow[]> {
   const { data, error } = await supabase
-    .from(TABLE_VIEW)
+    .from(TABLE_VIEW) // or "shiori_items"
     .select(SELECT_BASE)
     .order("created_at", { ascending: false });
 
