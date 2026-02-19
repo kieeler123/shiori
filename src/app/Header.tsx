@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthButton from "@/features/auth/AuthButton";
 import { useSession } from "@/features/auth/useSession";
