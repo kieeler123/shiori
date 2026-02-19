@@ -22,13 +22,10 @@ export default function Header({
   const [open, setOpen] = useState(false);
 
   // 헤더 검색(필요하면 상위로 끌어올리기)
-  const [q, _setQ] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
   const btnRef = useRef<HTMLButtonElement | null>(null);
-
-  const isHome = useMemo(() => location.pathname === "/", [location.pathname]);
 
   const { clearQuery } = useShioriSearch();
 

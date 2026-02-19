@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { loadLogs, saveLogs } from "@/features/shiori/utils/storage";
-import type { DbLogRow, LogItem, NoteItem } from "@/features/shiori/type/logs";
+import type { DbLogRow, LogItem } from "@/features/shiori/type/logs";
 
 import { useSession } from "@/features/auth/useSession";
 import { dbList } from "@/features/shiori/repo/shioriRepo";
