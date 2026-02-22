@@ -8,6 +8,8 @@ import { dbLogsTrashHardDelete } from "../../repo/trashRepo";
 import { Button } from "@/shared/ui/primitives/Button";
 import { PageSection } from "@/app/layout/PageSection";
 
+type Toast = { kind: "ok" | "warn" | "error"; text: string } | null;
+
 type EditorSubmitValue = { title: string; content: string; tags: string[] };
 
 const UNDO_MS = 5000;
@@ -29,6 +31,14 @@ export default function NewLogPage() {
   const rafRef = useRef<number | null>(null);
   const lastRef = useRef<number>(0);
   const undoIdRef = useRef<string | null>(null);
+
+  const [toast, setToast] = useState<Toast>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = window.setTimeout(() => setToast(null), 2500);
+    return () => window.clearTimeout(t);
+  }, [toast]);
 
   // Undo reset
   useEffect(() => {
@@ -93,20 +103,30 @@ export default function NewLogPage() {
     setIsMutating(true);
 
     try {
-      const saved = await dbCreate(v);
+      const res = await dbCreate(v);
 
-      // ✅ 작성 Undo 활성화(5초)
+      if (!res.ok) {
+        // ✅ 저장은 되었는데, 뷰 정책 때문에 목록에 안 보이는 상태
+        setToast({
+          kind: "warn",
+          text: "저장은 되었지만 공개 목록 기준에 따라 숨김 처리되었습니다. (제목/내용/중복 규칙)",
+        });
+        // Undo를 걸지 말지: “숨김 글도 undo로 지울 수 있게” 하고 싶으면 아래 createdId로 undo 걸어도 됨.
+        // setUndo({ id: crypto.randomUUID(), kind: "add", createdId: res.createdId });
+        return;
+      }
+
+      // ✅ 정상 노출되는 글만 Undo 배너 활성화
       setUndo({
         id: crypto.randomUUID(),
         kind: "add",
-        createdId: saved.id,
+        createdId: res.row.id,
       });
 
-      // 작성 후 에디터는 그대로 두고(연속 작성 가능),
-      // 원하면 여기서 nav("/logs", { state: { refresh: true } })로 바로 보내도 됨.
+      setToast({ kind: "ok", text: "작성 완료!" });
     } catch (e) {
       console.error("create failed:", e);
-      alert(String((e as any)?.message ?? e));
+      setToast({ kind: "error", text: String((e as any)?.message ?? e) });
     } finally {
       setIsMutating(false);
     }
@@ -147,6 +167,11 @@ export default function NewLogPage() {
 
   return (
     <PageSection>
+      {toast && (
+        <div className="mt-3 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elev-1)]/70 px-4 py-3 text-sm t4">
+          {toast.text}
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold t2">새 글 작성</h2>

@@ -9,6 +9,8 @@ export type LogItem = {
   commentCount: number;
   viewCount: number;
 
+  sourceDate?: string | null;
+
   profile: { nickname: string | null } | null;
 };
 
@@ -67,8 +69,9 @@ export type DbLogRow = {
   updated_at: string | null;
   comment_count: number;
   view_count: number;
+  source_date: string | null;
 
-  profile: { nickname: string | null } | null;
+  profile: { nickname: string | null; is_deleted?: boolean | null }[] | null;
 };
 
 export type TrashListRow = {
@@ -81,4 +84,11 @@ export type TrashListRow = {
   updated_at: string | null;
   deleted_at: string;
   deleted_by: String;
+};
+
+export type LogListQuery = {
+  limit?: number;
+  offset?: number;
+  orderBy?: "source_date" | "created_at";
+  ascending?: boolean;
 };

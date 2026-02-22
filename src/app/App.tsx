@@ -25,6 +25,7 @@ import AccountDeletePage from "@/features/shiori/pages/account/AccountDeletePage
 import { RequireAuthOutlet } from "@/app/layout/RequireAuthOutlet";
 import AccountLayout from "./layout/AccountLayout";
 import AccountOverviewPage from "@/features/shiori/pages/account/AccountOverviewPage";
+import ImportExportPage from "@/features/shiori/pages/dev/ImportExportPage";
 
 export default function App() {
   return (
@@ -57,6 +58,8 @@ export default function App() {
           <Route path="/logs/new" element={<NewLogPage />} />
           <Route path="/logs/:id/edit" element={<EditLogPage />} />
           <Route path="/trash" element={<TrashPage />} />
+
+          <Route path="/dev/import-export" element={<ImportExportPage />} />
 
           <Route path="/settings/account" element={<AccountLayout />}>
             <Route index element={<AccountOverviewPage />} />

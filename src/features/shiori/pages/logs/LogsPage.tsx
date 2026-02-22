@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { loadLogs, saveLogs } from "@/features/shiori/utils/storage";
 import type { DbLogRow, LogItem } from "@/features/shiori/type/logs";
 
 import { useSession } from "@/features/auth/useSession";
-import { dbList } from "@/features/shiori/repo/shioriRepo";
 
 import TagChip from "@/shared/ui/primitives/TagChip";
 import { getEmptyMessage } from "@/app/layout/getEmptyMessage";
@@ -13,6 +12,17 @@ import { ListItemButton } from "@/shared/ui/patterns/ListItemButton";
 import { previewText } from "../../utils/previewOneLine";
 import { LoadingText } from "@/shared/ui/feedback/LoadingText";
 import { useShioriSearch } from "../../components/search/SearchContext";
+import { dbListPage } from "../../repo/shioriRepo";
+import { highlightText } from "@/shared/utils/highlight";
+
+function pickProfileNickname(p: any): { nickname: string | null } | null {
+  if (!p) return null;
+  if (Array.isArray(p)) {
+    const first = p[0];
+    return first ? { nickname: first.nickname ?? null } : null;
+  }
+  return { nickname: p.nickname ?? null };
+}
 
 function toLogItem(r: DbLogRow): LogItem {
   return {
@@ -21,12 +31,27 @@ function toLogItem(r: DbLogRow): LogItem {
     title: r.title,
     content: r.content,
     tags: Array.isArray(r.tags) ? r.tags : [],
+
     createdAt: r.created_at,
-    updatedAt: (r as any).updated_at ?? null,
-    commentCount: (r as any).comment_count ?? 0,
-    viewCount: (r as any).view_count ?? 0,
-    profile: r.profile ? { nickname: r.profile.nickname } : null,
+    updatedAt: r.updated_at ?? null,
+
+    commentCount: r.comment_count ?? 0,
+    viewCount: r.view_count ?? 0,
+
+    sourceDate: r.source_date ?? null,
+
+    profile: pickProfileNickname((r as any).profile),
   };
+}
+
+export function formatYmd(v?: string | null) {
+  if (!v) return "-";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "-";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function collectTags(logs: LogItem[]) {
@@ -50,6 +75,14 @@ function matchQuery(log: LogItem, q: string) {
   return title.includes(s) || content.includes(s) || tags.includes(s);
 }
 
+function shouldHideFromList(log: { title?: string; content?: string }) {
+  const title = (log.title ?? "").trim();
+  const content = (log.content ?? "").trim();
+  return title.length === 0 || content.length === 0; // 둘 중 하나라도 비면 숨김
+}
+
+const PAGE_SIZE = 10;
+
 export default function LogsPage() {
   const nav = useNavigate();
   const location = useLocation();
@@ -68,13 +101,99 @@ export default function LogsPage() {
   const [onlyCommented, _setOnlyCommented] = useState(false);
   const [pendingNavToFirst, setPendingNavToFirst] = useState(false);
 
-  const refreshFromDb = useCallback(async () => {
-    const rows = await dbList();
-    const next = rows.map(toLogItem);
-    setLogs(next);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-    // ✅ 공개 목록 캐시 용도로만 저장 (로그인 상태에선 저장해도 되지만, 잔상 방지하려면 아래처럼 조건 걸어도 됨)
-    saveLogs(next);
+  const loadNextPage = useCallback(async () => {
+    if (busy) return;
+    if (!hasMore) return;
+
+    setBusy(true);
+    try {
+      const rows = await dbListPage({
+        limit: PAGE_SIZE,
+        offset,
+        orderBy: "source_date",
+        ascending: false,
+      });
+
+      const next = rows.map(toLogItem);
+
+      // ✅ 혹시 중복 방지 (방어)
+      setLogs((prev) => {
+        const seen = new Set(prev.map((x) => x.id));
+        const merged = [...prev];
+        for (const it of next) if (!seen.has(it.id)) merged.push(it);
+        return merged;
+      });
+
+      // ✅ 다음 offset
+      setOffset((v) => v + rows.length);
+
+      // ✅ 더 가져올게 없으면 stop
+      if (rows.length < PAGE_SIZE) setHasMore(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, hasMore, offset]);
+
+  // ✅ 최초 1페이지 로드
+  useEffect(() => {
+    // 초기화 + 첫 페이지
+    setLogs([]);
+    setOffset(0);
+    setHasMore(true);
+
+    // offset 0 기준으로 바로 로드
+    (async () => {
+      setBusy(true);
+      try {
+        const rows = await dbListPage({
+          limit: PAGE_SIZE,
+          offset: 0,
+          orderBy: "source_date",
+          ascending: false,
+        });
+        setLogs(rows.map(toLogItem));
+        setOffset(rows.length);
+        if (rows.length < PAGE_SIZE) setHasMore(false);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setBusy(false);
+      }
+    })();
+  }, []); // 필요하면 ready/isAuthed 변화에 맞춰 초기화
+
+  // ✅ 스크롤 끝 감지
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first?.isIntersecting) {
+          loadNextPage();
+        }
+      },
+      { root: null, rootMargin: "200px", threshold: 0.01 }, // ✅ 200px 전에 미리 로드
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loadNextPage]);
+
+  const refreshFromDb = useCallback(async () => {
+    const rows = await dbListPage();
+    const next = rows.map(toLogItem);
+    const cleaned = next.filter((it) => !shouldHideFromList(it));
+    setLogs(cleaned);
+    saveLogs(cleaned);
   }, []);
 
   /**
@@ -169,48 +288,62 @@ export default function LogsPage() {
       ) : null}
 
       <section className="mt-6 space-y-3">
-        {logsToRender.map((log) => (
-          <ListItemButton
-            key={log.id}
-            className="surface-1"
-            onClick={() => goDetail(log.id)}
-            title="상세 보기"
-          >
-            <div className="min-w-0">
-              <div className="flex items-baseline justify-between gap-3">
-                <h3 className="min-w-0 flex-1 truncate font-medium t2">
-                  {log.title || "(제목 없음)"}
-                </h3>
+        {logsToRender.map((log) => {
+          const displayDate = log.sourceDate ?? log.createdAt;
+          return (
+            <ListItemButton
+              key={log.id}
+              className="surface-1"
+              onClick={() => goDetail(log.id)}
+              title="상세 보기"
+            >
+              <div className="min-w-0">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="min-w-0 flex-1 truncate font-medium t2">
+                    {highlightText(log.title || "(제목 없음)", query)}
+                  </h3>
 
-                <div className="shrink-0 flex items-center gap-3 text-xs t5">
-                  <span>{new Date(log.createdAt).toLocaleDateString()}</span>
-                  <span>💬 {log.commentCount ?? 0}</span>
-                  <span>👀 {log.viewCount ?? 0}</span>
+                  <div className="shrink-0 flex items-center gap-3 text-xs t5">
+                    <span>{formatYmd(displayDate)}</span>
+                    <span>💬 {log.commentCount ?? 0}</span>
+                    <span>👀 {log.viewCount ?? 0}</span>
+                  </div>
+
+                  <div className="shrink-0 flex items-center gap-3 text-xs t5">
+                    <span className="text-sm text-zinc-400">
+                      {log.profile?.nickname ?? "익명"}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="shrink-0 flex items-center gap-3 text-xs t5">
-                  <span className="text-sm text-zinc-400">
-                    {log.profile?.nickname ?? "익명"}
-                  </span>
-                </div>
+                <p className="mt-2 text-sm t4 leading-relaxed">
+                  {highlightText(previewText(log.content, 110), query)}
+                </p>
+
+                {(log.tags ?? []).length > 0 ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(log.tags ?? []).slice(0, 5).map((t) => (
+                      <TagChip key={t} tag={t} variant="display" />
+                    ))}
+                  </div>
+                ) : null}
               </div>
+            </ListItemButton>
+          );
+        })}
 
-              <p className="mt-2 text-sm t4 leading-relaxed">
-                {previewText(log.content, 110)}
-              </p>
+        {/* ✅ 로딩/끝 표시 */}
+        <div ref={sentinelRef} />
 
-              {(log.tags ?? []).length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {(log.tags ?? []).slice(0, 5).map((t) => (
-                    <TagChip key={t} tag={t} variant="display" />
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          </ListItemButton>
-        ))}
+        {busy ? (
+          <div className="py-4 text-center text-xs t5">loading...</div>
+        ) : null}
 
-        {logsToRender.length === 0 ? (
+        {!hasMore && logsToRender.length > 0 ? (
+          <div className="py-6 text-center text-xs t5">끝</div>
+        ) : null}
+
+        {logsToRender.length === 0 && !busy ? (
           <div className="text-sm t5">
             {getEmptyMessage({ isSearching, onlyCommented, selectedTag })}
           </div>

@@ -8,44 +8,19 @@ import {
 import { Input } from "@/shared/ui/primitives/Input";
 import { Textarea } from "@/shared/ui/primitives/Textarea";
 import { useEffect, useMemo, useState } from "react";
+import { normalizeTagsText } from "../domain/LogValidator";
 
-type SubmitValue = {
-  title: string;
-  content: string;
-  tags: string[];
-};
+type SubmitValue = { title: string; content: string; tags: string[] };
 
 type Props = {
-  // 기존 너 코드에서 쓰던 props 유지
-  syncKey?: string; // 외부에서 초기화 트리거용으로 쓰면 좋음
+  syncKey?: string;
   initialTitle?: string;
   initialContent?: string;
   initialTags?: string[];
-
   submitLabel: string;
   onSubmit: (v: SubmitValue) => void | Promise<void>;
   onCancel?: () => void;
 };
-
-function normalizeTags(input: string): string[] {
-  const arr = String(input ?? "")
-    .split(",")
-    .map((t) => t.trim().toLowerCase())
-    .filter(Boolean);
-
-  return [...new Set(arr)].slice(0, 10);
-}
-function uniqLowerKeepFirst(arr: string[]) {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const x of arr) {
-    const key = x.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(x);
-  }
-  return out;
-}
 
 export default function LogEditor({
   syncKey = "new",
@@ -56,62 +31,39 @@ export default function LogEditor({
   onSubmit,
   onCancel,
 }: Props) {
-  const [title, setTitle] = useState<string>(initialTitle);
-  const [content, setContent] = useState<string>(initialContent);
-
-  // 태그는 UI에서 "comma string"으로 다루고, submit 시 배열로 변환
-  const [tagText, setTagText] = useState<string>(() =>
-    (initialTags ?? []).join(", "),
-  );
-
-  // ✅ 연타 방지
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
+  const [tagText, setTagText] = useState((initialTags ?? []).join(", "));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  // ✅ 편집 대상이 바뀌면 에디터 상태 리셋 (너가 syncKey로 이미 잘 쓰고 있음)
   useEffect(() => {
     setTitle(initialTitle);
     setContent(initialContent);
     setTagText((initialTags ?? []).join(", "));
     setIsSubmitting(false);
+    setErr(null);
   }, [syncKey, initialTitle, initialContent, initialTags]);
 
-  const tags = useMemo(() => {
-    const parsed = normalizeTags(tagText);
-    return uniqLowerKeepFirst(parsed);
-  }, [tagText]);
+  const tags = useMemo(() => normalizeTagsText(tagText), [tagText]);
 
+  // ✅ 정책: 제목+내용 필수
   const canSubmit = useMemo(() => {
-    // 내용이 비어도 저장은 가능하게 두되, 완전 빈 글만 막고 싶으면 조건 강화 가능
-    const hasSomething =
-      title.trim().length > 0 || content.trim().length > 0 || tags.length > 0;
-    return hasSomething && !isSubmitting;
-  }, [title, content, tags, isSubmitting]);
+    return (
+      title.trim().length > 0 && content.trim().length > 0 && !isSubmitting
+    );
+  }, [title, content, isSubmitting]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("✅ handleSubmit fired", { title, content, tags });
-    if (!canSubmit) {
-      console.log("⛔ canSubmit is false", {
-        title,
-        content,
-        tags,
-        isSubmitting,
-      });
-      return;
-    }
+    if (!canSubmit) return;
 
     setIsSubmitting(true);
+    setErr(null);
     try {
-      await onSubmit({
-        title: title.trim(),
-        content: content,
-        tags,
-      });
-      console.log("✅ onSubmit resolved");
-      // 추가 모드일 때만 초기화하고 싶으면(편집 모드는 유지)
-      // 여기서는 외부에서 key/syncKey로 제어하니 굳이 내부 초기화 안 함
-    } catch (err) {
-      console.error("⛔ onSubmit error", err);
+      await onSubmit({ title: title.trim(), content: content.trim(), tags });
+    } catch (e: any) {
+      setErr(e?.message ?? "저장 중 오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -126,7 +78,6 @@ export default function LogEditor({
           placeholder="제목"
           className={fieldControl}
         />
-
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -134,7 +85,6 @@ export default function LogEditor({
           rows={6}
           className={fieldControl}
         />
-
         <Input
           value={tagText}
           onChange={(e) => setTagText(e.target.value)}
@@ -151,6 +101,8 @@ export default function LogEditor({
             ))}
           </div>
         ) : null}
+
+        {err ? <div className="text-sm text-red-400">{err}</div> : null}
 
         <div className="pt-1 flex items-center gap-2">
           <button type="submit" disabled={!canSubmit} className={submitBtn}>
