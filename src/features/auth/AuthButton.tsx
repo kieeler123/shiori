@@ -19,11 +19,6 @@ type Props = {
   mobileLabel?: string;
 };
 
-function openInExternalBrowser() {
-  // 인앱에서 완벽히 강제는 불가. 그래도 시도는 가능.
-  window.open(window.location.href, "_blank", "noopener,noreferrer");
-}
-
 export default function AuthButton({
   compactOnMobile = true,
   mobileLabel = "로그인/계정",

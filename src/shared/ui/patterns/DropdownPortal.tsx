@@ -70,7 +70,6 @@ export function DropdownPortal({
 
     // candidate positions
     const left0 = wantEnd ? anchorRect.right - width : anchorRect.left;
-    const top0 = wantTop ? anchorRect.top - gap : anchorRect.bottom + gap;
 
     // clamp X
     const left = clamp(
