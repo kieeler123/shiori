@@ -1,7 +1,7 @@
 import { pureDarkTheme } from "./themes/pureDarkTheme";
 import { darkGrayTheme } from "./themes/darkGrayTheme";
 import { navyTheme } from "./themes/navyTheme";
-import { brownArchiveTheme } from "./themes/brownTheme";
+import { brownArchiveTheme } from "./themes/brownArchiveTheme";
 import { whitePaperTheme } from "./themes/whitePaperTheme";
 import { tealGlassTheme } from "./themes/tealGlassTheme";
 import { sageMistTheme } from "./themes/sageMistTheme";

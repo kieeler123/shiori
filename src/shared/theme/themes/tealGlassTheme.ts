@@ -1,4 +1,15 @@
 export const tealGlassTheme: Record<string, string> = {
+  /* HIGHLIGHT */
+  "--hl-title-bg": "rgba(20, 184, 166, 0.20)", // teal
+  "--hl-title-fg": "var(--text-2)",
+  "--hl-body-bg": "rgba(59, 130, 246, 0.18)", // blue
+  "--hl-body-fg": "var(--text-2)",
+  "--hl-tag-bg": "rgba(110, 231, 183, 0.16)", // mint
+  "--hl-tag-fg": "var(--text-2)",
+
+  "--accent": "#14b8a6", // teal-500
+  "--accent-weak": "rgba(20, 184, 166, 0.18)",
+
   "--text-1": "#f4fbfb",
   "--text-2": "#e8f7f7",
   "--text-3": "#d2eeee",

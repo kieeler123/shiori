@@ -1,20 +1,31 @@
 // app/layout/toast.ts
 type ToastType = "success" | "error" | "info";
 
-let pushToast: ((msg: string, type: ToastType) => void) | null = null;
+type ToastAction = {
+  label: string;
+  onClick: () => void;
+};
 
-export function registerToast(fn: typeof pushToast) {
+type ToastPayload = {
+  message: string;
+  type: ToastType;
+  action?: ToastAction;
+};
+
+let pushToast: ((payload: ToastPayload) => void) | null = null;
+
+export function registerToast(fn: (payload: ToastPayload) => void) {
   pushToast = fn;
 }
 
-export const toast = {
-  success(msg: string) {
-    pushToast?.(msg, "success");
-  },
-  error(msg: string) {
-    pushToast?.(msg, "error");
-  },
-  info(msg: string) {
-    pushToast?.(msg, "info");
-  },
-};
+export function toast(message: string, type: ToastType = "info") {
+  pushToast?.({ message, type });
+}
+
+export function toastAction(
+  message: string,
+  type: ToastType,
+  action: ToastAction,
+) {
+  pushToast?.({ message, type, action });
+}

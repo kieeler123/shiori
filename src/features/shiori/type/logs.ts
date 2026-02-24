@@ -86,9 +86,16 @@ export type TrashListRow = {
   deleted_by: String;
 };
 
+export type LogOrderBy =
+  | "source_date"
+  | "created_at"
+  | "view_count"
+  | "comment_count";
+
 export type LogListQuery = {
   limit?: number;
   offset?: number;
-  orderBy?: "source_date" | "created_at";
+  orderBy?: LogOrderBy;
   ascending?: boolean;
+  userId?: string | null;
 };

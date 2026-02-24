@@ -1,5 +1,16 @@
 // plumNightTheme.ts
 export const plumNightTheme: Record<string, string> = {
+  /* HIGHLIGHT */
+  "--hl-title-bg": "rgba(167, 139, 250, 0.22)", // violet
+  "--hl-title-fg": "var(--text-2)",
+  "--hl-body-bg": "rgba(244, 114, 182, 0.18)", // pink
+  "--hl-body-fg": "var(--text-2)",
+  "--hl-tag-bg": "rgba(251, 191, 36, 0.16)", // amber
+  "--hl-tag-fg": "var(--text-2)",
+
+  "--accent": "#a78bfa", // violet-400
+  "--accent-weak": "rgba(167, 139, 250, 0.18)",
+
   /* TEXT */
   "--text-1": "#faf7ff",
   "--text-2": "#f2ecff",

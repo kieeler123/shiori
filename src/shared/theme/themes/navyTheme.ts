@@ -1,4 +1,14 @@
 export const navyTheme = {
+  /* HIGHLIGHT */
+  "--hl-title-bg": "rgba(91, 140, 255, 0.28)",
+  "--hl-title-fg": "var(--text-2)",
+  "--hl-body-bg": "rgba(167, 139, 250, 0.22)",
+  "--hl-body-fg": "var(--text-2)",
+  "--hl-tag-bg": "rgba(34, 211, 238, 0.18)",
+  "--hl-tag-fg": "var(--text-2)",
+
+  "--accent": "#3b82f6", // blue-500
+  "--accent-weak": "rgba(59, 130, 246, 0.22)",
   /* TEXT */
   "--text-1": "#fafafa",
   "--text-2": "#f4f4f5",

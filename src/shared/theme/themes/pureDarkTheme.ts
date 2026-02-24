@@ -1,5 +1,15 @@
 // pureDarkTheme.ts
 export const pureDarkTheme: Record<string, string> = {
+  /* HIGHLIGHT */
+  "--hl-title-bg": "rgba(244, 244, 245, 0.16)",
+  "--hl-title-fg": "var(--text-2)",
+  "--hl-body-bg": "rgba(34, 197, 94, 0.18)",
+  "--hl-body-fg": "var(--text-2)",
+  "--hl-tag-bg": "rgba(245, 158, 11, 0.18)",
+  "--hl-tag-fg": "var(--text-2)",
+
+  "--accent": "#60a5fa", // blue-400
+  "--accent-weak": "rgba(96, 165, 250, 0.20)",
   /* TEXT */
   "--text-1": "#ffffff",
   "--text-2": "#e5e5e5",

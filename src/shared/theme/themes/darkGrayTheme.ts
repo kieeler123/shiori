@@ -1,5 +1,15 @@
 // darkGrayTheme.ts
 export const darkGrayTheme: Record<string, string> = {
+  /* HIGHLIGHT */
+  "--hl-title-bg": "rgba(148, 163, 184, 0.18)",
+  "--hl-title-fg": "var(--text-2)",
+  "--hl-body-bg": "rgba(244, 114, 182, 0.16)",
+  "--hl-body-fg": "var(--text-2)",
+  "--hl-tag-bg": "rgba(56, 189, 248, 0.16)",
+  "--hl-tag-fg": "var(--text-2)",
+
+  "--accent": "#22d3ee", // cyan-400
+  "--accent-weak": "rgba(34, 211, 238, 0.18)",
   /* TEXT */
   "--text-1": "#f5f5f5",
   "--text-2": "#e5e5e5",

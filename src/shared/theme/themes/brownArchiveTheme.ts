@@ -1,5 +1,15 @@
 // brownArchiveTheme.ts
 export const brownArchiveTheme: Record<string, string> = {
+  /* HIGHLIGHT */
+  "--hl-title-bg": "rgba(251, 191, 36, 0.18)", // warm amber
+  "--hl-title-fg": "var(--text-2)",
+  "--hl-body-bg": "rgba(249, 115, 22, 0.16)", // orange
+  "--hl-body-fg": "var(--text-2)",
+  "--hl-tag-bg": "rgba(163, 230, 53, 0.14)", // lime
+  "--hl-tag-fg": "var(--text-2)",
+
+  "--accent": "#f59e0b", // amber-500
+  "--accent-weak": "rgba(245, 158, 11, 0.18)",
   /* TEXT */
   "--text-1": "#f5f3ef",
   "--text-2": "#e9e4dc",

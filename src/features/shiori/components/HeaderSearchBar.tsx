@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
-import { Input } from "@/shared/ui/primitives/Input";
 import { cn } from "@/shared/ui/utils/cn";
+import { Input } from "@/shared/ui/primitives/Input";
 import { useShioriSearch } from "@/features/shiori/components/search/SearchContext";
 
 type Props = {
   className?: string;
   placeholder?: string;
   autoFocus?: boolean;
-  showClear?: boolean; // 필요하면 끄기
+  showClear?: boolean;
 };
 
 export function HeaderSearchBar({

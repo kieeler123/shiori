@@ -18,6 +18,7 @@ export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
     offset = 0,
     orderBy = "source_date",
     ascending = false,
+    userId = null,
   } = opts;
 
   let q = supabase
@@ -25,17 +26,35 @@ export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
     .select(SELECT_BASE)
     .range(offset, offset + limit - 1);
 
+  // mine 탭
+  if (userId != null && userId !== "") {
+    q = q.eq("user_id", userId);
+  }
+
+  // 정렬 (항상 tie-breaker로 created_at + id)
+  // ✅ id까지 넣는 이유: 같은 created_at이면 pagination이 흔들릴 수 있음
   if (orderBy === "source_date") {
     q = q
       .order("source_date", { ascending, nullsFirst: false })
-      .order("created_at", { ascending });
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
+  } else if (orderBy === "view_count") {
+    q = q
+      .order("view_count", { ascending })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
+  } else if (orderBy === "comment_count") {
+    q = q
+      .order("comment_count", { ascending })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
   } else {
-    q = q.order("created_at", { ascending });
+    // created_at
+    q = q.order("created_at", { ascending }).order("id", { ascending: false });
   }
 
   const { data, error } = await q;
   if (error) throw error;
-
   return data ?? [];
 }
 

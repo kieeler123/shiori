@@ -1,4 +1,15 @@
 export const sageMistTheme: Record<string, string> = {
+  /* HIGHLIGHT */
+  "--hl-title-bg": "rgba(59, 130, 246, 0.22)", // blue
+  "--hl-title-fg": "rgba(24, 24, 27, 0.95)",
+  "--hl-body-bg": "rgba(245, 158, 11, 0.26)", // amber
+  "--hl-body-fg": "rgba(24, 24, 27, 0.95)",
+  "--hl-tag-bg": "rgba(34, 197, 94, 0.22)", // green
+  "--hl-tag-fg": "rgba(24, 24, 27, 0.95)",
+
+  "--accent": "#34d399", // emerald-400
+  "--accent-weak": "rgba(52, 211, 153, 0.18)",
+
   "--text-1": "#0f1412",
   "--text-2": "#1b2420",
   "--text-3": "#2f3a35",
