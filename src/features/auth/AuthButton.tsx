@@ -103,16 +103,6 @@ export default function AuthButton({
           🔐 로그인
         </Button>
       ) : null}
-
-      <Button
-        variant="ghost"
-        size="sm"
-        title="로그인"
-        onClick={() => startGoogleLogin(next).catch((e) => alert(e.message))}
-        className={compactOnMobile ? "hidden sm:inline-flex" : "inline-flex"}
-      >
-        🔐 로그인
-      </Button>
     </>
   );
 }
