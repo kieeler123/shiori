@@ -146,14 +146,11 @@ export default function LogsPage() {
 
   const {
     items: logs,
-    setItems: setLogs,
     hasMore,
     initialLoading,
     refreshing,
     busyMore,
-    loadFirstPage,
     loadNextPage,
-    resetPaging,
   } = usePagedList<DbLogRow, LogItem>({
     pageSize: PAGE_SIZE,
     fetchPage: ({ limit, offset }) =>

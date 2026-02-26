@@ -5,7 +5,6 @@ import type { HeaderProps } from "@/features/shiori/type";
 import { Button } from "@/shared/ui/primitives/Button";
 import { StickyBar } from "@/shared/ui/patterns/StickyBar";
 import { PageHeaderRow } from "./layout/PageHeaderRow";
-import { DropdownMenuPanel } from "@/shared/ui/patterns/DropdownMenuPanel";
 import { useShioriSearch } from "@/features/shiori/components/search/SearchContext";
 import { HeaderSearchBar } from "@/features/shiori/components/HeaderSearchBar";
 import { THEME_PRESETS } from "@/shared/theme/theme.presets";

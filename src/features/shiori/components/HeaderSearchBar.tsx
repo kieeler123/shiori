@@ -13,7 +13,6 @@ type Props = {
 
 export function HeaderSearchBar({
   className,
-  placeholder,
   autoFocus = false,
   showClear = true,
 }: Props) {

@@ -32,6 +32,7 @@ const DEFAULT_OPTIONS: LocaleOption[] = [
 
 function localeIcon(locale: string) {
   // 취향: 깃발 이모지/지구본/문자
+  locale;
   return "🌐";
 }
 

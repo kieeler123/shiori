@@ -35,20 +35,6 @@ function normalizeText(input: unknown): string {
   return compactSpaces;
 }
 
-// "ㅋㅋㅋㅋㅋㅋ", ".....", "aaaaaa" 같은 반복만 있는지(간단 필터)
-function isMostlyRepeating(input: string): boolean {
-  const s = input.trim();
-  if (!s) return true;
-
-  // 같은 문자 반복(6회 이상)
-  if (/^(.)\1{5,}$/.test(s)) return true;
-
-  // 기호/구두점만 잔뜩
-  if (/^[\W_]+$/.test(s)) return true;
-
-  return false;
-}
-
 // 글자 수(공백 포함). 한국어 기준도 일단 char_length로 충분.
 function len(s: string) {
   return s.length;
