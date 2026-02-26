@@ -8,7 +8,8 @@ import {
 import { Input } from "@/shared/ui/primitives/Input";
 import { Textarea } from "@/shared/ui/primitives/Textarea";
 import { useEffect, useMemo, useState } from "react";
-import { normalizeTagsText } from "../domain/LogValidator";
+import { normalizeTagsText } from "../domain/validators/LogValidator";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 type SubmitValue = { title: string; content: string; tags: string[] };
 
@@ -31,6 +32,8 @@ export default function LogEditor({
   onSubmit,
   onCancel,
 }: Props) {
+  const { t } = useI18n();
+
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [tagText, setTagText] = useState((initialTags ?? []).join(", "));
@@ -63,7 +66,7 @@ export default function LogEditor({
     try {
       await onSubmit({ title: title.trim(), content: content.trim(), tags });
     } catch (e: any) {
-      setErr(e?.message ?? "저장 중 오류가 발생했습니다.");
+      setErr(e?.message ?? t("logs.editor.saveError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -75,43 +78,45 @@ export default function LogEditor({
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="제목"
+          placeholder={t("logs.editor.phTitle")}
           className={fieldControl}
         />
+
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="내용"
+          placeholder={t("logs.editor.phContent")}
           rows={6}
           className={fieldControl}
         />
+
         <Input
           value={tagText}
           onChange={(e) => setTagText(e.target.value)}
-          placeholder="태그 (예: js, react, 일본어)"
+          placeholder={t("logs.editor.phTags")}
           className={fieldControl}
         />
 
         {tags.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {tags.map((t) => (
-              <span key={t} className={chip}>
-                #{t}
+            {tags.map((tt) => (
+              <span key={tt} className={chip}>
+                #{tt}
               </span>
             ))}
           </div>
         ) : null}
 
-        {err ? <div className="text-sm text-red-400">{err}</div> : null}
+        {err ? <div className="text-sm text-[var(--danger)]">{err}</div> : null}
 
         <div className="pt-1 flex items-center gap-2">
           <button type="submit" disabled={!canSubmit} className={submitBtn}>
-            {isSubmitting ? "처리 중..." : submitLabel}
+            {isSubmitting ? t("common.processing") : submitLabel}
           </button>
 
           {onCancel ? (
             <button type="button" onClick={onCancel} className={cancelBtn}>
-              취소
+              {t("common.cancel")}
             </button>
           ) : null}
         </div>

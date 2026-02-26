@@ -1,14 +1,8 @@
-import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import AuthBar from "@/features/auth/AuthBar";
-
 import { PageSection } from "@/app/layout/PageSection";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import AuthPanel from "@/features/auth/AuthPanel";
 
 export default function AuthPage() {
-  const [sp] = useSearchParams();
-  const next = useMemo(() => sp.get("next") ?? "/", [sp]);
-
   return (
     <PageSection className="space-y-4">
       <SurfaceCard className="space-y-2">
@@ -20,7 +14,7 @@ export default function AuthPage() {
       </SurfaceCard>
 
       <SurfaceCard>
-        <AuthBar next={next} />
+        <AuthPanel next="/somewhere" mode="compact" showHint={false} />
       </SurfaceCard>
     </PageSection>
   );

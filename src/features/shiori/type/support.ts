@@ -32,6 +32,7 @@ export type SupportTicketListRow = {
   status: string;
   created_at: string;
   updated_at: string;
+  locale?: string;
 };
 
 export type SupportTicketDetailRow = {
@@ -48,7 +49,7 @@ export type SupportTicketDetailRow = {
 export type SupportTrashListRow = {
   id: string;
   title: string | null;
-  body: string;
+  body_preview: string;
   deleted_at: string | null;
   deleted_by: string | null;
 };

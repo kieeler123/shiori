@@ -1,23 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import { useSession } from "@/features/auth/useSession";
+import AuthPanel from "@/features/auth/AuthPanel";
+
 import RouteProblem from "@/features/shiori/components/RouteProblem";
 import { isUuid } from "@/features/shiori/utils/isUuid";
+
 import {
   dbSupportGet,
   dbSupportUpdate,
 } from "@/features/shiori/repo/supportRepo";
-import AuthPanel from "@/features/auth/AuthPanel"; // ✅ 로그인 UI 제공(선택)
+
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
+import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { Button } from "@/shared/ui/primitives/Button";
 import { Input } from "@/shared/ui/primitives/Input";
 import { Textarea } from "@/shared/ui/primitives/Textarea";
-import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
-import { LoadingText } from "@/shared/ui/feedback/LoadingText";
 
 export default function SupportEditPage() {
   const nav = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { ready, isAuthed, userId } = useSession();
+  const { t } = useI18n();
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -45,6 +51,7 @@ export default function SupportEditPage() {
         if (!alive) return;
 
         if (!row) {
+          // 없는 글이면 ownerId만 null로 두고 아래 not-found 처리(원하면)
           setOwnerId(null);
           setTitle("");
           setBody("");
@@ -62,7 +69,7 @@ export default function SupportEditPage() {
     return () => {
       alive = false;
     };
-    // ✅ 핵심: 로그인 상태 변화에도 다시 fetch
+    // ✅ 로그인 상태 바뀌어도 다시 fetch (권한/owner 판단 안정)
   }, [ready, idOk, id, isAuthed]);
 
   async function save() {
@@ -70,90 +77,101 @@ export default function SupportEditPage() {
     if (!isMine) return;
     if (busy) return;
 
-    const t = title.trim();
-    const b = body.trim();
-    if (!t || !b) return;
+    const tt = title.trim();
+    const bb = body.trim();
+    if (!tt || !bb) return;
 
     setBusy(true);
     try {
-      await dbSupportUpdate(id!, { title: t, body: b });
+      await dbSupportUpdate(id!, { title: tt, body: bb });
       nav(`/support/${id}`);
     } finally {
       setBusy(false);
     }
   }
 
-  if (!ready) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 grid place-items-center">
-        <div className="text-sm text-zinc-400">세션 확인중…</div>
-      </div>
-    );
-  }
+  // ---- states ----
+
+  if (!ready) return <LoadingText label={t("common.sessionChecking")} />;
 
   if (!idOk) {
     return (
       <RouteProblem
-        title="잘못된 주소"
-        message="support id가 uuid 형식이 아니라 수정할 수 없어요."
-        hint={`받은 값: ${String(id)}`}
+        title={t("support.edit.invalidIdTitle")}
+        message={t("support.edit.invalidIdMsg")}
+        hint={String(id ?? "")}
       />
     );
   }
 
   if (!isAuthed) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100">
-        <div className="mx-auto max-w-3xl px-6 py-8">
-          <div className="text-sm text-zinc-400 mb-3">
-            로그인 후 수정할 수 있어요.
-          </div>
-          {/* ✅ 여기서도 로그인 버튼 제공하면 UX가 훨씬 안정적 */}
-          <AuthPanel />
+      <div className="mx-auto max-w-3xl px-6 py-8">
+        <div className="text-sm text-[var(--text-sub)] mb-3">
+          {t("support.edit.loginRequired")}
         </div>
+        <AuthPanel />
       </div>
     );
   }
 
-  if (loading) {
-    return <LoadingText label="Loading…" />;
-  }
+  if (loading) return <LoadingText label={t("common.loading")} />;
+
+  // (선택) 존재하지 않는 문의 처리도 하고 싶으면 여기서 RouteProblem 추가 가능
+  // if (!ownerId) { ... }
 
   if (!isMine) {
     return (
       <RouteProblem
-        title="권한 없음"
-        message="본인이 작성한 문의만 수정할 수 있어요."
-        hint={`support id: ${id}`}
+        title={t("support.edit.forbiddenTitle")}
+        message={t("support.edit.forbiddenMsg")}
+        hint={`support id: ${String(id)}`}
       />
     );
   }
 
-  return (
-    <>
-      <div className="mx-auto max-w-3xl px-6 py-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">문의 수정</h2>
-          <Button onClick={() => nav(`/support/${id}`)} disabled={busy}>
-            닫기
-          </Button>
-        </div>
+  // ---- view ----
 
-        <SurfaceCard className="mt-6 space-y-3">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-          <Textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={10}
-          />
+  return (
+    <div className="mx-auto max-w-3xl px-6 py-8">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xl font-semibold tracking-tight t2">
+          {t("support.edit.title")}
+        </h2>
+
+        <Button
+          variant="ghost"
+          onClick={() => nav(`/support/${id}`)}
+          disabled={busy}
+        >
+          {t("support.edit.close")}
+        </Button>
+      </div>
+
+      <SurfaceCard className="mt-6 space-y-3">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder={t("support.new.phTitle")}
+        />
+
+        <Textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          rows={10}
+          placeholder={t("support.new.phBody")}
+        />
+
+        <div className="flex justify-end">
           <Button
+            variant="primary"
             onClick={save}
             disabled={busy || !title.trim() || !body.trim()}
           >
-            {busy ? "처리 중..." : "저장"}
+            {busy ? t("support.edit.saving") : t("support.edit.save")}
           </Button>
-        </SurfaceCard>
-      </div>
-    </>
+        </div>
+      </SurfaceCard>
+    </div>
   );
 }

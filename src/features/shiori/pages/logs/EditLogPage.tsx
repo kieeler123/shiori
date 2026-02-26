@@ -9,6 +9,9 @@ import type { DbLogRow } from "../../type";
 import { Button } from "@/shared/ui/primitives/Button";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { PageSection } from "@/app/layout/PageSection";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
+import { formatDateTime } from "@/shared/i18n/format";
 // 있으면 사용 (없으면 아래 주석 참고)
 // import { PageLoadingCard } from "@/shared/ui/patterns/PageLoadingCard";
 
@@ -22,6 +25,8 @@ export default function EditLogPage() {
   const [item, setItem] = useState<DbLogRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+
+  const { t, locale } = useI18n();
 
   const isMine = useMemo(() => {
     if (!isAuthed || !userId) return false;
@@ -59,14 +64,7 @@ export default function EditLogPage() {
   }
 
   if (loading) {
-    // ✅ 공통 로딩 컴포넌트가 있으면 그걸로 교체 추천
-    // return <PageLoadingCard title="수정" message="불러오는 중…" />;
-
-    return (
-      <SurfaceCard className="p-4">
-        <div className="text-sm t5">불러오는 중…</div>
-      </SurfaceCard>
-    );
+    return <LoadingText label={t("logs.edit.loading")} />;
   }
 
   if (!item) {
@@ -74,12 +72,12 @@ export default function EditLogPage() {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Button variant="soft" onClick={() => nav(-1)}>
-            ← 뒤로
+            ← {t("common.back")}
           </Button>
         </div>
 
         <SurfaceCard className="p-4">
-          <div className="text-sm t5">존재하지 않는 글입니다.</div>
+          <div className="text-sm t5">{t("logs.edit.notFound")}</div>
         </SurfaceCard>
       </div>
     );
@@ -90,12 +88,16 @@ export default function EditLogPage() {
       <div className="space-y-4">
         <div className="flex items-center gap-2">
           <Button variant="soft" onClick={() => nav(`/logs/${item.id}`)}>
-            상세로
+            {t("common.viewDetail")}
           </Button>
+
+          <div className="text-sm t5">{t("logs.edit.forbidden")}</div>
         </div>
 
         <SurfaceCard className="p-4">
-          <div className="text-sm t5">이 글은 작성자만 수정할 수 있어요.</div>
+          <Button variant="soft" onClick={() => nav(`/logs/${item.id}`)}>
+            {t("common.viewDetail")}
+          </Button>
         </SurfaceCard>
       </div>
     );
@@ -105,7 +107,9 @@ export default function EditLogPage() {
     <PageSection>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="text-xs t5">
-          {new Date(item.created_at).toLocaleString()}
+          <div className="text-xs t5">
+            {formatDateTime(item.created_at, locale)}
+          </div>
         </div>
 
         <Button
@@ -113,11 +117,13 @@ export default function EditLogPage() {
           onClick={() => nav(`/logs/${item.id}`)}
           disabled={busy}
         >
-          닫기
+          {t("common.close")}
         </Button>
-      </div>
 
-      <h1 className="text-2xl font-semibold tracking-tight t2">수정</h1>
+        <h1 className="text-2xl font-semibold tracking-tight t2">
+          {t("logs.edit.title")}
+        </h1>
+      </div>
 
       <div className="mt-6">
         <LogEditor
@@ -125,7 +131,7 @@ export default function EditLogPage() {
           initialTitle={item.title}
           initialContent={item.content}
           initialTags={Array.isArray(item.tags) ? item.tags : []}
-          submitLabel={busy ? "처리 중..." : "수정 저장"}
+          submitLabel={busy ? t("common.processing") : t("logs.edit.save")}
           onCancel={() => nav(`/logs/${item.id}`)}
           onSubmit={onSubmit}
         />

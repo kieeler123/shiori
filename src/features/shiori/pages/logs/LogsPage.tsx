@@ -1,14 +1,7 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-  useDeferredValue,
-} from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useMemo, useState, useRef, useDeferredValue } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { loadLogs, saveLogs } from "@/features/shiori/utils/storage";
+import { saveLogs } from "@/features/shiori/utils/storage";
 import type { DbLogRow, LogItem } from "@/features/shiori/type/logs";
 
 import { useSession } from "@/features/auth/useSession";
@@ -23,6 +16,11 @@ import { highlightText } from "@/shared/utils/highlight";
 import { Button } from "@/shared/ui/primitives/Button";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { snippetAroundQuery } from "@/shared/utils/searchSnippet";
+import { useInfiniteScrollSentinel } from "@/shared/hooks/useInfiniteScrollSentinel";
+import { InfiniteListFooter } from "@/shared/ui/patterns/InfiniteListFooter";
+import { PAGE_SIZE, usePagedList } from "@/shared/hooks/usePagedList";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatCount } from "@/shared/i18n/format";
 
 /* ----------------- helpers ----------------- */
 
@@ -101,8 +99,6 @@ function shouldHideFromList(log: {
   return false;
 }
 
-const PAGE_SIZE = 10;
-
 type LogsTab = "all" | "mine";
 type SortKey = "recent" | "views" | "comments";
 
@@ -114,19 +110,19 @@ function toOrderBy(sort: SortKey) {
       : "comment_count";
 }
 
-function sortLabel(sort: SortKey) {
-  return sort === "recent" ? "최신" : sort === "views" ? "조회" : "댓글";
+function sortKeyToLabelKey(sort: SortKey) {
+  return sort === "recent"
+    ? "logs.sort.recent"
+    : sort === "views"
+      ? "logs.sort.views"
+      : "logs.sort.comments";
 }
 
 /* ----------------- page ----------------- */
 
 export default function LogsPage() {
   const nav = useNavigate();
-  const location = useLocation();
   const { ready, isAuthed, userId } = useSession();
-
-  // ✅ 캐시를 바로 보여줘서 첫 진입 깜빡임 최소화
-  const [logs, setLogs] = useState<LogItem[]>(() => loadLogs()); // 일단 캐시
 
   const [tab, setTab] = useState<LogsTab>("all");
   const [sort, setSort] = useState<SortKey>("recent");
@@ -135,13 +131,8 @@ export default function LogsPage() {
   const [onlyCommented] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
 
-  // ✅ 로딩 상태를 분리해서 깜빡임/리셋을 없앰
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [busyMore, setBusyMore] = useState(false);
+  const { t, locale } = useI18n();
 
   // 사고 흐름(현재는 로컬, 나중에 AI 출력으로 교체)
   const [oneLiner] = useState(
@@ -153,120 +144,39 @@ export default function LogsPage() {
   const deferredQuery = useDeferredValue(query);
   const isSearching = deferredQuery.trim().length > 0;
 
-  // ✅ DB 1페이지 로드(교체만 하고, 절대 비우지 않음)
-  const loadFirstPage = useCallback(
-    async (reason: "initial" | "refresh" = "refresh") => {
-      const orderBy = toOrderBy(sort);
-
-      if (reason === "initial") setInitialLoading(true);
-      else setRefreshing(true);
-
-      try {
-        const rows = await dbListPage({
-          limit: PAGE_SIZE,
-          offset: 0,
-          orderBy,
-          ascending: false,
-          userId: tab === "mine" ? (userId ?? undefined) : undefined,
-        });
-
-        const next = rows
-          .map(toLogItem)
-          .filter((it) => !shouldHideFromList(it));
-
-        setLogs(next);
-        setOffset(rows.length);
-        setHasMore(rows.length >= PAGE_SIZE);
-
-        if (tab === "all" && sort === "recent") saveLogs(next);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        if (reason === "initial") setInitialLoading(false);
-        else setRefreshing(false);
-      }
-    },
-    [sort, tab, userId],
-  );
-
-  // ✅ 다음 페이지 로드(무한스크롤)
-  const loadNextPage = useCallback(async () => {
-    if (busyMore) return;
-    if (!hasMore) return;
-
-    setBusyMore(true);
-    try {
-      const orderBy = toOrderBy(sort);
-
-      const rows = await dbListPage({
-        limit: PAGE_SIZE,
+  const {
+    items: logs,
+    setItems: setLogs,
+    hasMore,
+    initialLoading,
+    refreshing,
+    busyMore,
+    loadFirstPage,
+    loadNextPage,
+    resetPaging,
+  } = usePagedList<DbLogRow, LogItem>({
+    pageSize: PAGE_SIZE,
+    fetchPage: ({ limit, offset }) =>
+      dbListPage({
+        limit,
         offset,
-        orderBy,
+        orderBy: toOrderBy(sort),
         ascending: false,
         userId: tab === "mine" ? (userId ?? undefined) : undefined,
-      });
+      }),
+    mapRow: toLogItem,
+    filterItem: (it) => !shouldHideFromList(it),
+    mergeKey: (it) => it.id,
+    onCacheSave:
+      tab === "all" && sort === "recent" ? (arr) => saveLogs(arr) : undefined,
+  });
 
-      const next = rows.map(toLogItem).filter((it) => !shouldHideFromList(it));
-
-      setLogs((prev) => {
-        const seen = new Set(prev.map((x) => x.id));
-        const merged = [...prev];
-        for (const it of next) if (!seen.has(it.id)) merged.push(it);
-        if (tab === "all") saveLogs(merged);
-        return merged;
-      });
-
-      setOffset((v) => v + rows.length);
-      if (rows.length < PAGE_SIZE) setHasMore(false);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setBusyMore(false);
-    }
-  }, [busyMore, hasMore, offset, sort, tab, userId]);
-
-  // ✅ 최초 진입: 캐시를 보여주고, 뒤에서 DB로 교체
-  useEffect(() => {
-    if (!ready) return;
-    loadFirstPage("initial");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready]);
-
-  // ✅ 탭/정렬/유저 변경: 리셋 없이 교체 로딩만
-  useEffect(() => {
-    if (!ready) return;
-    setSelectedTag(null);
-    setOffset(0);
-    setHasMore(true);
-    loadFirstPage("refresh");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, tab, sort, userId]);
-
-  // ✅ 다른 페이지에서 돌아오며 refresh 요청
-  useEffect(() => {
-    const st = (location.state ?? {}) as any;
-    if (!st?.refresh) return;
-
-    loadFirstPage("refresh").catch(console.error);
-    nav(".", { replace: true, state: {} });
-  }, [location.state, loadFirstPage, nav]);
-
-  // ✅ 스크롤 끝 감지
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first?.isIntersecting) loadNextPage();
-      },
-      { root: null, rootMargin: "240px", threshold: 0.01 },
-    );
-
-    io.observe(el);
-    return () => io.disconnect();
-  }, [loadNextPage]);
+  useInfiniteScrollSentinel(sentinelRef, {
+    enabled: ready && hasMore && !busyMore,
+    onLoadMore: loadNextPage,
+    rootMargin: "240px",
+    threshold: 0.01,
+  });
 
   const tagStatsTop10 = useMemo(() => collectTags(logs).slice(0, 10), [logs]);
 
@@ -293,7 +203,7 @@ export default function LogsPage() {
     nav(`/logs/${id}`);
   }
 
-  if (!ready) return <LoadingText label="세션확인중..." />;
+  if (!ready) return <LoadingText label={t("common.sessionChecking")} />;
 
   return (
     <>
@@ -316,9 +226,9 @@ export default function LogsPage() {
       {/* 사고 흐름 (지금은 로컬, 나중에 AI 출력 자리) */}
       <section className="mt-6">
         <SurfaceCard tone="soft">
-          <div className="text-xs t5 mb-1">사고 흐름</div>
+          <div className="text-xs t5 mb-1">{t("logs.oneLiner.title")}</div>
           <div className="text-sm t3 leading-relaxed">
-            {oneLiner || "기록이 쌓이면 사고 흐름이 여기에 나타납니다."}
+            {oneLiner || t("logs.oneLiner.empty")}
           </div>
         </SurfaceCard>
       </section>
@@ -331,15 +241,15 @@ export default function LogsPage() {
             variant={tab === "all" ? "nav" : "ghost"}
             onClick={() => setTab("all")}
           >
-            전체
+            {t("logs.tab.all")}
           </Button>
           <Button
             variant={tab === "mine" ? "nav" : "ghost"}
             onClick={() => setTab("mine")}
             disabled={!isAuthed}
-            title={!isAuthed ? "로그인 후 사용 가능" : undefined}
+            title={!isAuthed ? t("logs.tab.mineDisabledHint") : undefined}
           >
-            내 글
+            {t("logs.tab.mine")}
           </Button>
         </div>
 
@@ -363,10 +273,10 @@ export default function LogsPage() {
                     : "recent",
               )
             }
-            title="정렬 변경"
+            title={t("logs.sort.change")}
             type="button"
           >
-            정렬: {sortLabel(sort)}
+            {t("logs.sort.label")}: {t(sortKeyToLabelKey(sort))}
           </button>
 
           <Button
@@ -377,7 +287,7 @@ export default function LogsPage() {
               nav("/logs/new");
             }}
           >
-            + 새 기록
+            {t("logs.new.title")}
           </Button>
         </div>
       </section>
@@ -385,22 +295,24 @@ export default function LogsPage() {
       {/* ✅ 검색 결과 헤더는 "탭/정렬 아래"에 1번만 */}
       {isSearching ? (
         <div className="mt-2 text-sm t5">
-          “<span className="t4">{deferredQuery}</span>” 검색 결과{" "}
-          <span className="t3">{logsToRender.length}</span>개
+          {t("logs.search.result", {
+            q: deferredQuery,
+            n: formatCount(logsToRender.length, locale),
+          })}
         </div>
       ) : null}
 
       {/* 4) List */}
       <section className="mt-6 space-y-3 min-h-[40vh]">
         {initialLoading && logs.length === 0 ? (
-          <LoadingText label="기록을 불러오는 중…" />
+          <LoadingText label={t("logs.loading")} />
         ) : null}
 
         {logsToRender.map((log) => {
           const displayDate = log.sourceDate ?? log.createdAt;
 
           const contentText = isSearching
-            ? snippetAroundQuery(log.content ?? "", query, {
+            ? snippetAroundQuery(log.content ?? "", deferredQuery, {
                 radius: 70,
                 maxLen: 160,
               })
@@ -411,12 +323,15 @@ export default function LogsPage() {
               key={log.id}
               className="surface-1"
               onClick={() => goDetail(log.id)}
-              title="상세 보기"
+              title={t("common.viewDetail")}
             >
               <div className="min-w-0">
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="min-w-0 flex-1 truncate font-medium t2">
-                    {highlightText(log.title || "(제목 없음)", deferredQuery)}
+                    {highlightText(
+                      log.title || t("common.noTitle"),
+                      deferredQuery,
+                    )}
                   </h3>
 
                   <div className="shrink-0 flex items-center gap-3 text-xs t5">
@@ -426,13 +341,13 @@ export default function LogsPage() {
                   </div>
 
                   <div className="shrink-0 flex items-center gap-3 text-xs t5">
-                    <span className="text-sm text-zinc-400">
-                      {log.profile?.nickname ?? "익명"}
+                    <span className="text-sm text-[var(--text-5)]">
+                      {log.profile?.nickname ?? t("common.anonymous")}
                     </span>
                   </div>
                 </div>
 
-                <p className="mt-2 text-sm t4 leading-relaxed line-clamp-2 sm:line-clamp-3">
+                <p className="mt-2 text-sm t4 leading-relaxed line-clamp-2 sm:line-clamp-2">
                   {highlightText(contentText, query, "body")}
                 </p>
 
@@ -452,30 +367,21 @@ export default function LogsPage() {
           );
         })}
 
-        {/* 무한스크롤 sentinel */}
-        <div ref={sentinelRef} />
-
-        {busyMore ? (
-          <div className="py-4">
-            <LoadingText align="center" size="sm" label="더 불러오는 중…" />
-          </div>
-        ) : null}
-
-        {!hasMore && logsToRender.length > 0 ? (
-          <div className="py-6">
-            <LoadingText align="center" size="sm" label="끝" />
-          </div>
-        ) : null}
-
-        {logsToRender.length === 0 && !initialLoading && !refreshing ? (
-          <div className="text-sm t5">
-            {getEmptyMessage({
-              isSearching,
-              onlyCommented,
-              selectedTag,
-            })}
-          </div>
-        ) : null}
+        <InfiniteListFooter
+          sentinelRef={sentinelRef}
+          busyMore={busyMore}
+          hasMore={hasMore}
+          hasAny={logsToRender.length > 0}
+          loadingLabel={t("common.loadingMore")}
+          endLabel={t("common.end")}
+          empty={
+            !initialLoading && !refreshing ? (
+              <div className="text-sm t5">
+                {getEmptyMessage({ isSearching, onlyCommented, selectedTag })}
+              </div>
+            ) : null
+          }
+        />
       </section>
     </>
   );

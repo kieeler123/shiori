@@ -3,9 +3,11 @@ import { useSession } from "@/features/auth/useSession";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import TabButton from "@/shared/ui/primitives/TabButton";
 import { PageSection } from "./PageSection";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 export default function SupportLayout() {
   const { isAuthed } = useSession();
+  const { t } = useI18n();
 
   return (
     <PageSection>
@@ -13,28 +15,30 @@ export default function SupportLayout() {
       <div className="space-y-4">
         <header>
           <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--text-strong)]">
-            고객센터
+            {t("support.layout.title")}
           </h1>
           <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-            문의 · 제보 · FAQ 관리 영역
+            {t("support.layout.subtitle")}
           </p>
         </header>
         {/* 탭 */}
         <SurfaceCard className="flex flex-wrap gap-2">
           <TabButton to="/support" end>
-            전체 문의
+            {t("support.nav.all")}
           </TabButton>
-          <TabButton to="/support/faq">FAQ</TabButton>
+          <TabButton to="/support/faq">{t("support.nav.faq")}</TabButton>
 
           {isAuthed ? (
             <>
-              <TabButton to="/support/new">제보하기</TabButton>
-              <TabButton to="/support/mine">내 문의</TabButton>
-              <TabButton to="/support/trash">휴지통</TabButton>
+              <TabButton to="/support/new">{t("support.nav.new")}</TabButton>
+              <TabButton to="/support/mine">{t("support.nav.mine")}</TabButton>
+              <TabButton to="/support/trash">
+                {t("support.nav.trash")}
+              </TabButton>
             </>
           ) : null}
         </SurfaceCard>
-        ;{/* 내용 */}
+        {/* 내용 */}
         <SurfaceCard>
           <Outlet />
         </SurfaceCard>

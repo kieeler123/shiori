@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import type { DbLogRow, LogListQuery } from "../type";
-import { validateCreate } from "../domain/LogValidator";
+import { validateCreate } from "../domain/validators/LogValidator";
 
 type CreateResult =
   | { ok: true; row: DbLogRow }

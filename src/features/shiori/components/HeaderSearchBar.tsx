@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { cn } from "@/shared/ui/utils/cn";
 import { Input } from "@/shared/ui/primitives/Input";
 import { useShioriSearch } from "@/features/shiori/components/search/SearchContext";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 type Props = {
   className?: string;
@@ -12,7 +13,7 @@ type Props = {
 
 export function HeaderSearchBar({
   className,
-  placeholder = "검색: 제목 / 내용 / 태그",
+  placeholder,
   autoFocus = false,
   showClear = true,
 }: Props) {
@@ -20,6 +21,8 @@ export function HeaderSearchBar({
   const hasQuery = query.trim().length > 0;
 
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!autoFocus) return;
@@ -35,7 +38,7 @@ export function HeaderSearchBar({
         onKeyDown={(e) => {
           if (e.key === "Escape") clearQuery();
         }}
-        placeholder={placeholder}
+        placeholder={t("header.search.placeholder")}
         className={cn(showClear ? "pr-10" : "")}
       />
 

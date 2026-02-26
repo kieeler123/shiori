@@ -1,29 +1,27 @@
 import { supabase } from "@/lib/supabaseClient";
 import type { SupportTicketDetailRow, SupportTicketListRow } from "../type";
+import { assertValidSupportDraft } from "@/features/shiori/domain/validators/supportValidator";
 
 const TABLE_BASE = "support_tickets";
 const TABLE_VIEW = "support_tickets_v";
-const TABLE_TRASH_VIEW = "support_trash_v";
 
 const SELECT_LIST =
   "id,user_id,nickname,title,body,status,created_at,updated_at";
-const SELECT_DETAIL =
-  "id,user_id,nickname,title,body,status,created_at,updated_at";
+const SELECT_DETAIL = SELECT_LIST;
 
-export async function dbSupportCreate(input: {
-  title: string;
-  body: string;
-}): Promise<{ id: string }> {
+export async function dbSupportCreate(input: { title: string; body: string }) {
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
   if (!user) throw new Error("Not signed in");
+
+  const cleaned = assertValidSupportDraft(input);
 
   const { data, error } = await supabase
     .from(TABLE_BASE)
     .insert({
       user_id: user.id,
-      title: input.title ?? "",
-      body: input.body ?? "",
+      title: cleaned.title,
+      body: cleaned.body,
       status: "open",
       is_deleted: false,
     })
@@ -31,39 +29,26 @@ export async function dbSupportCreate(input: {
     .single();
 
   if (error) throw error;
-  return { id: data.id };
+  return { id: data.id as string };
 }
 
 export async function dbSupportUpdate(
   id: string,
   input: { title: string; body: string },
-): Promise<void> {
+) {
+  const cleaned = assertValidSupportDraft(input);
+
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth.user;
+  if (!user) throw new Error("Not signed in");
+
+  // 보안: 내 글만 수정
   const { error } = await supabase
     .from(TABLE_BASE)
-    .update({
-      title: input.title ?? "",
-      body: input.body ?? "",
-    })
-    .eq("id", id);
+    .update({ title: cleaned.title, body: cleaned.body })
+    .eq("id", id)
+    .eq("user_id", user.id);
 
-  if (error) throw error;
-}
-
-export async function dbSupportRestore(id: string): Promise<void> {
-  const { error } = await supabase
-    .from(TABLE_BASE)
-    .update({
-      is_deleted: false,
-      deleted_at: null,
-      deleted_by: null,
-    })
-    .eq("id", id);
-
-  if (error) throw error;
-}
-
-export async function dbSupportHardDelete(id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE_BASE).delete().eq("id", id);
   if (error) throw error;
 }
 
@@ -105,24 +90,33 @@ export async function dbMyTickets(): Promise<SupportTicketListRow[]> {
   return (data ?? []) as any;
 }
 
-export async function dbMySupportTrash(): Promise<
-  (SupportTicketListRow & {
-    deleted_at: string | null;
-    deleted_by: string | null;
-  })[]
-> {
+export async function dbSupportListPage(args: {
+  limit: number;
+  offset: number;
+}) {
+  // TODO: view에 locale이 있으면 eq("locale", args.locale)
+  const { data, error } = await supabase
+    .from(TABLE_VIEW)
+    .select(SELECT_LIST)
+    .order("created_at", { ascending: false })
+    .range(args.offset, args.offset + args.limit - 1);
+
+  if (error) throw error;
+  return (data ?? []) as SupportTicketListRow[];
+}
+
+export async function dbMyTicketsPage(args: { limit: number; offset: number }) {
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
   if (!user) throw new Error("Not signed in");
 
   const { data, error } = await supabase
-    .from(TABLE_TRASH_VIEW)
-    .select(
-      "id,user_id,nickname,title,status,created_at,updated_at,deleted_at,deleted_by",
-    )
-    .eq("deleted_by", user.id)
-    .order("deleted_at", { ascending: false });
+    .from(TABLE_VIEW)
+    .select(SELECT_LIST)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .range(args.offset, args.offset + args.limit - 1);
 
   if (error) throw error;
-  return (data ?? []) as any;
+  return (data ?? []) as SupportTicketListRow[];
 }

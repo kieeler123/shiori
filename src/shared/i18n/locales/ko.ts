@@ -1,0 +1,187 @@
+export const ko = {
+  common: {
+    auth: {
+      loginWithGoogle: "Google로 로그인",
+      logout: "로그아웃",
+      signedInAs: "로그인됨:",
+      loginRequired: "작성/댓글은 로그인 필요",
+      loggedOut: "로그아웃되었습니다.",
+    },
+    route: {
+      invalidTitle: "잘못된 주소로 들어왔어요",
+      invalidLogId: "현재 URL의 id 값이 올바른 글 ID(uuid)가 아닙니다.",
+      invalidHint:
+        "받은 값: {{id}}\n원인 예: /logs/new 가 /logs/:id 로 매칭됨\n해결: 라우터에서 /logs/new 를 :id 보다 먼저 선언하세요.",
+    },
+    comments: {
+      title: "댓글",
+      ph: "댓글을 입력…",
+      submit: "댓글 작성",
+      empty: "댓글이 아직 없습니다.",
+      mine: "내 댓글",
+      created: "댓글이 등록되었습니다.",
+      deleted: "댓글이 삭제되었습니다.",
+    },
+    loading: "불러오는 중…",
+    viewDetail: "상세 보기",
+    sessionChecking: "세션 확인중…",
+    close: "닫기",
+    processing: "처리 중…",
+    submit: "등록",
+    back: "뒤로",
+    list: "목록",
+    edit: "수정",
+    delete: "삭제",
+    confirmDelete: "삭제할까요?",
+    openDetail: "상세 보기",
+    noTitle: "(제목 없음)",
+    loadingMore: "더 불러오는 중…",
+    end: "끝",
+    refreshing: "새로고침 중…",
+    anonymous: "익명",
+    home: "홈",
+    search: "검색",
+    localeChange: "언어 변경",
+    cancel: "취소",
+  },
+  header: {
+    sections: {
+      support: "고객센터",
+      misc: "기타",
+    },
+    search: {
+      placeholder: "검색: 제목 / 내용 / 태그",
+    },
+    nav: {
+      accountSettings: "계정 설정",
+      trash: "일반 휴지통",
+    },
+  },
+  logs: {
+    editor: {
+      phTitle: "제목",
+      phContent: "내용",
+      phTags: "태그 (예: js, react, 일본어)",
+      saveError: "저장 중 오류가 발생했습니다.",
+    },
+    edit: {
+      title: "수정",
+      loading: "불러오는 중…",
+      notFound: "존재하지 않는 글입니다.",
+      forbidden: "이 글은 작성자만 수정할 수 있어요.",
+      save: "수정 저장",
+    },
+    detail: {
+      notFound: "존재하지 않는 글입니다.",
+      movedToTrash: "휴지통으로 이동했습니다.",
+    },
+    tab: {
+      all: "전체",
+      mine: "내 글",
+      mineDisabledHint: "로그인 후 사용 가능",
+    },
+    oneLiner: {
+      title: "사고 흐름",
+      empty: "기록이 쌓이면 사고 흐름이 여기에 나타납니다.",
+    },
+    sort: {
+      label: "정렬",
+      change: "정렬 변경",
+      recent: "최신",
+      views: "조회",
+      comments: "댓글",
+    },
+    new: {
+      title: "새 글 작성",
+      submit: "작성",
+      created: "작성 완료!",
+      loginRequired: "로그인 후 작성할 수 있어요.",
+      hiddenByPolicy:
+        "저장은 되었지만 공개 목록 기준에 따라 숨김 처리되었습니다. (제목/내용/중복 규칙)",
+      undo: "되돌리기",
+      paused: "(멈춤)",
+      undoHint: "작성 후 5초 동안 “되돌리기”로 방금 글을 삭제할 수 있어요.",
+      createdInline: "작성됨",
+      undoQuestion: "되돌릴까요?",
+      undoBanner: "작성됨 — {{seconds}}초 {{paused}} — 되돌릴까요?",
+    },
+    trash: {
+      title: "휴지통",
+      empty: "삭제된 글이 없습니다.",
+      restore: "복구",
+      hardDelete: "완전삭제",
+      confirmHardDelete: "완전 삭제됩니다. 복구 불가",
+    },
+    loading: "기록을 불러오는 중…",
+    search: {
+      result: "“{{q}}” 검색 결과: {{n}}개",
+    },
+  },
+  support: {
+    layout: {
+      title: "고객센터",
+      subtitle: "문의 · 제보 · FAQ 관리 영역",
+    },
+    nav: {
+      all: "전체 문의",
+      faq: "FAQ",
+      new: "문의하기",
+      mine: "내 문의",
+      trash: "휴지통",
+    },
+    faq: {
+      empty: "등록된 FAQ가 없습니다.",
+    },
+    new: {
+      title: "문의하기",
+      loginRequired: "로그인 후 문의할 수 있어요.",
+      phTitle: "제목",
+      phBody: "문의 내용을 입력하세요",
+      submitting: "등록 중…",
+      ready: "입력 완료",
+      needInput: "제목과 내용을 입력하세요",
+      created: "문의가 등록되었습니다.",
+    },
+    mine: {
+      loginRequired: "로그인 후 확인할 수 있어요.",
+      empty: "작성한 문의가 없습니다.",
+    },
+    status: {
+      open: "open",
+      closed: "closed",
+      pending: "pending",
+    },
+    trash: {
+      title: "고객센터 휴지통",
+      loginRequired: "로그인 후 확인할 수 있어요.",
+      empty: "휴지통이 비어있어요.",
+      deletedAt: "삭제일:",
+      restore: "복구",
+      hardDelete: "완전삭제",
+      confirmHardDelete: "완전 삭제됩니다. 복구할 수 없어요. 계속할까요?",
+    },
+    edit: {
+      title: "문의 수정",
+
+      loginRequired: "로그인 후 수정할 수 있어요.",
+
+      invalidIdTitle: "잘못된 주소",
+      invalidIdMsg: "support id가 uuid 형식이 아니라 수정할 수 없어요.",
+
+      forbiddenTitle: "권한 없음",
+      forbiddenMsg: "본인이 작성한 문의만 수정할 수 있어요.",
+
+      close: "닫기",
+      save: "저장",
+      saving: "저장 중…",
+
+      loadFailed: "문의 정보를 불러오지 못했습니다.",
+    },
+    myTickets: "내 문의",
+    newTicket: "문의하기",
+    empty: "아직 문의가 없습니다.",
+    noTitle: "(제목 없음)",
+    countUnit: "건",
+    authHint: "문의 작성/내 문의 보기 기능은 로그인 후 사용 가능해요.",
+  },
+} as const;

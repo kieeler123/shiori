@@ -12,12 +12,17 @@ import { Button } from "@/shared/ui/primitives/Button";
 import TagChip from "@/shared/ui/primitives/TagChip";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
 import { LoadingText } from "@/shared/ui/feedback/LoadingText";
+
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDateTime } from "@/shared/i18n/format";
+
 import { dbSupportTrashMove } from "../../repo/supportTrashRepo";
 
 export default function SupportDetailPage() {
   const nav = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { ready, isAuthed, userId } = useSession();
+  const { t, locale } = useI18n();
 
   const [item, setItem] = useState<SupportTicketDetailRow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,9 +32,9 @@ export default function SupportDetailPage() {
   if (!isUuid(id)) {
     return (
       <RouteProblem
-        title="잘못된 주소"
-        message="support id가 uuid 형식이 아니라 조회할 수 없어요."
-        hint={`받은 값: ${String(id)}\n해결: /support/new 를 :id 보다 먼저 라우팅하세요.`}
+        title={t("common.route.invalidTitle")}
+        message={t("support.detail.invalidId")}
+        hint={t("support.detail.invalidHint", { id: String(id) })}
       />
     );
   }
@@ -55,10 +60,10 @@ export default function SupportDetailPage() {
     })().catch(console.error);
   }, [ready, id]);
 
-  // ✅ 삭제
+  // ✅ 삭제(휴지통 이동)
   async function remove() {
     if (!isMine) return;
-    if (!confirm("휴지통으로 이동할까요?")) return;
+    if (!confirm(t("support.detail.confirmMoveToTrash"))) return;
 
     setBusy(true);
     try {
@@ -74,21 +79,21 @@ export default function SupportDetailPage() {
   // ------------------------
 
   if (!ready) {
-    return <LoadingText>세션 확인중…</LoadingText>;
+    return <LoadingText label={t("common.sessionChecking")} />;
   }
 
   if (loading) {
-    return <div className="text-sm text-[var(--text-sub)]">Loading…</div>;
+    return <LoadingText label={t("common.loading")} />;
   }
 
   if (!item) {
     return (
       <div className="space-y-4">
         <Button variant="soft" onClick={() => nav(-1)}>
-          뒤로
+          {t("common.back")}
         </Button>
         <div className="text-sm text-[var(--text-sub)]">
-          존재하지 않는 문의입니다.
+          {t("support.detail.notFound")}
         </div>
       </div>
     );
@@ -103,47 +108,47 @@ export default function SupportDetailPage() {
       {/* 상단 영역 */}
       <div className="flex items-center justify-between gap-3">
         <Button variant="soft" onClick={() => nav("/support")}>
-          목록
+          {t("common.list")}
         </Button>
 
         <TagChip variant="display" size="sm" active>
-          {item.status}
+          {t(`support.status.${item.status}`)}
         </TagChip>
       </div>
 
       {/* 제목 + 작성자 */}
       <div className="space-y-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-200">
-          {item.title || "(제목 없음)"}
+        <h1 className="text-2xl font-semibold tracking-tight t1">
+          {item.title || t("common.noTitle")}
         </h1>
 
-        <div className="text-xs text-zinc-200">
-          {item.nickname} · {new Date(item.created_at).toLocaleString()}
+        <div className="text-xs t3">
+          {item.nickname} · {formatDateTime(item.created_at, locale)}
         </div>
       </div>
 
-      {/* 본문 */}
+      {/* 본문(원문 그대로) */}
       <SurfaceCard>
-        <pre className="whitespace-pre-wrap break-words text-sm  text-zinc-200 leading-relaxed">
+        <pre className="whitespace-pre-wrap break-words text-sm t2 leading-relaxed">
           {item.body}
         </pre>
       </SurfaceCard>
 
-      {/* 수정 / 삭제 */}
-      {isMine && (
+      {/* 수정 / 삭제 (내 글만) */}
+      {isMine ? (
         <div className="flex gap-2">
           <Button
             variant="soft"
             onClick={() => nav(`/support/${item.id}/edit`)}
           >
-            수정
+            {t("common.edit")}
           </Button>
 
           <Button variant="danger" onClick={remove} disabled={busy}>
-            삭제
+            {t("common.delete")}
           </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

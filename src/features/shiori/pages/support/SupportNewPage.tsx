@@ -9,9 +9,13 @@ import { Button } from "@/shared/ui/primitives/Button";
 import { Input } from "@/shared/ui/primitives/Input";
 import { Textarea } from "@/shared/ui/primitives/Textarea";
 
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { toast } from "@/app/layout/toast"; // 너가 만든 toast() 사용(경로 맞춰)
+
 export default function SupportNewPage() {
   const nav = useNavigate();
   const { ready, isAuthed } = useSession();
+  const { t } = useI18n();
 
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -28,10 +32,13 @@ export default function SupportNewPage() {
         title: title.trim(),
         body: body.trim(),
       });
+
+      toast(t("support.new.created"), "success");
       nav(`/support/${saved.id}`);
     } catch (e) {
       console.error(e);
-      alert(String((e as any)?.message ?? e));
+      // 중요한 오류는 alert도 가능하지만, 일반적으론 toast가 UX 좋음
+      toast(String((e as any)?.message ?? e), "error");
     } finally {
       setBusy(false);
     }
@@ -40,7 +47,7 @@ export default function SupportNewPage() {
   if (!ready) {
     return (
       <div className="grid place-items-center py-16">
-        <div className="text-sm t5">세션 확인중…</div>
+        <div className="text-sm t5">{t("common.sessionChecking")}</div>
       </div>
     );
   }
@@ -48,7 +55,7 @@ export default function SupportNewPage() {
   if (!isAuthed) {
     return (
       <div className="py-6">
-        <div className="text-sm t5 mb-3">로그인 후 문의할 수 있어요.</div>
+        <div className="text-sm t5 mb-3">{t("support.new.loginRequired")}</div>
         <AuthPanel />
       </div>
     );
@@ -58,10 +65,12 @@ export default function SupportNewPage() {
     <div>
       {/* Header row */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold tracking-tight t2">문의하기</h2>
+        <h2 className="text-lg font-semibold tracking-tight t2">
+          {t("support.new.title")}
+        </h2>
 
         <Button variant="ghost" onClick={() => nav("/support")} disabled={busy}>
-          닫기
+          {t("common.close")}
         </Button>
       </div>
 
@@ -70,7 +79,7 @@ export default function SupportNewPage() {
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="제목"
+          placeholder={t("support.new.phTitle")}
           autoFocus
         />
 
@@ -78,16 +87,16 @@ export default function SupportNewPage() {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           rows={10}
-          placeholder="문의 내용을 입력하세요"
+          placeholder={t("support.new.phBody")}
         />
 
         <div className="flex items-center justify-between gap-3">
           <div className="text-xs t5">
             {busy
-              ? "등록 중…"
+              ? t("support.new.submitting")
               : canSubmit
-                ? "입력 완료"
-                : "제목과 내용을 입력하세요"}
+                ? t("support.new.ready")
+                : t("support.new.needInput")}
           </div>
 
           <Button
@@ -96,7 +105,7 @@ export default function SupportNewPage() {
             onClick={submit}
             disabled={!canSubmit || busy}
           >
-            {busy ? "처리 중..." : "등록"}
+            {busy ? t("common.processing") : t("common.submit")}
           </Button>
         </div>
       </div>

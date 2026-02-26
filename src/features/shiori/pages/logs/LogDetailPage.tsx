@@ -22,6 +22,8 @@ import { Textarea } from "@/shared/ui/primitives/Textarea";
 import { LogMetaInline } from "../../components/LogMetaInline";
 import { LoadingText } from "@/shared/ui/feedback/LoadingText";
 import { dbLogsTrashMove } from "../../repo/trashRepo";
+import { toast } from "@/app/layout/toast";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 function chip(t: string) {
   return (
@@ -39,13 +41,15 @@ export default function LogDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthed, userId } = useSession();
 
+  const { t } = useI18n();
+
   // ✅ Guard: uuid 아니면 조회하지 않고 안내
   if (!isUuid(id)) {
     return (
       <RouteProblem
-        title="잘못된 주소로 들어왔어요"
-        message="현재 URL의 id 값이 올바른 글 ID(uuid)가 아닙니다."
-        hint={`받은 값: ${String(id)}\n원인 예: /logs/new 가 /logs/:id 로 매칭됨\n해결: 라우터에서 /logs/new 를 :id 보다 먼저 선언하세요.`}
+        title={t("route.invalidTitle")}
+        message={t("route.invalidLogId")}
+        hint={t("route.invalidHint", { id: String(id) })}
       />
     );
   }
@@ -118,8 +122,10 @@ export default function LogDetailPage() {
       await dbCommentCreate({ item_id: id!, body });
       setCommentText("");
       await refreshComments();
-    } catch (e) {
+      toast(t("logs.comments.created"), "success");
+    } catch (e: any) {
       console.error(e);
+      toast(String(e?.message ?? e), "error");
     } finally {
       setBusy(false);
     }
@@ -132,8 +138,10 @@ export default function LogDetailPage() {
     try {
       await dbCommentDelete(cid);
       await refreshComments();
-    } catch (e) {
+      toast(t("logs.comments.deleted"), "success");
+    } catch (e: any) {
       console.error(e);
+      toast(String(e?.message ?? e), "error");
     } finally {
       setBusy(false);
     }
@@ -141,26 +149,30 @@ export default function LogDetailPage() {
 
   async function removeItem() {
     if (!isAuthed || !isMine) return;
-    if (!confirm("삭제할까요?")) return;
+    if (!confirm(t("common.confirmDelete"))) return;
 
     setBusy(true);
     try {
       await dbLogsTrashMove(id!);
+      toast(t("logs.detail.movedToTrash"), "success");
       nav("/logs", { state: { refresh: true } });
+    } catch (e: any) {
+      console.error(e);
+      toast(String(e?.message ?? e), "error");
     } finally {
       setBusy(false);
     }
   }
 
   if (loading) {
-    return <LoadingText label="Loading..." />;
+    return <LoadingText label={t("common.loading")} />;
   }
 
   if (!item) {
     return (
       <>
-        <Button onClick={() => nav(-1)}>뒤로</Button>
-        <div className="mt-6 text-sm t5">존재하지 않는 글입니다.</div>
+        <Button onClick={() => nav(-1)}>{t("common.back")}</Button>
+        <div className="mt-6 text-sm t5">{t("logs.detail.notFound")}</div>
       </>
     );
   }
@@ -177,7 +189,7 @@ export default function LogDetailPage() {
             variant="soft"
             onClick={() => nav("/logs", { state: { refresh: true } })}
           >
-            목록
+            {t("common.list")}
           </Button>
 
           <LogMetaInline createdLabel={createdLabel} viewCount={viewCount} />
@@ -196,7 +208,7 @@ export default function LogDetailPage() {
                 variant="soft"
                 onClick={() => nav(`/logs/${item.id}/edit`)}
               >
-                수정
+                {t("common.edit")}
               </Button>
 
               <Button
@@ -205,7 +217,7 @@ export default function LogDetailPage() {
                 onClick={removeItem}
                 disabled={busy}
               >
-                삭제
+                {t("common.delete")}
               </Button>
             </div>
           ) : null}
@@ -226,7 +238,8 @@ export default function LogDetailPage() {
         {/* Comments */}
         <div className="mt-10">
           <div className="mb-3 text-sm t4">
-            댓글 <span className="t6">({comments.length})</span>
+            {t("common.comments.title")}{" "}
+            <span className="t6">({comments.length})</span>
           </div>
 
           {!isAuthed ? (
@@ -239,7 +252,7 @@ export default function LogDetailPage() {
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 rows={3}
-                placeholder="댓글을 입력..."
+                placeholder={t("common.comments.ph")}
               />
 
               <div className="mt-2 flex justify-end">
@@ -248,7 +261,7 @@ export default function LogDetailPage() {
                   onClick={submitComment}
                   disabled={busy || !commentText.trim()}
                 >
-                  {busy ? "처리 중..." : "댓글 작성"}
+                  {busy ? t("common.processing") : t("common.comments.submit")}
                 </Button>
               </div>
             </SurfaceCard>
@@ -263,7 +276,9 @@ export default function LogDetailPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-xs t6">
                       {new Date(c.created_at).toLocaleString()}
-                      {mine ? <span className="ml-2 t5">(내 댓글)</span> : null}
+                      {mine ? (
+                        <span className="ml-2 t5">({t("comments.mine")})</span>
+                      ) : null}
                     </div>
 
                     {mine ? (
@@ -274,7 +289,7 @@ export default function LogDetailPage() {
                         disabled={busy}
                         className="h-7 px-2 text-xs"
                       >
-                        삭제
+                        {t("common.delete")}
                       </Button>
                     ) : null}
                   </div>
@@ -287,7 +302,7 @@ export default function LogDetailPage() {
             })}
 
             {comments.length === 0 ? (
-              <div className="text-sm t5">댓글이 아직 없습니다.</div>
+              <div className="text-sm t5">{t("common.comments.empty")}</div>
             ) : null}
           </div>
         </div>

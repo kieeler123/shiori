@@ -783,6 +783,13 @@
   box-shadow: 0 0 0 2px var(--ring);
 }
 
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
 .clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;

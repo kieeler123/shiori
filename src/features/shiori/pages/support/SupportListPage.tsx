@@ -1,75 +1,103 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
 
-import { dbSupportList } from "@/features/shiori/repo/supportRepo";
+import { dbSupportListPage } from "@/features/shiori/repo/supportRepo";
 import type { SupportTicketListRow } from "../../type";
 
 import { Button } from "@/shared/ui/primitives/Button";
 import TagChip from "@/shared/ui/primitives/TagChip";
 import { ListItemButton } from "@/shared/ui/patterns/ListItemButton";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
+import { EmptyState } from "@/shared/ui/feedback/EmptyState";
+
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDateTime, formatCount } from "@/shared/i18n/format";
+
+import { PAGE_SIZE, usePagedList } from "@/shared/hooks/usePagedList";
+import { useInfiniteScrollSentinel } from "@/shared/hooks/useInfiniteScrollSentinel";
+import { InfiniteListFooter } from "@/shared/ui/patterns/InfiniteListFooter";
+
 import { previewText } from "../../utils/previewOneLine";
 
 export default function SupportListPage() {
   const nav = useNavigate();
-  const location = useLocation();
   const { ready, isAuthed } = useSession();
+  const { t, locale } = useI18n();
 
-  const [rows, setRows] = useState<SupportTicketListRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  async function load({ toTop = false } = {}) {
-    setLoading(true);
-    try {
-      const data = await dbSupportList();
-      setRows(data);
+  const startedRef = useRef(false);
 
-      if (toTop) {
-        requestAnimationFrame(() => {
-          window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
+  const {
+    items: rows,
+    hasMore,
+    initialLoading,
+    refreshing,
+    busyMore,
+    loadFirstPage,
+    loadNextPage,
+    resetPaging,
+  } = usePagedList<SupportTicketListRow, SupportTicketListRow>({
+    pageSize: PAGE_SIZE,
+    fetchPage: ({ limit, offset }) => dbSupportListPage({ limit, offset }),
+    mapRow: (r) => r,
+    mergeKey: (r) => r.id,
+  });
 
+  // 무한스크롤
+  useInfiniteScrollSentinel(sentinelRef, {
+    enabled: ready && hasMore && !busyMore,
+    onLoadMore: loadNextPage,
+    rootMargin: "240px",
+    threshold: 0.01,
+  });
+
+  // 최초 로드(정말 1회만)
   useEffect(() => {
     if (!ready) return;
+    if (startedRef.current) return; // ✅ StrictMode/dev 중복 방지
+    startedRef.current = true;
 
-    const needsTop = Boolean((location.state as any)?.refresh);
+    resetPaging();
+    loadFirstPage("initial").catch(console.error);
+  }, [ready, resetPaging, loadFirstPage]);
 
-    (async () => {
-      await load({ toTop: needsTop });
+  if (!ready) return <LoadingText label={t("common.sessionChecking")} />;
 
-      // ✅ refresh state 제거
-      if (needsTop) {
-        nav("/support", { replace: true, state: null });
-      }
-    })().catch(console.error);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, location.key]);
+  const countLabel =
+    rows.length > 0
+      ? `${formatCount(rows.length, locale)}${t("support.countUnit")}`
+      : initialLoading
+        ? t("common.loading")
+        : `0${t("support.countUnit")}`;
 
   return (
     <section className="mt-6 space-y-3">
       {/* Top actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="text-xs t5">
-          {loading ? "불러오는 중…" : `${rows.length}건`}
-        </div>
+        <div className="text-xs t5">{countLabel}</div>
 
         <div className="flex flex-wrap gap-2">
           <Button variant="soft" onClick={() => nav("/support/mine")}>
-            내 문의
+            {t("support.nav.mine")}
           </Button>
+
           <Button variant="soft" onClick={() => nav("/support/trash")}>
-            휴지통
+            {t("support.nav.trash")}
           </Button>
-          <Button variant="primary" onClick={() => nav("/support/new")}>
-            문의하기
+
+          <Button
+            variant="primary"
+            onClick={() => {
+              if (!isAuthed)
+                return nav("/auth", { state: { next: "/support/new" } });
+              nav("/support/new");
+            }}
+          >
+            {t("support.nav.new")}
           </Button>
         </div>
       </div>
@@ -78,54 +106,67 @@ export default function SupportListPage() {
       {!isAuthed ? (
         <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-elev-1)] p-4">
           <div className="text-sm text-[var(--text-sub)] mb-3">
-            문의 작성/내 문의 보기 기능은 로그인 후 사용 가능해요.
+            {t("support.list.loginHint")}
           </div>
           <AuthPanel />
         </div>
       ) : null}
 
       {/* List */}
-      <div className="mt-6 space-y-3">
-        {loading ? (
-          <div className="text-sm text-[var(--text-sub)]">불러오는 중…</div>
+      <div className="mt-6 space-y-3 min-h-[40vh]">
+        {initialLoading && rows.length === 0 ? (
+          <LoadingText label={t("common.loading")} />
         ) : rows.length === 0 ? (
-          <div className="text-sm text-[var(--text-sub)]">
-            아직 문의가 없습니다.
-          </div>
+          <EmptyState>{t("support.list.empty")}</EmptyState>
         ) : (
           rows.map((r) => (
             <ListItemButton
               key={r.id}
               className="surface-1"
               onClick={() => nav(`/support/${r.id}`)}
-              title="상세 보기"
+              title={t("common.openDetail")}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="truncate text-sm t2">
-                    {r.title || "(제목 없음)"}
+                    {r.title || t("common.noTitle")}
                   </div>
 
-                  {/* ✅ 1줄 미리보기(원하면 content 매핑해서 넣어) */}
+                  {/* ✅ 1줄 미리보기(원하면 line-clamp-2로 변경 가능) */}
                   {r.body ? (
-                    <div className="mt-1 truncate text-xs text-zinc-400">
-                      {previewText(r.body, 110)}
+                    <div className="mt-1 text-xs t4 line-clamp-1">
+                      {previewText(r.body, 220)}
                     </div>
                   ) : null}
 
                   <div className="mt-1 text-xs t5">
-                    {r.nickname} · {new Date(r.created_at).toLocaleString()}
+                    {r.nickname} · {formatDateTime(r.created_at, locale)}
                   </div>
                 </div>
 
                 {/* 상태 배지 */}
                 <TagChip variant="display" size="sm" active>
-                  {r.status}
+                  {t(`support.status.${r.status}`)}
                 </TagChip>
               </div>
             </ListItemButton>
           ))
         )}
+
+        <InfiniteListFooter
+          sentinelRef={sentinelRef}
+          busyMore={busyMore}
+          hasMore={hasMore}
+          hasAny={rows.length > 0}
+          loadingLabel={t("common.loadingMore")}
+          endLabel={t("common.end")}
+        />
+
+        {refreshing ? (
+          <div className="py-2">
+            <LoadingText size="sm" label={t("common.refreshing")} />
+          </div>
+        ) : null}
       </div>
     </section>
   );

@@ -12,6 +12,9 @@ import { THEME_PRESETS } from "@/shared/theme/theme.presets";
 import ThemeSelectCompact from "@/shared/theme/ThemeSelectCompact";
 import { useTheme } from "@/shared/theme/useTheme";
 import { cn } from "@/shared/ui/utils/cn";
+import LocaleSelectCompact from "@/shared/i18n/LocaleSelectCompact";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import HeaderDropdownMenu from "@/shared/ui/patterns/HeaderDropdownMenu";
 
 export default function Header({
   title = "Shiori",
@@ -30,6 +33,8 @@ export default function Header({
 
   const { clearQuery } = useShioriSearch();
   const { theme, setTheme } = useTheme();
+
+  const { t } = useI18n();
 
   useEffect(() => {
     setOpen(false);
@@ -76,8 +81,8 @@ export default function Header({
                 onCloseSearch();
               }}
               className="shrink-0"
-              aria-label="검색 닫기"
-              title="닫기"
+              aria-label={t("common.close")}
+              title={t("common.close")}
             >
               ←
             </Button>
@@ -93,10 +98,10 @@ export default function Header({
             {/* 햄버거 */}
             <Button
               variant="icon"
-              aria-label="menu"
+              aria-label={t("common.menu")}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              title="Menu"
+              title={t("common.menu")}
               ref={btnRef as any}
               className="shrink-0"
             >
@@ -115,7 +120,7 @@ export default function Header({
                 nav("/");
               }}
               className="shrink-0 cursor-pointer text-lg sm:text-xl font-semibold tracking-tight t2 hover:opacity-90"
-              title="Home"
+              title={t("common.home")}
             >
               {title}
             </button>
@@ -136,8 +141,8 @@ export default function Header({
             <div className="sm:hidden shrink-0">
               <Button
                 variant="icon"
-                aria-label="검색 열기"
-                title="검색"
+                aria-label={t("common.search")}
+                title={t("common.search")}
                 onClick={onToggleSearch}
               >
                 🔍
@@ -155,86 +160,18 @@ export default function Header({
                 panelWidth={280}
               />
             </div>
+            <div className="shrink-0 ml-1 sm:ml-2">
+              {/* ✅ 언어 선택 */}
+              <LocaleSelectCompact />
+            </div>
 
             {/* Dropdown */}
             {open && (
-              <DropdownMenuPanel
-                ref={menuRef as any}
-                role="menu"
-                aria-label="햄버거 메뉴"
-                onMouseDown={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
-                className="left-1/2 -translate-x-1/2 top-full mt-2"
-              >
-                <div className="px-2 py-1 text-xs t5">고객센터</div>
-
-                <Button
-                  variant="ghost"
-                  role="menuitem"
-                  onClick={() => (nav("/support"), setOpen(false))}
-                  className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
-                >
-                  📋 전체 문의
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  role="menuitem"
-                  onClick={() => (nav("/support/faq"), setOpen(false))}
-                  className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
-                >
-                  ❓ FAQ
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  role="menuitem"
-                  onClick={() => (nav("/support/new"), setOpen(false))}
-                  className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
-                >
-                  📝 제보하기
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  role="menuitem"
-                  onClick={() => (nav("/support/mine"), setOpen(false))}
-                  className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
-                >
-                  🙋 내 문의
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  role="menuitem"
-                  onClick={() => (nav("/support/trash"), setOpen(false))}
-                  className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
-                >
-                  🗑 고객센터 휴지통
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  role="menuitem"
-                  onClick={() => (nav("/settings/account"), setOpen(false))}
-                  className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
-                >
-                  ⚙️ 계정 설정
-                </Button>
-
-                <div className="my-2 border-t [border-color:var(--border-soft)]" />
-
-                <div className="px-2 py-1 text-xs t5">기타</div>
-
-                <Button
-                  variant="ghost"
-                  role="menuitem"
-                  onClick={() => (nav("/trash"), setOpen(false))}
-                  className="w-full justify-start hover:bg-[var(--menu-item-hover-bg)] hover:text-[var(--menu-item-hover-fg)]"
-                >
-                  🗑 일반 휴지통
-                </Button>
-              </DropdownMenuPanel>
+              <HeaderDropdownMenu
+                open={open}
+                onClose={() => setOpen(false)}
+                menuRef={menuRef}
+              />
             )}
           </div>
 

@@ -77,7 +77,6 @@ docs/
       Header.tsx
     features/
       auth/ # 앱 전체 인증(Shiori뿐 아니라 전체 공용)
-        AuthBar.tsx
         AuthButton.tsx
         AuthCallback.tsx
         AuthPanel.tsx

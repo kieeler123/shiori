@@ -13,7 +13,7 @@ export default function ToastProvider() {
 
   useEffect(() => {
     registerToast(({ message, type, action }) => {
-      const id = Date.now();
+      const id = Date.now() + Math.floor(Math.random() * 1000);
       setToasts((t) => [...t, { id, message, type, action }]);
 
       setTimeout(() => {

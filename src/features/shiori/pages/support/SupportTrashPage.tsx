@@ -9,6 +9,12 @@ import { Button } from "@/shared/ui/primitives/Button";
 import { PageSection } from "@/app/layout/PageSection";
 import { previewText } from "../../utils/previewOneLine";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
+import { LoadingText } from "@/shared/ui/feedback/LoadingText";
+import { EmptyState } from "@/shared/ui/feedback/EmptyState";
+
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDateTime, formatCount } from "@/shared/i18n/format";
+
 import {
   dbSupportTrashHardDelete,
   dbSupportTrashListMine,
@@ -18,11 +24,11 @@ import {
 export default function SupportTrashPage() {
   const nav = useNavigate();
   const { ready, isAuthed } = useSession();
+  const { t, locale } = useI18n();
 
   const [rows, setRows] = useState<SupportTrashListRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -46,34 +52,40 @@ export default function SupportTrashPage() {
   }, [ready, isAuthed, load]);
 
   async function restore(id: string) {
+    if (busy) return;
     setBusy(true);
-    await dbSupportTrashRestore(id);
-    await load();
-    setBusy(false);
+    try {
+      await dbSupportTrashRestore(id);
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function hardDelete(id: string) {
-    if (!confirm("완전 삭제됩니다. 복구 불가")) return;
+    if (busy) return;
+
+    const ok = confirm(t("support.trash.confirmHardDelete"));
+    if (!ok) return;
+
     setBusy(true);
-    await dbSupportTrashHardDelete(id);
-    await load();
-    setBusy(false);
+    try {
+      await dbSupportTrashHardDelete(id);
+      await load();
+    } finally {
+      setBusy(false);
+    }
   }
 
-  // SupportLayout 안에서 쓰는 전제: 로그인 없으면 안내 + AuthPanel
-  if (!ready) {
-    return <div className="text-sm text-[var(--text-sub)]">세션 확인중…</div>;
-  }
+  if (!ready) return <LoadingText label={t("common.sessionChecking")} />;
 
   if (!isAuthed) {
     return (
       <div className="space-y-3">
-        <h2 className="text-xl font-semibold tracking-tight">
-          고객센터 휴지통
+        <h2 className="text-xl font-semibold tracking-tight t1">
+          {t("support.trash.title")}
         </h2>
-        <div className="text-sm text-[var(--text-sub)]">
-          로그인 후 확인할 수 있어요.
-        </div>
+        <div className="text-sm t5">{t("support.trash.loginRequired")}</div>
         <AuthPanel />
       </div>
     );
@@ -81,80 +93,90 @@ export default function SupportTrashPage() {
 
   return (
     <PageSection>
-      {/* 헤더 */}
+      {/* Header */}
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
-          고객센터 휴지통
+        <h2 className="text-xl font-semibold tracking-tight t1">
+          {t("support.trash.title")}
         </h2>
 
         <div className="flex items-center gap-2">
           <Button variant="soft" onClick={() => nav("/support")}>
-            목록
+            {t("common.list")}
           </Button>
+
           <Button variant="soft" onClick={load} disabled={loading}>
-            {loading ? "불러오는 중…" : "새로고침"}
+            {loading ? t("common.loading") : t("common.refreshing")}
           </Button>
         </div>
       </div>
 
-      {/* 메타 */}
-      <div className="flex items-center justify-between">
-        <div className="text-xs text-zinc-300">
-          {loading ? "불러오는 중…" : `${rows.length}건`}
+      {/* Meta */}
+      <div className="mt-2 flex items-center justify-between">
+        <div className="text-xs t5">
+          {loading
+            ? t("common.loading")
+            : `${formatCount(rows.length, locale)}${t("support.countUnit")}`}
         </div>
       </div>
 
-      {/* 에러 */}
+      {/* Error */}
       {err ? (
-        <SurfaceCard className="border border-red-900/50 bg-red-950/15">
-          <div className="text-sm text-red-200">{err}</div>
+        <SurfaceCard
+          tone="soft"
+          className="mt-3 border border-[var(--border-soft)]"
+        >
+          <div className="text-sm t3">{t("common.errorPrefix")}</div>
+          <div className="mt-1 text-sm t2 whitespace-pre-wrap break-words">
+            {err}
+          </div>
         </SurfaceCard>
       ) : null}
 
-      {/* 리스트 */}
-      {loading ? (
-        <div className="text-sm text-zinc-300">불러오는 중…</div>
-      ) : rows.length === 0 ? (
-        <div className="text-sm text-zinc-300">휴지통이 비어있어요.</div>
-      ) : (
-        <div className="space-y-2">
-          {rows.map((r) => (
-            <SurfaceCard
-              key={r.id}
-              className="space-y-2 text-left rounded-2xl p-4"
-            >
-              <div className="text-zinc-200">{r.title || "(제목 없음)"}</div>
-              {/* ✅ 1줄 미리보기(원하면 content 매핑해서 넣어) */}
-              {r.body ? (
-                <div className="mt-1 truncate text-xs text-zinc-400">
-                  {previewText(r.body, 110)}
+      {/* List */}
+      <div className="mt-4">
+        {loading ? (
+          <LoadingText size="sm" label={t("common.loading")} />
+        ) : rows.length === 0 ? (
+          <EmptyState>{t("support.trash.empty")}</EmptyState>
+        ) : (
+          <div className="space-y-2">
+            {rows.map((r) => (
+              <SurfaceCard key={r.id} className="space-y-2 text-left p-4">
+                <div className="t2">{r.title || t("common.noTitle")}</div>
+
+                {r.body_preview ? (
+                  <div className="text-xs t5 line-clamp-1">
+                    {previewText(r.body_preview, 200)}
+                  </div>
+                ) : null}
+
+                <div className="text-xs t5">
+                  {t("support.trash.deletedAt")}{" "}
+                  {r.deleted_at ? formatDateTime(r.deleted_at, locale) : "-"}
                 </div>
-              ) : null}
-              <div className="mt-1 text-xs text-zinc-300">
-                삭제일:{" "}
-                {r.deleted_at ? new Date(r.deleted_at).toLocaleString() : "-"}
-              </div>
-              <div className="mt-3 flex gap-2">
-                <Button
-                  variant="soft"
-                  onClick={() => restore(r.id)}
-                  disabled={busy}
-                >
-                  복구
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => hardDelete(r.id)}
-                  disabled={busy}
-                  className="px-3 py-1 rounded border text-xs text-red-400"
-                >
-                  완전삭제
-                </Button>
-              </div>
-            </SurfaceCard>
-          ))}
-        </div>
-      )}
+
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    variant="soft"
+                    onClick={() => restore(r.id)}
+                    disabled={busy}
+                  >
+                    {t("support.trash.restore")}
+                  </Button>
+
+                  <Button
+                    variant="danger"
+                    onClick={() => hardDelete(r.id)}
+                    disabled={busy}
+                  >
+                    {t("support.trash.hardDelete")}
+                  </Button>
+                </div>
+              </SurfaceCard>
+            ))}
+          </div>
+        )}
+      </div>
     </PageSection>
   );
 }

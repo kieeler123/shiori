@@ -7,6 +7,7 @@ import { useSession } from "@/features/auth/useSession";
 import { dbLogsTrashHardDelete } from "../../repo/trashRepo";
 import { Button } from "@/shared/ui/primitives/Button";
 import { PageSection } from "@/app/layout/PageSection";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 type Toast = { kind: "ok" | "warn" | "error"; text: string } | null;
 
@@ -33,6 +34,8 @@ export default function NewLogPage() {
   const undoIdRef = useRef<string | null>(null);
 
   const [toast, setToast] = useState<Toast>(null);
+
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!toast) return;
@@ -109,8 +112,10 @@ export default function NewLogPage() {
         // ✅ 저장은 되었는데, 뷰 정책 때문에 목록에 안 보이는 상태
         setToast({
           kind: "warn",
-          text: "저장은 되었지만 공개 목록 기준에 따라 숨김 처리되었습니다. (제목/내용/중복 규칙)",
+          text: t("logs.new.hiddenByPolicy"),
         });
+
+        setToast({ kind: "ok", text: t("logs.new.created") });
         // Undo를 걸지 말지: “숨김 글도 undo로 지울 수 있게” 하고 싶으면 아래 createdId로 undo 걸어도 됨.
         // setUndo({ id: crypto.randomUUID(), kind: "add", createdId: res.createdId });
         return;
@@ -150,7 +155,9 @@ export default function NewLogPage() {
   if (!ready) {
     return (
       <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-2)] grid place-items-center">
-        <div className="text-sm text-[var(--text-5)]">세션 확인중…</div>
+        <div className="text-sm text-[var(--text-5)]">
+          {t("common.sessionChecking")}
+        </div>
       </div>
     );
   }
@@ -159,7 +166,7 @@ export default function NewLogPage() {
     return (
       <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-2)] grid place-items-center">
         <div className="text-sm text-[var(--text-5)]">
-          로그인 후 작성할 수 있어요.
+          {t("logs.new.loginRequired")}
         </div>
       </div>
     );
@@ -174,7 +181,7 @@ export default function NewLogPage() {
       )}
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold t2">새 글 작성</h2>
+        <h2 className="text-xl font-semibold t2">{t("logs.new.title")}</h2>
 
         <div className="flex items-center gap-2">
           <Button
@@ -182,7 +189,7 @@ export default function NewLogPage() {
             onClick={() => nav("/logs", { state: { refresh: true } })}
             disabled={isMutating}
           >
-            목록으로
+            {t("common.list")}
           </Button>
 
           <Button
@@ -190,7 +197,7 @@ export default function NewLogPage() {
             onClick={() => nav("/logs")}
             disabled={isMutating}
           >
-            닫기
+            {t("common.close")}
           </Button>
         </div>
       </div>
@@ -199,8 +206,8 @@ export default function NewLogPage() {
       {undo && (
         <div
           className="mt-4 mb-4 flex items-center justify-between rounded-2xl
-                 border border-[var(--border-soft)]
-                 bg-[var(--bg-elev-1)]/70 px-4 py-3"
+               border border-[var(--border-soft)]
+               bg-[var(--bg-elev-1)]/70 px-4 py-3"
           onMouseEnter={() => setUndoPaused(true)}
           onMouseLeave={() => {
             setUndoPaused(false);
@@ -208,12 +215,14 @@ export default function NewLogPage() {
           }}
         >
           <span className="text-sm t4">
-            작성됨 —<span className="t3 ml-1">{secondsLeft}초</span>
-            {undoPaused ? " (멈춤)" : ""} — 되돌릴까요?
+            {t("logs.new.undoBanner", {
+              seconds: String(secondsLeft),
+              paused: undoPaused ? t("logs.new.paused") : "",
+            })}
           </span>
 
           <Button variant="soft" onClick={applyUndo} disabled={isMutating}>
-            되돌리기
+            {t("logs.new.undo")}
           </Button>
         </div>
       )}
@@ -221,16 +230,16 @@ export default function NewLogPage() {
       {/* Editor */}
       <div className="mt-4">
         <LogEditor
-          submitLabel={isMutating ? "처리 중..." : "작성"}
+          submitLabel={
+            isMutating ? t("common.processing") : t("logs.new.submit")
+          }
           onCancel={() => nav("/logs")}
           onSubmit={onSubmit}
         />
       </div>
 
       {/* Hint */}
-      <div className="mt-4 text-xs t5">
-        작성 후 5초 동안 “되돌리기”로 방금 글을 삭제할 수 있어요.
-      </div>
+      <div className="mt-4 text-xs t5">{t("logs.new.undoHint")}</div>
     </PageSection>
   );
 }

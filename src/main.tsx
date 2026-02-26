@@ -9,6 +9,7 @@ import { initThemeName } from "./shared/theme/theme.storage";
 
 import "./index.css"; // ✅ 먼저
 import "@/shared/theme/theme.css"; // ✅ 항상 가장 마지막(테마가 최종 승자)
+import { LocaleProvider } from "./shared/i18n/LocaleProvider";
 
 initThemeName();
 
@@ -17,7 +18,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <SessionProvider>
       <BrowserRouter>
         <ThemeProvider>
-          <App />
+          <LocaleProvider>
+            <App />
+          </LocaleProvider>
         </ThemeProvider>
       </BrowserRouter>
     </SessionProvider>

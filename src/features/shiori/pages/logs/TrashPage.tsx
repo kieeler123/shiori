@@ -11,6 +11,8 @@ import {
   dbLogsTrashRestore,
 } from "../../repo/trashRepo";
 import { dbGetMyDeleteStatus } from "../../repo/AccountTrashRepo";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { formatDateTime } from "@/shared/i18n/format";
 
 export default function TrashPage() {
   const { isAuthed } = useSession();
@@ -23,6 +25,8 @@ export default function TrashPage() {
     deleted_at: string | null;
     purge_at: string | null;
   } | null>(null);
+
+  const { t, locale } = useI18n();
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -47,21 +51,22 @@ export default function TrashPage() {
   }
 
   async function hardDelete(id: string) {
-    if (!confirm("완전 삭제됩니다. 복구 불가")) return;
+    if (!confirm(t("logs.trash.confirmHardDelete"))) return;
     setBusy(true);
     await dbLogsTrashHardDelete(id);
     await load();
     setBusy(false);
   }
 
-  if (!isAuthed) return <div className="p-6">로그인 필요</div>;
+  if (!isAuthed)
+    return <div className="p-6 text-sm t5">{t("common.loginRequired")}</div>;
 
   return (
     <PageSection>
-      <h1 className="mb-6 text-xl font-semibold">🗑 휴지통</h1>
+      <h1 className="mb-6 text-xl font-semibold">🗑 {t("logs.trash.title")}</h1>
 
       {items.length === 0 ? (
-        <div className="text-sm text-zinc-500">삭제된 글이 없습니다.</div>
+        <div className="text-sm t5">{t("logs.trash.empty")}</div>
       ) : (
         <div className="space-y-3">
           {items.map((it) => (
@@ -69,17 +74,19 @@ export default function TrashPage() {
               key={it.id}
               className="space-y-2 text-left rounded-2xl p-4"
             >
-              <div className="font-medium">{it.title || "(제목 없음)"}</div>
+              <div className="font-medium">
+                {it.title || t("common.noTitle")}
+              </div>
 
               {/* ✅ 1줄 미리보기(원하면 content 매핑해서 넣어) */}
               {it.content ? (
-                <div className="mt-1 truncate text-xs text-zinc-400">
-                  {previewText(it.content, 110)}
+                <div className="mt-1 truncate text-xs t4 line-clamp-1">
+                  {previewText(it.content)}
                 </div>
               ) : null}
 
-              <div className="text-xs text-zinc-500 mt-1">
-                {new Date(it.deleted_at).toLocaleString()}
+              <div className="text-xs t5 mt-1">
+                {formatDateTime(it.deleted_at, locale)}
               </div>
 
               <div className="mt-3 flex gap-2">
@@ -88,15 +95,15 @@ export default function TrashPage() {
                   onClick={() => restore(it.id)}
                   disabled={busy}
                 >
-                  복구
+                  {t("logs.trash.restore")}
                 </Button>
+
                 <Button
                   variant="danger"
                   onClick={() => hardDelete(it.id)}
                   disabled={busy}
-                  className="px-3 py-1 rounded border text-xs text-red-400"
                 >
-                  완전삭제
+                  {t("logs.trash.hardDelete")}
                 </Button>
               </div>
             </SurfaceCard>
@@ -105,7 +112,7 @@ export default function TrashPage() {
       )}
 
       <Button variant="nav" onClick={() => nav(-1)} className="mt-6">
-        뒤로
+        {t("common.back")}
       </Button>
     </PageSection>
   );
