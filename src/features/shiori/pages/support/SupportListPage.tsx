@@ -45,6 +45,7 @@ export default function SupportListPage() {
     fetchPage: ({ limit, offset }) => dbSupportListPage({ limit, offset }),
     mapRow: (r) => r,
     mergeKey: (r) => r.id,
+    key: "admin-support-list",
   });
 
   // 무한스크롤
