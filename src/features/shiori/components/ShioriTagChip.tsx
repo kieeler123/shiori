@@ -1,9 +1,8 @@
 // 예: src/features/shiori/components/ShioriTagChip.tsx
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export function ShioriTagChip({ tag }: { tag: string }) {
   const nav = useNavigate();
-  const loc = useLocation();
 
   function onClickTag() {
     // 로그 화면이 아니라면 로그로 이동하면서 tag 적용

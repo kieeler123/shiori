@@ -70,8 +70,8 @@ export default function AdminHomePage() {
     trash: 0,
   });
 
-  const [support, setSupport] = useState({ open: 0, total: 0 });
-  const [users, setUsers] = useState({ total: 0 });
+  const [support, _setSupport] = useState({ open: 0, total: 0 });
+  const [users, _setUsers] = useState({ total: 0 });
 
   const [last7, setLast7] = useState<{ day: string; value: number }[]>([]);
   const [topTags, setTopTags] = useState<{ tag: string; count: number }[]>([]);

@@ -42,6 +42,7 @@ export default function MyTicketsPage() {
     fetchPage: ({ limit, offset }) => dbMyTicketsPage({ limit, offset }),
     mapRow: (r) => r,
     mergeKey: (r) => r.id,
+    key: "admin-support-list",
   });
 
   useInfiniteScrollSentinel(sentinelRef, {

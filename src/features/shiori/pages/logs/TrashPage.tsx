@@ -10,9 +10,9 @@ import {
   dbLogsTrashListMine,
   dbLogsTrashRestore,
 } from "../../repo/trashRepo";
-import { dbGetMyDeleteStatus } from "../../repo/accountTrashRepo";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDateTime } from "@/shared/i18n/format";
+import { dbGetMyDeleteStatus } from "@/features/shiori/repo/AccountTrashRepo";
 
 export default function TrashPage() {
   const { isAuthed } = useSession();
