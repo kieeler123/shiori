@@ -1,20 +1,15 @@
-import TagChip from "@/shared/ui/primitives/TagChip";
+// 예: src/features/shiori/components/ShioriTagChip.tsx
+import { useNavigate, useLocation } from "react-router-dom";
 
-type Props = {
-  tag: string;
-  active?: boolean;
-  onClick: (tag: string) => void;
-  className?: string;
-  titlePrefix?: string;
-  children?: React.ReactNode;
-};
+export function ShioriTagChip({ tag }: { tag: string }) {
+  const nav = useNavigate();
+  const loc = useLocation();
 
-export default function ShioriTagChip({ ...props }: Props) {
-  const content = props.children ?? (
-    <>
-      <span className="opacity-80">#</span>
-      <span>{props.tag}</span>
-    </>
-  );
-  return <TagChip>{content}</TagChip>;
+  function onClickTag() {
+    // 로그 화면이 아니라면 로그로 이동하면서 tag 적용
+    const base = "/logs";
+    nav(`${base}?tag=${encodeURIComponent(tag)}`, { replace: false });
+  }
+
+  return <button onClick={onClickTag} /* ... */>#{tag}</button>;
 }

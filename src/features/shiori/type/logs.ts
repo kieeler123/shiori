@@ -90,7 +90,8 @@ export type LogOrderBy =
   | "source_date"
   | "created_at"
   | "view_count"
-  | "comment_count";
+  | "comment_count"
+  | "display_date";
 
 export type LogListQuery = {
   limit?: number;

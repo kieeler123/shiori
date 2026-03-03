@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "@/features/auth/useSession";
-import { dbRestoreAccountIfPossible } from "@/features/shiori/repo/AccountTrashRepo";
+import { dbRestoreAccountIfPossible } from "@/features/shiori/repo/accountTrashRepo";
 
 export function useAutoRestoreAccount() {
   const { ready, isAuthed } = useSession();

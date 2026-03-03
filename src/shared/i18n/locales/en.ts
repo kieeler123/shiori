@@ -1,4 +1,82 @@
 export const en = {
+  admin: {
+    actions: {
+      data: "View data",
+      date: "Date check",
+    },
+    pie: {
+      public: "Public",
+      private: "Private",
+      trash: "Trash",
+    },
+    data: {
+      title: "Admin Data",
+      backToDashboard: "Dashboard",
+      tabs: {
+        public: "Public (view)",
+        raw: "Raw (base)",
+        hiddenDup: "Hidden duplicates",
+      },
+      kpi: {
+        raw: "Raw total",
+        public: "Public total",
+        hiddenDup: "Hidden duplicates",
+      },
+      kpiDesc: {
+        raw: "Base data including duplicates",
+        public: "Actually visible to users",
+        hiddenDup: "Hidden rows with duplicate_of",
+      },
+      col: {
+        title: "Title",
+        date: "Date",
+        views: "Views",
+        comments: "Comments",
+        tags: "Tags",
+        flags: "Status",
+      },
+      empty: "No data.",
+      page: "Page",
+    },
+    title: "Admin Dashboard",
+    subtitle:
+      "See content health at a glance and track key metrics for operations.",
+    kpi: {
+      logsTotal: "Total posts",
+      logsPublic: "Public",
+      logsPrivate: "Private",
+      trash: "Trash",
+      supportOpen: "Open tickets",
+      supportTotal: "Total tickets:",
+      users: "Users",
+    },
+    kpiDesc: {
+      logs: "Post status overview",
+      trash: "Soft-delete storage",
+      support: "Support/feedback flow",
+      users: "Reference only (early stage)",
+    },
+    chart: {
+      contentStatus: "Content status",
+      last7Days: "Posts in last 7 days",
+      topTags: "Top Tags",
+    },
+    chartDesc: {
+      contentStatus: "Public ratio {{n}}%",
+      last7Days: "Check your writing rhythm",
+      topTags: "Counts are admin-only",
+    },
+    note: {
+      contentStatusHint:
+        "A higher public ratio makes search/share experiments easier.",
+      last7DaysHint:
+        "If you see gaps, even saving a quick draft helps maintain momentum.",
+      topTagsHint:
+        "When top tags stabilize, mix in new tags to test discovery.",
+      trashHint: "You can add a restore flow later if needed.",
+      usersHint: "With few users, content metrics come first.",
+    },
+  },
   common: {
     auth: {
       loginWithGoogle: "Sign in with Google",
@@ -44,6 +122,7 @@ export const en = {
     search: "Search",
     localeChange: "Change language",
     cancel: "Cancel",
+    refresh: "Refresh",
   },
   header: {
     sections: {
@@ -54,6 +133,7 @@ export const en = {
       placeholder: "Search: title / content / tags",
     },
     nav: {
+      admin: "Admin",
       accountSettings: "Account settings",
       trash: "Trash",
     },

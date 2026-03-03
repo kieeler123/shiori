@@ -9,6 +9,14 @@ type I18nContextValue = {
 
 const Ctx = createContext<I18nContextValue | null>(null);
 
+function interpolate(template: string, vars?: Record<string, string | number>) {
+  if (!vars) return template;
+  return template.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => {
+    const v = vars[k];
+    return v === undefined || v === null ? "" : String(v);
+  });
+}
+
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(
     (localStorage.getItem("shiori.locale") as Locale) || "ja",
@@ -21,14 +29,15 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
 
   const messages = MESSAGES[locale];
 
-  const value = useMemo(
-    () => ({
-      locale,
-      setLocale,
-      t: (key: string) => getByPath(messages, key) ?? key,
-    }),
-    [locale],
-  );
+  const value = useMemo<I18nContextValue>(() => {
+    const t = (key: string, params?: Record<string, string | number>) => {
+      const template = getByPath(messages, key);
+      if (typeof template !== "string") return key; // 없거나 문자열 아니면 key fallback
+      return interpolate(template, params);
+    };
+
+    return { locale, setLocale, t };
+  }, [locale, messages]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

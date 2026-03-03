@@ -104,7 +104,7 @@ type SortKey = "recent" | "views" | "comments";
 
 function toOrderBy(sort: SortKey) {
   return sort === "recent"
-    ? "source_date"
+    ? "display_date"
     : sort === "views"
       ? "view_count"
       : "comment_count";
@@ -144,6 +144,10 @@ export default function LogsPage() {
   const deferredQuery = useDeferredValue(query);
   const isSearching = deferredQuery.trim().length > 0;
 
+  const listKey = `${tab}:${sort}:${userId ?? "guest"}`;
+
+  console.log("SORT", sort, "ORDER BY", toOrderBy(sort));
+
   const {
     items: logs,
     hasMore,
@@ -153,6 +157,7 @@ export default function LogsPage() {
     loadNextPage,
   } = usePagedList<DbLogRow, LogItem>({
     pageSize: PAGE_SIZE,
+    key: listKey,
     fetchPage: ({ limit, offset }) =>
       dbListPage({
         limit,
@@ -215,7 +220,15 @@ export default function LogsPage() {
               active={selectedTag === tag}
               variant="filter"
               onClick={(t) => setSelectedTag((prev) => (prev === t ? null : t))}
-            />
+            >
+              <>
+                <span className="opacity-80">#</span>
+                <span>{tag}</span>
+                {selectedTag === tag && (
+                  <span className="ml-1 opacity-60">×</span>
+                )}
+              </>
+            </TagChip>
           ))}
         </div>
       ) : null}

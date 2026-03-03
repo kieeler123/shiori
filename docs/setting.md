@@ -112,6 +112,10 @@ docs/
             AccountDeletePage.tsx
             AccountEditPage.tsx
             AccountOverviewPage.tsx
+          admin/
+            AdminHomePage.tsx
+            AdminLogsPage.tsx        // (옵션) 글 관리
+            AdminAiLabPage.tsx       // (옵션) AI 테스트
           auths/
             AuthPage.tsx
           dev/

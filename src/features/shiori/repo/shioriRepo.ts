@@ -10,13 +10,13 @@ const TABLE_VIEW = "shiori_items_v"; // ✅ 화면은 뷰만 본다
 export const TABLE_BASE = "shiori_items"; // ✅ 생성/수정은 원본
 
 const SELECT_BASE =
-  "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count,source_date, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted )";
+  "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count, source_date, display_date, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted )";
 
 export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
   const {
     limit = 10,
     offset = 0,
-    orderBy = "source_date",
+    orderBy = "display_date",
     ascending = false,
     userId = null,
   } = opts;
@@ -33,9 +33,9 @@ export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
 
   // 정렬 (항상 tie-breaker로 created_at + id)
   // ✅ id까지 넣는 이유: 같은 created_at이면 pagination이 흔들릴 수 있음
-  if (orderBy === "source_date") {
+  if (orderBy === "display_date") {
     q = q
-      .order("source_date", { ascending, nullsFirst: false })
+      .order("display_date", { ascending, nullsFirst: false })
       .order("created_at", { ascending: false })
       .order("id", { ascending: false });
   } else if (orderBy === "view_count") {

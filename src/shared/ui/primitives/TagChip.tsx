@@ -94,6 +94,17 @@ export default function TagChip({
       role="button"
       tabIndex={0}
       className={cn(base, sizes[size], tone, className)}
+      onClick={() => {
+        if (!tag || !onClick) return;
+        onClick(tag);
+      }}
+      onKeyDown={(e) => {
+        if (!tag || !onClick) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick(tag);
+        }
+      }}
     >
       {content}
     </div>

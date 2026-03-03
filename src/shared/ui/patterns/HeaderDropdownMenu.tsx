@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/primitives/Button";
 import { DropdownMenuPanel } from "@/shared/ui/patterns/DropdownMenuPanel";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { useAuth } from "@/features/auth/useAuth";
+import { isAdmin } from "@/shared/auth/admin";
 
 type Props = {
   open: boolean;
@@ -13,6 +15,11 @@ type Props = {
 export default function HeaderDropdownMenu({ open, onClose, menuRef }: Props) {
   const nav = useNavigate();
   const { t } = useI18n();
+
+  const { user } = useAuth();
+  const showAdmin = isAdmin(user);
+
+  const menuDivider = "my-2 border-t border-[var(--border-soft)]";
 
   if (!open) return null;
 
@@ -86,7 +93,7 @@ export default function HeaderDropdownMenu({ open, onClose, menuRef }: Props) {
         ⚙️ {t("header.nav.accountSettings")}
       </Button>
 
-      <div className="my-2 border-t [border-color:var(--border-soft)]" />
+      <div className={menuDivider} />
 
       <div className="px-2 py-1 text-xs t5">{t("header.sections.misc")}</div>
 
@@ -98,6 +105,16 @@ export default function HeaderDropdownMenu({ open, onClose, menuRef }: Props) {
       >
         🗑 {t("header.nav.trash")}
       </Button>
+      {showAdmin && (
+        <Button
+          variant="adminGhost"
+          role="menuitem"
+          onClick={() => go("/admin")}
+          className="w-full justify-start"
+        >
+          🛠 {t("header.nav.admin")}
+        </Button>
+      )}
     </DropdownMenuPanel>
   );
 }

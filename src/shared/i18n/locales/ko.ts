@@ -1,4 +1,78 @@
 export const ko = {
+  admin: {
+    actions: {
+      data: "데이터 보기",
+      date: "날짜 점검",
+    },
+    pie: {
+      public: "Public",
+      private: "Private",
+      trash: "Trash",
+    },
+    data: {
+      title: "관리자 데이터",
+      backToDashboard: "대시보드",
+      tabs: {
+        public: "Public (뷰)",
+        raw: "Raw (원본)",
+        hiddenDup: "숨김 중복",
+      },
+      kpi: {
+        raw: "Raw 총계",
+        public: "Public 총계",
+        hiddenDup: "숨김 중복",
+      },
+      kpiDesc: {
+        raw: "중복 포함 원본 데이터",
+        public: "사용자에게 실제 노출되는 데이터",
+        hiddenDup: "duplicate_of가 있는 hidden 데이터",
+      },
+      col: {
+        title: "제목",
+        date: "날짜",
+        views: "조회",
+        comments: "댓글",
+        tags: "태그",
+        flags: "상태",
+      },
+      empty: "데이터가 없습니다.",
+      page: "페이지",
+    },
+    title: "관리자 대시보드",
+    subtitle: "콘텐츠 상태를 한눈에 보고, 운영에 필요한 지표를 확인합니다.",
+    kpi: {
+      logsTotal: "전체 글",
+      logsPublic: "공개",
+      logsPrivate: "비공개",
+      trash: "휴지통",
+      supportOpen: "미처리 문의",
+      supportTotal: "전체 문의:",
+      users: "가입자",
+    },
+    kpiDesc: {
+      logs: "글 상태 요약",
+      trash: "soft delete 보관",
+      support: "지원/피드백 흐름",
+      users: "초기엔 참고용",
+    },
+    chart: {
+      contentStatus: "콘텐츠 상태",
+      last7Days: "최근 7일 작성량",
+      topTags: "Top Tags",
+    },
+    chartDesc: {
+      contentStatus: "공개 비중 {{n}}%",
+      last7Days: "작성 리듬을 확인해요",
+      topTags: "숫자는 관리자만 확인",
+    },
+    note: {
+      contentStatusHint: "공개 비중이 높을수록 검색/공유 실험이 쉬워요.",
+      last7DaysHint: "끊김이 보이면 '초안 저장'만이라도 이어가면 좋아요.",
+      topTagsHint: "상위 태그가 고정되면 신규 태그 실험을 섞어보세요.",
+      trashHint: "필요하면 복구 흐름을 추가할 수 있어요.",
+      usersHint: "유저가 적을 땐 콘텐츠 지표가 우선입니다.",
+    },
+  },
   common: {
     auth: {
       loginWithGoogle: "Google로 로그인",
@@ -43,6 +117,9 @@ export const ko = {
     search: "검색",
     localeChange: "언어 변경",
     cancel: "취소",
+    refresh: "새로고침",
+    prev: "이전",
+    next: "다음",
   },
   header: {
     sections: {
@@ -53,6 +130,7 @@ export const ko = {
       placeholder: "검색: 제목 / 내용 / 태그",
     },
     nav: {
+      admin: "관리자",
       accountSettings: "계정 설정",
       trash: "일반 휴지통",
     },

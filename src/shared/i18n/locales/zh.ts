@@ -1,4 +1,78 @@
 export const zh = {
+  admin: {
+    actions: {
+      data: "查看数据",
+      date: "日期检查",
+    },
+    pie: {
+      public: "公开",
+      private: "私密",
+      trash: "回收站",
+    },
+    data: {
+      title: "管理员数据",
+      backToDashboard: "仪表盘",
+      tabs: {
+        public: "Public（视图）",
+        raw: "Raw（原表）",
+        hiddenDup: "隐藏重复",
+      },
+      kpi: {
+        raw: "Raw 总数",
+        public: "Public 总数",
+        hiddenDup: "隐藏重复",
+      },
+      kpiDesc: {
+        raw: "包含重复的原始数据",
+        public: "实际对用户可见的数据",
+        hiddenDup: "带 duplicate_of 的隐藏数据",
+      },
+      col: {
+        title: "标题",
+        date: "日期",
+        views: "浏览",
+        comments: "评论",
+        tags: "标签",
+        flags: "状态",
+      },
+      empty: "暂无数据。",
+      page: "页",
+    },
+    title: "管理员仪表盘",
+    subtitle: "一眼掌握内容状态，并查看运营所需的关键指标。",
+    kpi: {
+      logsTotal: "全部文章",
+      logsPublic: "公开",
+      logsPrivate: "私密",
+      trash: "回收站",
+      supportOpen: "待处理工单",
+      supportTotal: "工单总数：",
+      users: "用户",
+    },
+    kpiDesc: {
+      logs: "文章状态概览",
+      trash: "软删除保留",
+      support: "支持 / 反馈流程",
+      users: "初期仅供参考",
+    },
+    chart: {
+      contentStatus: "内容状态",
+      last7Days: "近 7 天发布量",
+      topTags: "热门标签",
+    },
+    chartDesc: {
+      contentStatus: "公开占比 {{n}}%",
+      last7Days: "查看发布节奏",
+      topTags: "数字仅管理员可见",
+    },
+    note: {
+      contentStatusHint: "公开比例越高，越容易做搜索/分享相关的实验。",
+      last7DaysHint: "如果出现断档，哪怕只保存“草稿”也能保持节奏。",
+      topTagsHint: "当热门标签趋于固定时，可以混入新标签测试曝光。",
+      trashHint: "需要时可以再补充“恢复”流程。",
+      usersHint: "用户较少时，优先关注内容指标。",
+    },
+  },
   common: {
     auth: {
       loginWithGoogle: "使用 Google 登录",
@@ -41,6 +115,7 @@ export const zh = {
     anonymous: "匿名",
     localeChange: "切换语言",
     cancel: "取消",
+    refresh: "刷新",
   },
   header: {
     sections: {
@@ -51,6 +126,7 @@ export const zh = {
       placeholder: "搜索：标题 / 内容 / 标签",
     },
     nav: {
+      admin: "管理",
       trash: "普通回收站",
       supportTrash: "客服回收站", // (선택) 구분용 키
       accountSettings: "账户设置", // (선택)

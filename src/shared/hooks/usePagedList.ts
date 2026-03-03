@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Reason = "initial" | "refresh";
 
@@ -21,9 +21,23 @@ export function usePagedList<Row, Item>(opts: {
   filterItem?: (it: Item) => boolean; // true면 keep
   mergeKey?: (it: Item) => string; // 중복 제거 key (기본: (it as any).id)
   onCacheSave?: (items: Item[]) => void; // 필요할 때만
+  key: string;
 }) {
-  const { pageSize, fetchPage, mapRow, filterItem, mergeKey, onCacheSave } =
-    opts;
+  const {
+    pageSize,
+    fetchPage,
+    mapRow,
+    filterItem,
+    mergeKey,
+    onCacheSave,
+    key,
+  } = opts;
+
+  useEffect(() => {
+    // key가 바뀌면 리스트 초기화 + 첫 페이지 다시 로드
+    resetPaging();
+    loadFirstPage();
+  }, [key]);
 
   const keyOf = useCallback(
     (it: Item) => (mergeKey ? mergeKey(it) : String((it as any)?.id)),

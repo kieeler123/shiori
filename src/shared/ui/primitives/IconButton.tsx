@@ -1,18 +1,9 @@
-import type { ButtonHTMLAttributes } from "react";
+// IconButton.tsx
+import type { ButtonProps } from "./Button";
+import { Button } from "./Button";
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement>;
+type Props = Omit<ButtonProps, "variant">;
 
-export function IconButton({ className = "", ...props }: Props) {
-  return (
-    <button
-      {...props}
-      className={[
-        "h-9 w-9 rounded-xl inline-flex items-center justify-center",
-        "text-[var(--muted)] hover:text-[var(--fg)]",
-        "hover:bg-[var(--hover)] active:bg-[var(--active)]",
-        "transition focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]",
-        className,
-      ].join(" ")}
-    />
-  );
+export function IconButton(props: Props) {
+  return <Button variant="icon" {...props} />;
 }

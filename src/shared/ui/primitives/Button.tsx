@@ -9,7 +9,8 @@ type Variant =
   | "outline"
   | "danger"
   | "icon"
-  | "soft";
+  | "soft"
+  | "adminGhost";
 
 export type Size = "sm" | "md";
 
@@ -111,6 +112,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "bg-transparent hover:bg-[var(--btn-soft-hover-bg)] " +
         "transition-colors duration-150 " +
         focusBorder,
+
+      adminGhost:
+        "text-[var(--admin-fg)] hover:bg-[var(--admin-bg-soft)] hover:text-[var(--admin-fg)]",
     };
 
     const sizeClass = variant === "icon" ? "" : sizes[size];

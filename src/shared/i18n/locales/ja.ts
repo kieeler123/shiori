@@ -1,4 +1,80 @@
 export const ja = {
+  admin: {
+    actions: {
+      data: "データを見る",
+      date: "日付チェック",
+    },
+    pie: {
+      public: "公開",
+      private: "非公開",
+      trash: "ゴミ箱",
+    },
+    data: {
+      title: "管理データ",
+      backToDashboard: "ダッシュボード",
+      tabs: {
+        public: "Public（ビュー）",
+        raw: "Raw（原本）",
+        hiddenDup: "非表示の重複",
+      },
+      kpi: {
+        raw: "Raw 合計",
+        public: "Public 合計",
+        hiddenDup: "非表示重複",
+      },
+      kpiDesc: {
+        raw: "重複を含む原本データ",
+        public: "ユーザーに実際に表示されるデータ",
+        hiddenDup: "duplicate_of がある hidden データ",
+      },
+      col: {
+        title: "タイトル",
+        date: "日付",
+        views: "閲覧",
+        comments: "コメント",
+        tags: "タグ",
+        flags: "状態",
+      },
+      empty: "データがありません。",
+      page: "ページ",
+    },
+    title: "管理ダッシュボード",
+    subtitle: "コンテンツの状態を一覧し、運用に必要な指標を確認します。",
+    kpi: {
+      logsTotal: "全投稿",
+      logsPublic: "公開",
+      logsPrivate: "非公開",
+      trash: "ゴミ箱",
+      supportOpen: "未対応問い合わせ",
+      supportTotal: "問い合わせ総数：",
+      users: "ユーザー",
+    },
+    kpiDesc: {
+      logs: "投稿状態の要約",
+      trash: "soft delete の保管",
+      support: "サポート／フィードバックの流れ",
+      users: "初期は参考程度",
+    },
+    chart: {
+      contentStatus: "コンテンツ状態",
+      last7Days: "直近7日間の投稿数",
+      topTags: "トップタグ",
+    },
+    chartDesc: {
+      contentStatus: "公開比率 {{n}}%",
+      last7Days: "投稿リズムを確認",
+      topTags: "数値は管理者のみ表示",
+    },
+    note: {
+      contentStatusHint:
+        "公開比率が高いほど、検索・共有の検証がしやすくなります。",
+      last7DaysHint:
+        "途切れが見えたら「下書き保存」だけでも続けるのがおすすめです。",
+      topTagsHint: "上位タグが固定したら、新規タグの実験も混ぜてみてください。",
+      trashHint: "必要になれば復元フローを追加できます。",
+      usersHint: "ユーザーが少ないうちは、まずコンテンツ指標が優先です。",
+    },
+  },
   common: {
     auth: {
       loginWithGoogle: "Googleでログイン",
@@ -44,6 +120,7 @@ export const ja = {
     search: "検索",
     localeChange: "言語を変更",
     cancel: "キャンセル",
+    refresh: "更新",
   },
   header: {
     sections: {
@@ -54,6 +131,7 @@ export const ja = {
       placeholder: "検索：タイトル / 内容 / タグ",
     },
     nav: {
+      admin: "管理",
       accountSettings: "アカウント設定",
       trash: "ゴミ箱",
     },

@@ -26,6 +26,9 @@ import { RequireAuthOutlet } from "@/app/layout/RequireAuthOutlet";
 import AccountLayout from "./layout/AccountLayout";
 import AccountOverviewPage from "@/features/shiori/pages/account/AccountOverviewPage";
 import ImportExportPage from "@/features/shiori/pages/dev/ImportExportPage";
+import { AdminOnlyOutlet } from "./layout/AdminOnlyOutlet";
+import AdminHomePage from "@/features/shiori/pages/admin/AdminHomePage";
+import AdminDataPage from "@/features/shiori/pages/admin/AdminDataPage";
 
 export default function App() {
   return (
@@ -66,6 +69,11 @@ export default function App() {
             <Route path="edit" element={<AccountEditPage />} />
             <Route path="delete" element={<AccountDeletePage />} />
           </Route>
+        </Route>
+
+        <Route element={<AdminOnlyOutlet />}>
+          <Route path="/admin" element={<AdminHomePage />} />
+          <Route path="/admin/data" element={<AdminDataPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
