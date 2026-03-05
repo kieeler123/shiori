@@ -103,7 +103,12 @@ export const ja = {
         deletedAt: "削除日時",
         deletedBy: "削除者",
       },
-      status: "状態",
+      status: {
+        active: "正常",
+        user_trash: "ユーザーゴミ箱",
+        admin_trash: "管理者ゴミ箱",
+        hard_deleted: "完全削除",
+      },
       reason: "理由",
       note: "メモ",
       deletedAt: "削除日時",

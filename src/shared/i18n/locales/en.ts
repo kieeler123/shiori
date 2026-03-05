@@ -108,7 +108,12 @@ export const en = {
         deletedAt: "Deleted at",
         deletedBy: "Deleted by",
       },
-      status: "Status",
+      status: {
+        active: "Active",
+        user_trash: "User Trash",
+        admin_trash: "Admin Trash",
+        hard_deleted: "Hard Deleted",
+      },
       reason: "Reason",
       note: "Note",
       deletedAt: "Deleted at",
