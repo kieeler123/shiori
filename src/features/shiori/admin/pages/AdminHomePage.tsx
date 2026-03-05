@@ -42,7 +42,7 @@ export default function AdminHomePage() {
   const [last7, setLast7] = useState<{ day: string; value: number }[]>([]);
   const [topTags, setTopTags] = useState<{ tag: string; count: number }[]>([]);
 
-  const [busy, setBusy] = useState(false);
+  const [_busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const data = useMemo(

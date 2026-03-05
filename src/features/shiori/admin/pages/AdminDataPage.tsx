@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { cn } from "@/shared/ui/utils/cn";
 import { Button } from "@/shared/ui/primitives/Button";
 
 import {
