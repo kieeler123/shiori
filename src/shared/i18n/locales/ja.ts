@@ -1,8 +1,52 @@
 export const ja = {
   admin: {
+    dashboard: {
+      kpi: {
+        logsTotal: "全投稿",
+        logsPublic: "公開",
+        logsPrivate: "非公開",
+        trash: "ゴミ箱",
+        supportOpen: "未対応問い合わせ",
+        supportTotal: "問い合わせ総数：",
+        users: "ユーザー",
+        publicRatio: "公開比率",
+        tagsTop: "最多タグ",
+        tagsCount: "件数：",
+      },
+      kpiDesc: {
+        logs: "投稿状態の要約",
+        trash: "soft delete の保管",
+        support: "サポート／フィードバックの流れ",
+        users: "初期は参考程度",
+        publicRatio: "公開 / 合計",
+        tagsTop: "公開ビューで最も使われているタグ",
+      },
+      note: {
+        contentStatusHint:
+          "公開比率が高いほど、検索・共有の検証がしやすくなります。",
+        last7DaysHint:
+          "途切れが見えたら「下書き保存」だけでも続けるのがおすすめです。",
+        topTagsHint:
+          "上位タグが固定したら、新規タグの実験も混ぜてみてください。",
+        trashHint: "必要になれば復元フローを追加できます。",
+        usersHint: "ユーザーが少ないうちは、まずコンテンツ指標が優先です。",
+        publicRatioHint:
+          "公開比率が高いほど、発見性や共有の実験がしやすくなります。",
+        tagsEmpty: "まだタグがありません。",
+      },
+    },
+    sections: {
+      kpi: "主要指標",
+      charts: "チャート",
+      tags: "タグ",
+    },
+    sectionsDesc: {
+      charts: "運用のための簡易トレンド確認",
+    },
     actions: {
       data: "データを見る",
       date: "日付チェック",
+      openData: "データを見る",
     },
     pie: {
       public: "公開",
@@ -16,6 +60,25 @@ export const ja = {
         public: "Public（ビュー）",
         raw: "Raw（原本）",
         hiddenDup: "非表示の重複",
+        trash: "ゴミ箱（base）",
+      },
+      flags: {
+        active: "正常",
+        user_trash: "ユーザーゴミ箱",
+        admin_trash: "管理者ゴミ箱",
+        hard_deleted: "完全削除",
+        deleted: "削除",
+        hidden: "非表示",
+        dup: "重複",
+        dupOf: "重複元",
+      },
+      deleteReason: {
+        spam: "スパム",
+        abuse: "暴言・ヘイト",
+        duplicate: "重複投稿",
+        user_request: "ユーザー削除依頼",
+        admin_cleanup: "管理者整理",
+        ai_flagged: "AI検出",
       },
       kpi: {
         raw: "Raw 合計",
@@ -34,27 +97,23 @@ export const ja = {
         comments: "コメント",
         tags: "タグ",
         flags: "状態",
+        status: "状態",
+        reason: "理由",
+        note: "メモ",
+        deletedAt: "削除日時",
+        deletedBy: "削除者",
       },
+      status: "状態",
+      reason: "理由",
+      note: "メモ",
+      deletedAt: "削除日時",
+      deletedBy: "削除者",
       empty: "データがありません。",
       page: "ページ",
     },
     title: "管理ダッシュボード",
     subtitle: "コンテンツの状態を一覧し、運用に必要な指標を確認します。",
-    kpi: {
-      logsTotal: "全投稿",
-      logsPublic: "公開",
-      logsPrivate: "非公開",
-      trash: "ゴミ箱",
-      supportOpen: "未対応問い合わせ",
-      supportTotal: "問い合わせ総数：",
-      users: "ユーザー",
-    },
-    kpiDesc: {
-      logs: "投稿状態の要約",
-      trash: "soft delete の保管",
-      support: "サポート／フィードバックの流れ",
-      users: "初期は参考程度",
-    },
+
     chart: {
       contentStatus: "コンテンツ状態",
       last7Days: "直近7日間の投稿数",
@@ -64,15 +123,6 @@ export const ja = {
       contentStatus: "公開比率 {{n}}%",
       last7Days: "投稿リズムを確認",
       topTags: "数値は管理者のみ表示",
-    },
-    note: {
-      contentStatusHint:
-        "公開比率が高いほど、検索・共有の検証がしやすくなります。",
-      last7DaysHint:
-        "途切れが見えたら「下書き保存」だけでも続けるのがおすすめです。",
-      topTagsHint: "上位タグが固定したら、新規タグの実験も混ぜてみてください。",
-      trashHint: "必要になれば復元フローを追加できます。",
-      usersHint: "ユーザーが少ないうちは、まずコンテンツ指標が優先です。",
     },
   },
   common: {
@@ -121,11 +171,16 @@ export const ja = {
     localeChange: "言語を変更",
     cancel: "キャンセル",
     refresh: "更新",
+    prev: "前へ",
+    next: "次へ",
+    theme: "テーマ",
+    language: "言語",
   },
   header: {
     sections: {
       support: "サポート",
       misc: "その他",
+      settings: "設定",
     },
     search: {
       placeholder: "検索：タイトル / 内容 / タグ",

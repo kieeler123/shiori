@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
-import { TABLE_BASE } from "./shioriRepo"; // 네가 export 해둔 TABLE_BASE 재사용
+import { TABLE_BASE } from "@/features/shiori/repo/shioriRepo"; // 네가 export 해둔 TABLE_BASE 재사용
 // TABLE_VIEW는 shioriRepo 내부 const라면 여기에도 동일 문자열로 선언
 const TABLE_VIEW = "shiori_items_v";
 
@@ -10,7 +10,7 @@ const SELECT_ADMIN = `
 `;
 
 const SELECT_PUBLIC = `
-  id, user_id, title, created_at, source_date, view_count, comment_count, tags
+  id, user_id, title, created_at, source_date, view_count, comment_count, tags,display_date
 `;
 
 async function countFromView(): Promise<number> {
@@ -63,7 +63,7 @@ export async function dbAdminListPublic(opts: {
     .from(TABLE_VIEW)
     .select(SELECT_PUBLIC)
     .range(offset, offset + limit - 1)
-    .order("source_date", { ascending: false, nullsFirst: false })
+    .order("display_date", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false })
     .order("id", { ascending: false });
 
@@ -200,4 +200,23 @@ export async function dbAdminTopTags(limit = 10) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
     .map(([tag, count]) => ({ tag, count }));
+}
+
+export async function dbAdminListTrash(opts: {
+  limit?: number;
+  offset?: number;
+}) {
+  const { limit = 50, offset = 0 } = opts;
+
+  const { data, error } = await supabase
+    .from(TABLE_BASE)
+    .select(SELECT_ADMIN)
+    .eq("is_deleted", true)
+    .range(offset, offset + limit - 1)
+    .order("deleted_at", { ascending: false, nullsFirst: false })
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
 }

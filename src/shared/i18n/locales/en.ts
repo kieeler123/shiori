@@ -1,8 +1,52 @@
 export const en = {
   admin: {
+    dashboard: {
+      kpi: {
+        logsTotal: "Total posts",
+        logsPublic: "Public",
+        logsPrivate: "Private",
+        trash: "Trash",
+        supportOpen: "Open tickets",
+        supportTotal: "Total tickets:",
+        users: "Users",
+        publicRatio: "Public ratio",
+        tagsTop: "Top tag",
+        tagsCount: "Count:",
+      },
+      kpiDesc: {
+        logs: "Post status overview",
+        trash: "Soft-delete storage",
+        support: "Support/feedback flow",
+        users: "Reference only (early stage)",
+        publicRatio: "Public / total",
+        tagsTop: "Most used tag in public view",
+      },
+      note: {
+        contentStatusHint:
+          "A higher public ratio makes search/share experiments easier.",
+        last7DaysHint:
+          "If you see gaps, even saving a quick draft helps maintain momentum.",
+        topTagsHint:
+          "When top tags stabilize, mix in new tags to test discovery.",
+        trashHint: "You can add a restore flow later if needed.",
+        usersHint: "With few users, content metrics come first.",
+        publicRatioHint:
+          "Higher public ratio generally improves discovery and sharing.",
+        tagsEmpty: "No tags yet.",
+      },
+    },
+    sections: {
+      kpi: "Key metrics",
+      charts: "Charts",
+      tags: "Tags",
+    },
+    sectionsDesc: {
+      charts: "Quick trend checks for operations",
+    },
     actions: {
       data: "View data",
       date: "Date check",
+      openData: "Open data",
     },
     pie: {
       public: "Public",
@@ -16,16 +60,40 @@ export const en = {
         public: "Public (view)",
         raw: "Raw (base)",
         hiddenDup: "Hidden duplicates",
+        trash: "Trash (base)",
+      },
+      flags: {
+        active: "Active",
+        user_trash: "User Trash",
+        admin_trash: "Admin Trash",
+        hard_deleted: "Hard Deleted",
+        deleted: "deleted",
+        hidden: "hidden",
+        dup: "dup",
+        dupOf: "dup_of",
+      },
+      deleteReason: {
+        spam: "Spam",
+        abuse: "Abusive content",
+        duplicate: "Duplicate post",
+        user_request: "User requested deletion",
+        admin_cleanup: "Admin cleanup",
+        ai_flagged: "AI flagged content",
       },
       kpi: {
         raw: "Raw total",
         public: "Public total",
         hiddenDup: "Hidden duplicates",
+        publicRatio: "Public ratio",
+        tagsTop: "Top tag",
+        tagsCount: "Count:",
       },
       kpiDesc: {
         raw: "Base data including duplicates",
         public: "Actually visible to users",
         hiddenDup: "Hidden rows with duplicate_of",
+        publicRatio: "Public / total",
+        tagsTop: "Most used tag in public view",
       },
       col: {
         title: "Title",
@@ -34,28 +102,24 @@ export const en = {
         comments: "Comments",
         tags: "Tags",
         flags: "Status",
+        status: "Status",
+        reason: "Reason",
+        note: "Note",
+        deletedAt: "Deleted at",
+        deletedBy: "Deleted by",
       },
+      status: "Status",
+      reason: "Reason",
+      note: "Note",
+      deletedAt: "Deleted at",
+      deletedBy: "Deleted by",
       empty: "No data.",
       page: "Page",
     },
     title: "Admin Dashboard",
     subtitle:
       "See content health at a glance and track key metrics for operations.",
-    kpi: {
-      logsTotal: "Total posts",
-      logsPublic: "Public",
-      logsPrivate: "Private",
-      trash: "Trash",
-      supportOpen: "Open tickets",
-      supportTotal: "Total tickets:",
-      users: "Users",
-    },
-    kpiDesc: {
-      logs: "Post status overview",
-      trash: "Soft-delete storage",
-      support: "Support/feedback flow",
-      users: "Reference only (early stage)",
-    },
+
     chart: {
       contentStatus: "Content status",
       last7Days: "Posts in last 7 days",
@@ -65,16 +129,6 @@ export const en = {
       contentStatus: "Public ratio {{n}}%",
       last7Days: "Check your writing rhythm",
       topTags: "Counts are admin-only",
-    },
-    note: {
-      contentStatusHint:
-        "A higher public ratio makes search/share experiments easier.",
-      last7DaysHint:
-        "If you see gaps, even saving a quick draft helps maintain momentum.",
-      topTagsHint:
-        "When top tags stabilize, mix in new tags to test discovery.",
-      trashHint: "You can add a restore flow later if needed.",
-      usersHint: "With few users, content metrics come first.",
     },
   },
   common: {
@@ -123,11 +177,16 @@ export const en = {
     localeChange: "Change language",
     cancel: "Cancel",
     refresh: "Refresh",
+    prev: "Prev",
+    next: "Next",
+    theme: "Theme",
+    language: "Language",
   },
   header: {
     sections: {
       support: "Support",
       misc: "More",
+      settings: "Settings",
     },
     search: {
       placeholder: "Search: title / content / tags",

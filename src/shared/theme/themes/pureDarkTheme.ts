@@ -1,5 +1,43 @@
 // pureDarkTheme.ts
 export const pureDarkTheme: Record<string, string> = {
+  "--admin-table-wrap-border": "rgba(140,80,160,0.25)",
+  "--admin-table-head-bg": "rgba(90,50,110,0.65)",
+  "--admin-table-head-fg": "var(--text-5)",
+  "--admin-table-row-border": "rgba(140,80,160,0.20)",
+  "--admin-table-row-hover": "rgba(140,80,160,0.12)",
+  "--admin-table-row-stripe": "rgba(140,80,160,0.05)",
+  "--admin-table-row-selected": "rgba(140,80,160,0.18)",
+  "--admin-table-focus-ring": "rgba(140,80,160,0.35)",
+
+  "--admin-status-active": "#4ade80",
+  "--admin-status-user-trash": "#facc15",
+  "--admin-status-admin-trash": "#fb923c",
+  "--admin-status-danger": "#ef4444",
+
+  "--admin-btn-bg": "rgba(140,80,160,0.14)",
+  "--admin-btn-hover": "rgba(140,80,160,0.20)",
+  "--admin-btn-border": "rgba(140,80,160,0.35)",
+  "--admin-btn-danger": "rgba(239,68,68,0.20)",
+
+  "--admin-panel-bg": "rgba(70,40,90,0.60)",
+  "--admin-panel-border": "rgba(140,80,160,0.20)",
+  "--admin-panel-hover": "rgba(140,80,160,0.08)",
+  "--admin-panel-muted": "rgba(140,80,160,0.05)",
+
+  "--chart-1": "#a78bfa", // violet
+  "--chart-2": "#22d3ee", // cyan
+  "--chart-3": "#fb7185", // pink
+
+  "--chart-grid": "rgba(255,255,255,0.05)",
+  "--chart-tooltip-bg": "rgba(0,0,0,0.92)",
+  "--chart-tooltip-border": "rgba(255,255,255,0.10)",
+
+  "--chart-hover-bg": "rgba(255,255,255,0.05)",
+  "--chart-hover-line": "rgba(255,255,255,0.16)",
+
+  "--chart-pie-stroke": "rgba(255,255,255,0.16)",
+  "--chart-pie-ring": "rgba(167,139,250,0.16)",
+
   /* HIGHLIGHT */
   "--hl-title-bg": "rgba(244, 244, 245, 0.16)",
   "--hl-title-fg": "var(--text-2)",

@@ -1,8 +1,49 @@
 export const ko = {
   admin: {
+    dashboard: {
+      kpi: {
+        logsTotal: "전체 글",
+        logsPublic: "공개",
+        logsPrivate: "비공개",
+        trash: "휴지통",
+        supportOpen: "미처리 문의",
+        supportTotal: "전체 문의:",
+        users: "가입자",
+        publicRatio: "공개 비율",
+        tagsTop: "최다 태그",
+        tagsCount: "개수:",
+      },
+      kpiDesc: {
+        logs: "글 상태 요약",
+        trash: "soft delete 보관",
+        support: "지원/피드백 흐름",
+        users: "초기엔 참고용",
+        publicRatio: "공개 / 전체",
+        tagsTop: "공개 뷰에서 가장 많이 쓰인 태그",
+      },
+      note: {
+        contentStatusHint: "공개 비중이 높을수록 검색/공유 실험이 쉬워요.",
+        last7DaysHint: "끊김이 보이면 '초안 저장'만이라도 이어가면 좋아요.",
+        topTagsHint: "상위 태그가 고정되면 신규 태그 실험을 섞어보세요.",
+        trashHint: "필요하면 복구 흐름을 추가할 수 있어요.",
+        usersHint: "유저가 적을 땐 콘텐츠 지표가 우선입니다.",
+        publicRatioHint:
+          "공개 비율이 높을수록 검색/공유 실험이 대체로 쉬워집니다.",
+        tagsEmpty: "아직 태그가 없습니다.",
+      },
+    },
+    sections: {
+      kpi: "핵심 지표",
+      charts: "차트",
+      tags: "태그",
+    },
+    sectionsDesc: {
+      charts: "운영 관점에서 흐름을 빠르게 확인",
+    },
     actions: {
       data: "데이터 보기",
       date: "날짜 점검",
+      openData: "데이터 열기",
     },
     pie: {
       public: "Public",
@@ -16,6 +57,25 @@ export const ko = {
         public: "Public (뷰)",
         raw: "Raw (원본)",
         hiddenDup: "숨김 중복",
+        trash: "휴지통(베이스)",
+      },
+      flags: {
+        active: "정상",
+        user_trash: "사용자 휴지통",
+        admin_trash: "관리자 휴지통",
+        hard_deleted: "완전 삭제됨",
+        deleted: "삭제됨",
+        hidden: "숨김",
+        dup: "중복",
+        dupOf: "중복원본",
+      },
+      deleteReason: {
+        spam: "스팸",
+        abuse: "욕설/혐오",
+        duplicate: "중복 게시물",
+        user_request: "사용자 요청",
+        admin_cleanup: "관리자 정리",
+        ai_flagged: "AI 감지",
       },
       kpi: {
         raw: "Raw 총계",
@@ -34,27 +94,24 @@ export const ko = {
         comments: "댓글",
         tags: "태그",
         flags: "상태",
+        status: "상태",
+        reason: "사유",
+        note: "메모",
+        deletedAt: "삭제일",
+        deletedBy: "삭제자",
+      },
+      status: {
+        active: "정상",
+        user_trash: "사용자 휴지통",
+        admin_trash: "관리자 휴지통",
+        hard_deleted: "완전 삭제",
       },
       empty: "데이터가 없습니다.",
       page: "페이지",
     },
     title: "관리자 대시보드",
     subtitle: "콘텐츠 상태를 한눈에 보고, 운영에 필요한 지표를 확인합니다.",
-    kpi: {
-      logsTotal: "전체 글",
-      logsPublic: "공개",
-      logsPrivate: "비공개",
-      trash: "휴지통",
-      supportOpen: "미처리 문의",
-      supportTotal: "전체 문의:",
-      users: "가입자",
-    },
-    kpiDesc: {
-      logs: "글 상태 요약",
-      trash: "soft delete 보관",
-      support: "지원/피드백 흐름",
-      users: "초기엔 참고용",
-    },
+
     chart: {
       contentStatus: "콘텐츠 상태",
       last7Days: "최근 7일 작성량",
@@ -64,13 +121,6 @@ export const ko = {
       contentStatus: "공개 비중 {{n}}%",
       last7Days: "작성 리듬을 확인해요",
       topTags: "숫자는 관리자만 확인",
-    },
-    note: {
-      contentStatusHint: "공개 비중이 높을수록 검색/공유 실험이 쉬워요.",
-      last7DaysHint: "끊김이 보이면 '초안 저장'만이라도 이어가면 좋아요.",
-      topTagsHint: "상위 태그가 고정되면 신규 태그 실험을 섞어보세요.",
-      trashHint: "필요하면 복구 흐름을 추가할 수 있어요.",
-      usersHint: "유저가 적을 땐 콘텐츠 지표가 우선입니다.",
     },
   },
   common: {
@@ -120,11 +170,14 @@ export const ko = {
     refresh: "새로고침",
     prev: "이전",
     next: "다음",
+    theme: "테마",
+    language: "언어",
   },
   header: {
     sections: {
       support: "고객센터",
       misc: "기타",
+      settings: "설정",
     },
     search: {
       placeholder: "검색: 제목 / 내용 / 태그",

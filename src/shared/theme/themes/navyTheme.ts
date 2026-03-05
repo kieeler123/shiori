@@ -1,4 +1,42 @@
 export const navyTheme = {
+  "--admin-table-wrap-border": "rgba(255,255,255,0.10)",
+  "--admin-table-head-bg": "rgba(10,14,28,0.72)",
+  "--admin-table-head-fg": "var(--text-5)",
+  "--admin-table-row-border": "rgba(255,255,255,0.08)",
+  "--admin-table-row-hover": "rgba(91,140,255,0.10)",
+  "--admin-table-row-stripe": "rgba(255,255,255,0.03)",
+  "--admin-table-row-selected": "rgba(91,140,255,0.16)",
+  "--admin-table-focus-ring": "rgba(91,140,255,0.35)",
+
+  "--admin-status-active": "#4ade80",
+  "--admin-status-user-trash": "#fbbf24",
+  "--admin-status-admin-trash": "#fb7185",
+  "--admin-status-danger": "#ef4444",
+
+  "--admin-btn-bg": "rgba(91,140,255,0.12)",
+  "--admin-btn-hover": "rgba(91,140,255,0.18)",
+  "--admin-btn-border": "rgba(91,140,255,0.35)",
+  "--admin-btn-danger": "rgba(239,68,68,0.18)",
+
+  "--admin-panel-bg": "rgba(8,10,20,0.65)",
+  "--admin-panel-border": "rgba(255,255,255,0.08)",
+  "--admin-panel-hover": "rgba(255,255,255,0.04)",
+  "--admin-panel-muted": "rgba(255,255,255,0.03)",
+
+  "--chart-1": "#6366f1", // indigo
+  "--chart-2": "#38bdf8", // sky
+  "--chart-3": "#f43f5e", // rose
+
+  "--chart-grid": "rgba(255,255,255,0.06)",
+  "--chart-tooltip-bg": "rgba(10,12,18,0.92)",
+  "--chart-tooltip-border": "rgba(255,255,255,0.12)",
+
+  "--chart-hover-bg": "rgba(255,255,255,0.06)",
+  "--chart-hover-line": "rgba(255,255,255,0.18)",
+
+  "--chart-pie-stroke": "rgba(255,255,255,0.18)",
+  "--chart-pie-ring": "rgba(99,102,241,0.18)",
+
   /* HIGHLIGHT */
   "--hl-title-bg": "rgba(91, 140, 255, 0.28)",
   "--hl-title-fg": "var(--text-2)",

@@ -1,5 +1,19 @@
 // plumNightTheme.ts
 export const plumNightTheme: Record<string, string> = {
+  "--chart-1": "#c084fc", // purple
+  "--chart-2": "#60a5fa", // blue
+  "--chart-3": "#f472b6", // pink
+
+  "--chart-grid": "rgba(255,255,255,0.06)",
+  "--chart-tooltip-bg": "rgba(12,8,14,0.92)",
+  "--chart-tooltip-border": "rgba(255,255,255,0.12)",
+
+  "--chart-hover-bg": "rgba(255,255,255,0.06)",
+  "--chart-hover-line": "rgba(255,255,255,0.18)",
+
+  "--chart-pie-stroke": "rgba(255,255,255,0.18)",
+  "--chart-pie-ring": "rgba(192,132,252,0.16)",
+
   /* HIGHLIGHT */
   "--hl-title-bg": "rgba(167, 139, 250, 0.22)", // violet
   "--hl-title-fg": "var(--text-2)",

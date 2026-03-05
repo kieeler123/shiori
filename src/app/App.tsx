@@ -27,8 +27,8 @@ import AccountLayout from "./layout/AccountLayout";
 import AccountOverviewPage from "@/features/shiori/pages/account/AccountOverviewPage";
 import ImportExportPage from "@/features/shiori/pages/dev/ImportExportPage";
 import { AdminOnlyOutlet } from "./layout/AdminOnlyOutlet";
-import AdminHomePage from "@/features/shiori/pages/admin/AdminHomePage";
-import AdminDataPage from "@/features/shiori/pages/admin/AdminDataPage";
+import AdminHomePage from "@/features/shiori/admin/pages/AdminHomePage";
+import AdminDataPage from "@/features/shiori/admin/pages/AdminDataPage";
 
 export default function App() {
   return (

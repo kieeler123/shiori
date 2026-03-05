@@ -1,4 +1,38 @@
 export const tealGlassTheme: Record<string, string> = {
+  "--admin-table-wrap-border": "rgba(0,160,150,0.25)",
+  "--admin-table-head-bg": "rgba(0,110,105,0.65)",
+  "--admin-table-head-fg": "var(--text-5)",
+  "--admin-table-row-border": "rgba(0,160,150,0.20)",
+  "--admin-table-row-hover": "rgba(0,160,150,0.12)",
+  "--admin-table-row-stripe": "rgba(0,160,150,0.05)",
+  "--admin-table-row-selected": "rgba(0,160,150,0.18)",
+  "--admin-table-focus-ring": "rgba(0,160,150,0.35)",
+
+  "--admin-status-active": "#22c55e",
+  "--admin-status-user-trash": "#eab308",
+  "--admin-status-admin-trash": "#fb923c",
+  "--admin-status-danger": "#ef4444",
+
+  "--admin-btn-bg": "rgba(0,160,150,0.14)",
+  "--admin-btn-hover": "rgba(0,160,150,0.20)",
+  "--admin-btn-border": "rgba(0,160,150,0.35)",
+  "--admin-btn-danger": "rgba(239,68,68,0.20)",
+
+  "--admin-panel-bg": "rgba(0,90,85,0.60)",
+  "--admin-panel-border": "rgba(0,160,150,0.20)",
+  "--admin-panel-hover": "rgba(0,160,150,0.08)",
+  "--admin-panel-muted": "rgba(0,160,150,0.05)",
+
+  "--chart-grid": "rgba(255,255,255,0.06)",
+  "--chart-tooltip-bg": "rgba(6,10,12,0.90)",
+  "--chart-tooltip-border": "rgba(255,255,255,0.12)",
+
+  "--chart-hover-bg": "rgba(255,255,255,0.06)",
+  "--chart-hover-line": "rgba(255,255,255,0.18)",
+
+  "--chart-pie-stroke": "rgba(255,255,255,0.18)",
+  "--chart-pie-ring": "rgba(34,211,238,0.16)",
+
   /* HIGHLIGHT */
   "--hl-title-bg": "rgba(20, 184, 166, 0.20)", // teal
   "--hl-title-fg": "var(--text-2)",

@@ -1,3 +1,4 @@
+// src/shared/ui/patterns/HeaderDropdownMenu.tsx
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/shared/ui/primitives/Button";
@@ -5,6 +6,11 @@ import { DropdownMenuPanel } from "@/shared/ui/patterns/DropdownMenuPanel";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { useAuth } from "@/features/auth/useAuth";
 import { isAdmin } from "@/shared/auth/admin";
+
+import ThemeSelectCompact from "@/shared/theme/ThemeSelectCompact";
+import { THEME_PRESETS } from "@/shared/theme/theme.presets";
+import { useTheme } from "@/shared/theme/useTheme";
+import LocaleSelectCompact from "@/shared/i18n/LocaleSelectCompact";
 
 type Props = {
   open: boolean;
@@ -18,6 +24,8 @@ export default function HeaderDropdownMenu({ open, onClose, menuRef }: Props) {
 
   const { user } = useAuth();
   const showAdmin = isAdmin(user);
+
+  const { theme, setTheme } = useTheme();
 
   const menuDivider = "my-2 border-t border-[var(--border-soft)]";
 
@@ -37,6 +45,7 @@ export default function HeaderDropdownMenu({ open, onClose, menuRef }: Props) {
       onClick={(e) => e.stopPropagation()}
       className="left-1/2 -translate-x-1/2 top-full mt-2"
     >
+      {/* Support */}
       <div className="px-2 py-1 text-xs t5">{t("header.sections.support")}</div>
 
       <Button
@@ -95,6 +104,34 @@ export default function HeaderDropdownMenu({ open, onClose, menuRef }: Props) {
 
       <div className={menuDivider} />
 
+      {/* Settings (Theme / Language) */}
+      <div className="px-2 py-1 text-xs t5">
+        {t("header.sections.settings")}
+      </div>
+
+      <div className="px-2 py-2">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm t4">{t("common.theme")}</span>
+          <ThemeSelectCompact
+            value={theme}
+            presets={THEME_PRESETS}
+            onChange={setTheme}
+            mode="auto"
+            panelWidth={280}
+          />
+        </div>
+      </div>
+
+      <div className="px-2 pb-2">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm t4">{t("common.language")}</span>
+          <LocaleSelectCompact mode="auto" />
+        </div>
+      </div>
+
+      <div className={menuDivider} />
+
+      {/* Misc */}
       <div className="px-2 py-1 text-xs t5">{t("header.sections.misc")}</div>
 
       <Button
@@ -105,6 +142,7 @@ export default function HeaderDropdownMenu({ open, onClose, menuRef }: Props) {
       >
         🗑 {t("header.nav.trash")}
       </Button>
+
       {showAdmin && (
         <Button
           variant="adminGhost"

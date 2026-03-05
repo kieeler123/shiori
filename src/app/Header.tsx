@@ -1,3 +1,4 @@
+// src/app/Header.tsx
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AuthButton from "@/features/auth/AuthButton";
@@ -7,46 +8,40 @@ import { StickyBar } from "@/shared/ui/patterns/StickyBar";
 import { PageHeaderRow } from "./layout/PageHeaderRow";
 import { useShioriSearch } from "@/features/shiori/components/search/SearchContext";
 import { HeaderSearchBar } from "@/features/shiori/components/HeaderSearchBar";
-import { THEME_PRESETS } from "@/shared/theme/theme.presets";
-import ThemeSelectCompact from "@/shared/theme/ThemeSelectCompact";
-import { useTheme } from "@/shared/theme/useTheme";
 import { cn } from "@/shared/ui/utils/cn";
-import LocaleSelectCompact from "@/shared/i18n/LocaleSelectCompact";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import HeaderDropdownMenu from "@/shared/ui/patterns/HeaderDropdownMenu";
 
 export default function Header({
   title = "Shiori",
-  versionText = "v0",
+  versionText = "v1",
   searchOpen,
   onToggleSearch,
   onCloseSearch,
 }: HeaderProps) {
   const nav = useNavigate();
   const location = useLocation();
+  const { clearQuery } = useShioriSearch();
+  const { t } = useI18n();
 
   const [open, setOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement | null>(null);
   const btnRef = useRef<HTMLButtonElement | null>(null);
 
-  const { clearQuery } = useShioriSearch();
-  const { theme, setTheme } = useTheme();
-
-  const { t } = useI18n();
-
+  // ✅ 페이지 이동 시 메뉴 닫기
   useEffect(() => {
     setOpen(false);
-    onCloseSearch(); // ✅ 페이지 이동 시 검색모드 닫기 (원치 않으면 제거)
-  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
+  // ✅ 바깥 클릭/ESC로 닫기
   useEffect(() => {
     if (!open) return;
 
     function onDocMouseDown(e: MouseEvent) {
-      const t = e.target as Node;
-      if (menuRef.current?.contains(t)) return;
-      if (btnRef.current?.contains(t)) return;
+      const node = e.target as Node;
+      if (menuRef.current?.contains(node)) return;
+      if (btnRef.current?.contains(node)) return;
       setOpen(false);
     }
     function onEsc(e: KeyboardEvent) {
@@ -60,40 +55,40 @@ export default function Header({
     };
   }, [open]);
 
-  // ✅ 모바일 검색모드에서는 메뉴도 닫아버리는 게 UX 좋음
-  useEffect(() => {
-    if (searchOpen) setOpen(false);
-  }, [searchOpen]);
-
   return (
     <StickyBar>
-      <PageHeaderRow>
-        {/* ✅ Mobile search mode (헤더 전체 전환) */}
-        <div
-          className={cn("sm:hidden w-full", searchOpen ? "block" : "hidden")}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                clearQuery();
-                onCloseSearch();
-              }}
-              className="shrink-0"
-              aria-label={t("common.close")}
-              title={t("common.close")}
-            >
-              ←
-            </Button>
+      <PageHeaderRow className="relative">
+        {/* =========================
+    Mobile: 1줄 + 검색 전환형
+   ========================= */}
+        <div className="sm:hidden w-full">
+          {/* ✅ Search mode */}
+          <div className={cn(searchOpen ? "block" : "hidden")}>
+            <div className="flex items-center gap-2 min-w-0">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  clearQuery();
+                  onCloseSearch();
+                }}
+                className="shrink-0"
+                aria-label={t("common.close")}
+                title={t("common.close")}
+              >
+                ←
+              </Button>
 
-            <HeaderSearchBar className="flex-1 min-w-0" autoFocus />
+              <HeaderSearchBar className="flex-1 min-w-0" autoFocus />
+            </div>
           </div>
-        </div>
 
-        {/* ✅ Normal header (mobile + desktop) */}
-        <div className={cn("w-full", searchOpen ? "hidden sm:flex" : "flex")}>
-          {/* Left */}
-          <div className="flex items-center gap-2 min-w-0">
+          {/* ✅ Normal mode */}
+          <div
+            className={cn(
+              searchOpen ? "hidden" : "flex",
+              "items-center gap-2 min-w-0",
+            )}
+          >
             {/* 햄버거 */}
             <Button
               variant="icon"
@@ -111,74 +106,131 @@ export default function Header({
               </span>
             </Button>
 
-            {/* 로고 */}
+            {/* 로고(짧게) */}
             <button
               type="button"
               onClick={() => {
                 clearQuery();
                 nav("/");
               }}
-              className="shrink-0 cursor-pointer text-lg sm:text-xl font-semibold tracking-tight t2 hover:opacity-90"
+              className={cn(
+                "shrink-0 h-10 flex items-center",
+                "text-lg font-semibold tracking-tight t2 hover:opacity-90",
+              )}
               title={t("common.home")}
             >
               {title}
             </button>
 
-            {/* 버전 */}
-            <span className="hidden sm:inline shrink-0 text-xs t5">
-              {versionText}
-            </span>
+            {/* ✅ 작은 검색 pill (input처럼 보이지만 버튼) */}
+            <button
+              type="button"
+              onClick={onToggleSearch}
+              className={cn(
+                "flex-1 min-w-0",
+                "h-10 rounded-2xl border border-[var(--border-soft)]",
+                "bg-[var(--input-bg)]/40 backdrop-blur",
+                "px-3 text-left",
+                "text-sm t5",
+                "hover:bg-[var(--input-bg)]/55",
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+              )}
+              aria-label={t("common.search")}
+              title={t("common.search")}
+            >
+              <span className="flex items-center gap-2 min-w-0">
+                <span className="truncate">
+                  {t("header.search.placeholder")}
+                </span>
+                <span className="shrink-0 opacity-70">🔍</span>
+              </span>
+            </button>
 
-            {/* ✅ Desktop Search only */}
-            <div className="hidden sm:block">
-              <HeaderSearchBar />
+            {/* Auth (컴팩트) */}
+            <div className="shrink-0">
+              <AuthButton compactOnMobile />
             </div>
-
-            {/* ✅ Mobile search icon (input은 안 보이고 아이콘만) */}
-            {/* ✅ 로고와 검색 사이만 띄움 */}
-            <div className="w-2 sm:w-3" />
-            <div className="sm:hidden shrink-0">
-              <Button
-                variant="icon"
-                aria-label={t("common.search")}
-                title={t("common.search")}
-                onClick={onToggleSearch}
-              >
-                🔍
-              </Button>
-            </div>
-            {/* ✅ 스페이서: 여기서부터 오른쪽으로 밀기 */}
-            <div className="flex-1" />
-            {/* ✅ NEW — Theme 위치 이동 */}
-            <div className="shrink-0 ml-1 sm:ml-2">
-              <ThemeSelectCompact
-                value={theme}
-                presets={THEME_PRESETS}
-                onChange={setTheme}
-                mode="auto"
-                panelWidth={280}
-              />
-            </div>
-            <div className="shrink-0 ml-1 sm:ml-2">
-              {/* ✅ 언어 선택 */}
-              <LocaleSelectCompact />
-            </div>
-
-            {/* Dropdown */}
-            {open && (
-              <HeaderDropdownMenu
-                open={open}
-                onClose={() => setOpen(false)}
-                menuRef={menuRef}
-              />
-            )}
           </div>
 
-          {/* Right */}
-          <div className="flex items-center shrink-0 ml-auto">
-            <AuthButton compactOnMobile />
+          {/* Dropdown menu (모바일) */}
+          {open && (
+            <HeaderDropdownMenu
+              open={open}
+              onClose={() => setOpen(false)}
+              menuRef={menuRef}
+            />
+          )}
+        </div>
+
+        {/* ================================
+            Desktop: 검색 크게 + Auth만
+           ================================ */}
+        <div className="hidden sm:flex w-full items-center gap-3 md:gap-4 min-w-0">
+          {/* Left */}
+          <div className="flex items-center gap-3 md:gap-4 min-w-0 shrink-0">
+            <Button
+              variant="icon"
+              aria-label={t("common.menu")}
+              aria-expanded={open}
+              onClick={() => setOpen((v) => !v)}
+              title={t("common.menu")}
+              ref={btnRef as any}
+              className="shrink-0"
+            >
+              <span className="flex flex-col justify-center gap-1">
+                <span className="block h-[2px] w-4 bg-current opacity-80" />
+                <span className="block h-[2px] w-4 bg-current opacity-80" />
+                <span className="block h-[2px] w-4 bg-current opacity-80" />
+              </span>
+            </Button>
+
+            <button
+              type="button"
+              onClick={() => {
+                clearQuery();
+                nav("/");
+              }}
+              className={cn(
+                "shrink-0 h-10 flex items-center",
+                "text-lg sm:text-xl font-semibold tracking-tight t2 hover:opacity-90",
+                "min-w-0 max-w-[10rem] md:max-w-none truncate",
+              )}
+              title={t("common.home")}
+            >
+              {title}
+            </button>
+
+            {/* 버전은 md부터 */}
+            <span className="hidden md:inline text-xs t5">{versionText}</span>
+          </div>
+
+          {/* Center: big search */}
+          <div className="flex-1 min-w-0">
+            <div className="w-full min-w-[240px] md:min-w-[320px] max-w-[520px] lg:max-w-[640px] xl:max-w-[720px]">
+              <HeaderSearchBar className="w-full" />
+            </div>
+          </div>
+
+          {/* Right: auth only */}
+          <div className="shrink-0">
+            {/* md 미만에서는 compactOnMobile 강제 */}
+            <div className="md:hidden">
+              <AuthButton compactOnMobile />
+            </div>
+            <div className="hidden md:block">
+              <AuthButton />
+            </div>
           </div>
         </div>
+
+        {/* Dropdown (both) */}
+        {open && (
+          <HeaderDropdownMenu
+            open={open}
+            onClose={() => setOpen(false)}
+            menuRef={menuRef}
+          />
+        )}
       </PageHeaderRow>
     </StickyBar>
   );

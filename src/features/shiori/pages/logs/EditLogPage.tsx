@@ -112,14 +112,6 @@ export default function EditLogPage() {
           </div>
         </div>
 
-        <Button
-          variant="soft"
-          onClick={() => nav(`/logs/${item.id}`)}
-          disabled={busy}
-        >
-          {t("common.close")}
-        </Button>
-
         <h1 className="text-2xl font-semibold tracking-tight t2">
           {t("logs.edit.title")}
         </h1>

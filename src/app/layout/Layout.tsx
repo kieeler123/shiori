@@ -14,13 +14,13 @@ export default function Layout() {
         <ShioriSearchProvider>
           <Header
             title="Shiori"
-            versionText="v0"
+            versionText="v1"
             searchOpen={searchOpen}
             onToggleSearch={() => setSearchOpen((v) => !v)}
             onCloseSearch={() => setSearchOpen(false)}
           />
           <AppShell>
-            <main className="min-h-[calc(100vh-120px)]">
+            <main className="min-h-screen">
               <Outlet />
             </main>
           </AppShell>

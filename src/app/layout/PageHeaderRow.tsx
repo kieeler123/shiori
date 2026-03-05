@@ -8,10 +8,15 @@ export function PageHeaderRow({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className="container-main">
+      {/* header-row가 핵심 */}
       <div
-        className={cn("flex items-center justify-between gap-3", className)}
+        className={cn(
+          "header-row",
+          "flex items-center justify-between gap-3",
+          className,
+        )}
         {...props}
-      ></div>
+      />
     </div>
   );
 }

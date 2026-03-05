@@ -1,5 +1,43 @@
 // darkGrayTheme.ts
 export const darkGrayTheme: Record<string, string> = {
+  "--admin-table-wrap-border": "rgba(255,255,255,0.12)",
+  "--admin-table-head-bg": "rgba(30,30,30,0.70)",
+  "--admin-table-head-fg": "var(--text-5)",
+  "--admin-table-row-border": "rgba(255,255,255,0.07)",
+  "--admin-table-row-hover": "rgba(255,255,255,0.05)",
+  "--admin-table-row-stripe": "rgba(255,255,255,0.02)",
+  "--admin-table-row-selected": "rgba(255,255,255,0.08)",
+  "--admin-table-focus-ring": "rgba(255,255,255,0.25)",
+
+  "--admin-status-active": "#22c55e",
+  "--admin-status-user-trash": "#eab308",
+  "--admin-status-admin-trash": "#f97316",
+  "--admin-status-danger": "#ef4444",
+
+  "--admin-btn-bg": "rgba(255,255,255,0.06)",
+  "--admin-btn-hover": "rgba(255,255,255,0.10)",
+  "--admin-btn-border": "rgba(255,255,255,0.18)",
+  "--admin-btn-danger": "rgba(239,68,68,0.20)",
+
+  "--admin-panel-bg": "rgba(30,30,30,0.60)",
+  "--admin-panel-border": "rgba(255,255,255,0.10)",
+  "--admin-panel-hover": "rgba(255,255,255,0.04)",
+  "--admin-panel-muted": "rgba(255,255,255,0.03)",
+
+  "--chart-1": "#60a5fa", // blue
+  "--chart-2": "#34d399", // emerald
+  "--chart-3": "#fbbf24", // amber
+
+  "--chart-grid": "rgba(255,255,255,0.06)",
+  "--chart-tooltip-bg": "rgba(12,12,12,0.92)",
+  "--chart-tooltip-border": "rgba(255,255,255,0.12)",
+
+  "--chart-hover-bg": "rgba(255,255,255,0.06)",
+  "--chart-hover-line": "rgba(255,255,255,0.18)",
+
+  "--chart-pie-stroke": "rgba(255,255,255,0.18)",
+  "--chart-pie-ring": "rgba(96,165,250,0.16)",
+
   /* HIGHLIGHT */
   "--hl-title-bg": "rgba(148, 163, 184, 0.18)",
   "--hl-title-fg": "var(--text-2)",

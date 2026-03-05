@@ -29,7 +29,7 @@ export function HeaderSearchBar({
   }, [autoFocus]);
 
   return (
-    <div className={cn("relative min-w-0", className)}>
+    <div className={cn("relative min-w-0 w-full", className)}>
       <Input
         ref={inputRef}
         value={query}
@@ -38,7 +38,10 @@ export function HeaderSearchBar({
           if (e.key === "Escape") clearQuery();
         }}
         placeholder={t("header.search.placeholder")}
-        className={cn(showClear ? "pr-10" : "")}
+        className={cn(
+          "w-full h-10", // ✅ 헤더 기준 높이 고정 + 폭 100%
+          showClear ? "pr-10" : "",
+        )}
       />
 
       {showClear && hasQuery ? (

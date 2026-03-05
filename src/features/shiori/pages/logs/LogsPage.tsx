@@ -336,28 +336,16 @@ export default function LogsPage() {
               title={t("common.viewDetail")}
             >
               <div className="min-w-0">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="min-w-0 flex-1 truncate font-medium t2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <h3 className="min-w-0 font-semibold t2 text-base sm:text-lg leading-snug line-clamp-1">
                     {highlightText(
                       log.title || t("common.noTitle"),
                       deferredQuery,
                     )}
                   </h3>
-
-                  <div className="shrink-0 flex items-center gap-3 text-xs t5">
-                    <span>{formatYmd(displayDate)}</span>
-                    <span>💬 {log.commentCount ?? 0}</span>
-                    <span>👀 {log.viewCount ?? 0}</span>
-                  </div>
-
-                  <div className="shrink-0 flex items-center gap-3 text-xs t5">
-                    <span className="text-sm text-[var(--text-5)]">
-                      {log.profile?.nickname ?? t("common.anonymous")}
-                    </span>
-                  </div>
                 </div>
 
-                <p className="mt-2 text-sm t4 leading-relaxed line-clamp-2 sm:line-clamp-2">
+                <p className="mt-2 text-sm t4 leading-relaxed line-clamp-2 opacity-90">
                   {highlightText(contentText, query, "body")}
                 </p>
 
@@ -372,6 +360,41 @@ export default function LogsPage() {
                     ))}
                   </div>
                 ) : null}
+
+                {/* meta */}
+                <div className="mt-4 text-xs t5">
+                  {/* mobile layout */}
+                  <div className="flex flex-col gap-1 sm:hidden">
+                    <span className="truncate">
+                      {log.profile?.nickname ?? t("common.anonymous")}
+                    </span>
+
+                    <div className="flex items-center gap-3">
+                      <span>{formatYmd(displayDate)}</span>
+                      <span>💬 {log.commentCount ?? 0}</span>
+                      <span>👀 {log.viewCount ?? 0}</span>
+                    </div>
+                  </div>
+
+                  {/* desktop layout */}
+                  <div className="hidden sm:flex items-center gap-3">
+                    <span className="truncate max-w-[12rem]">
+                      {log.profile?.nickname ?? t("common.anonymous")}
+                    </span>
+
+                    <span className="opacity-60">·</span>
+
+                    <span>{formatYmd(displayDate)}</span>
+
+                    <span className="opacity-60">·</span>
+
+                    <span>💬 {log.commentCount ?? 0}</span>
+
+                    <span className="opacity-60">·</span>
+
+                    <span>👀 {log.viewCount ?? 0}</span>
+                  </div>
+                </div>
               </div>
             </ListItemButton>
           );

@@ -182,24 +182,6 @@ export default function NewLogPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold t2">{t("logs.new.title")}</h2>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => nav("/logs", { state: { refresh: true } })}
-            disabled={isMutating}
-          >
-            {t("common.list")}
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={() => nav("/logs")}
-            disabled={isMutating}
-          >
-            {t("common.close")}
-          </Button>
-        </div>
       </div>
 
       {/* Undo banner */}

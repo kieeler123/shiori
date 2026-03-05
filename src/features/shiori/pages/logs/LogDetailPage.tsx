@@ -122,7 +122,7 @@ export default function LogDetailPage() {
       await dbCommentCreate({ item_id: id!, body });
       setCommentText("");
       await refreshComments();
-      toast(t("logs.comments.created"), "success");
+      toast(t("common.comments.created"), "success");
     } catch (e: any) {
       console.error(e);
       toast(String(e?.message ?? e), "error");
@@ -277,7 +277,9 @@ export default function LogDetailPage() {
                     <div className="text-xs t6">
                       {new Date(c.created_at).toLocaleString()}
                       {mine ? (
-                        <span className="ml-2 t5">({t("comments.mine")})</span>
+                        <span className="ml-2 t5">
+                          ({t("common.comments.mine")})
+                        </span>
                       ) : null}
                     </div>
 
