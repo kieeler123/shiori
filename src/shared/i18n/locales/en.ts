@@ -229,12 +229,20 @@ export const en = {
       title: "Thought flow",
       empty: "As you write more, your thought flow will appear here.",
     },
+    related: {
+      title: "More from this author",
+      empty: "No posts to show.",
+      error: "Failed to load posts.",
+      untitled: "(Untitled)",
+      sortLabel: "Sort",
+      viewsSuffix: "views",
+    },
     sort: {
       label: "Sort",
       change: "Change sort order",
       recent: "Recent",
-      views: "Views",
-      comments: "Comments",
+      views: "Latest",
+      comments: "Popular",
     },
     new: {
       title: "New post",

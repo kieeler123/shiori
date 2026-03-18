@@ -194,6 +194,7 @@ export default function Header({
                 "shrink-0 h-10 flex items-center",
                 "text-lg sm:text-xl font-semibold tracking-tight t2 hover:opacity-90",
                 "min-w-0 max-w-[10rem] md:max-w-none truncate",
+                "cursor-pointer",
               )}
               title={t("common.home")}
             >

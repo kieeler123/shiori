@@ -219,6 +219,15 @@ export const zh = {
       views: "浏览",
       comments: "评论",
     },
+    related: {
+      title: "该作者的其他文章",
+      loading: "加载中...",
+      error: "无法加载文章。",
+      empty: "没有可显示的文章。",
+      untitled: "（无标题）",
+      sortLabel: "排序",
+      viewsSuffix: "次浏览",
+    },
     new: {
       title: "新建帖子",
       submit: "发布",

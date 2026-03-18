@@ -218,9 +218,18 @@ export const ko = {
     sort: {
       label: "정렬",
       change: "정렬 변경",
-      recent: "최신",
-      views: "조회",
+      recent: "최신순",
+      views: "인기순",
       comments: "댓글",
+    },
+    related: {
+      title: "작성자의 다른 글",
+      loading: "불러오는 중...",
+      empty: "표시할 글이 없습니다.",
+      error: "글을 불러오지 못했습니다.",
+      untitled: "(제목 없음)",
+      sortLabel: "정렬",
+      viewsSuffix: "조회",
     },
     new: {
       title: "새 글 작성",

@@ -226,9 +226,18 @@ export const ja = {
     sort: {
       label: "並び替え",
       change: "並び替えを変更",
-      recent: "新着",
-      views: "閲覧",
+      recent: "新着順",
+      views: "人気順",
       comments: "コメント",
+    },
+    related: {
+      title: "この投稿者の他の記事",
+      loading: "読み込み中...",
+      empty: "表示する記事がありません。",
+      error: "記事を読み込めませんでした。",
+      untitled: "（無題）",
+      sortLabel: "並び順",
+      viewsSuffix: "閲覧",
     },
     new: {
       title: "新規投稿",

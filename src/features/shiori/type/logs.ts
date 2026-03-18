@@ -14,6 +14,19 @@ export type LogItem = {
   profile: { nickname: string | null } | null;
 };
 
+export type LogSort = "recent" | "views";
+
+export type LogListItem = {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  created_at: string;
+  display_date: string | null;
+  view_count?: number | null;
+  user_id: string | null;
+};
+
 export interface NoteItem {
   id: string;
   title: string;

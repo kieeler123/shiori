@@ -781,6 +781,24 @@
   align-items: center;
 }
 
+.recent-log-link {
+  background: var(--item-bg);
+  border-color: var(--item-border);
+  color: var(--text-2);
+}
+
+.recent-log-link:hover {
+  background: var(--item-hover-bg);
+  border-color: var(--item-hover-border);
+  box-shadow: var(--item-hover-shadow);
+  transform: scale(var(--item-active-scale));
+}
+
+.recent-log-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
 @media (min-width: 640px) {
   .container-main {
     padding: 16px 24px; /* sm+ */

@@ -24,6 +24,7 @@ import { LoadingText } from "@/shared/ui/feedback/LoadingText";
 import { dbLogsTrashMove } from "../../repo/trashRepo";
 import { toast } from "@/app/layout/toast";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import LogsSection from "../../components/logs/LogsSection";
 
 function chip(t: string) {
   return (
@@ -234,6 +235,16 @@ export default function LogDetailPage() {
             {item.content}
           </pre>
         </SurfaceCard>
+
+        {item ? (
+          <SurfaceCard tone="soft" className="mt-5 p-5">
+            <LogsSection
+              currentLogId={item.id}
+              userId={item.user_id}
+              limit={5}
+            />
+          </SurfaceCard>
+        ) : null}
 
         {/* Comments */}
         <div className="mt-10">

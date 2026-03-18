@@ -21,6 +21,8 @@ import { InfiniteListFooter } from "@/shared/ui/patterns/InfiniteListFooter";
 import { PAGE_SIZE, usePagedList } from "@/shared/hooks/usePagedList";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatCount } from "@/shared/i18n/format";
+import { nextLogSort } from "../../utils/logSort";
+import { shouldHideFromList } from "../../utils/logFilters";
 
 /* ----------------- helpers ----------------- */
 
@@ -74,29 +76,6 @@ function matchQuery(log: LogItem, q: string) {
   const content = (log.content ?? "").toLowerCase();
   const tags = (log.tags ?? []).join(" ").toLowerCase();
   return title.includes(s) || content.includes(s) || tags.includes(s);
-}
-
-function shouldHideFromList(log: {
-  title?: string;
-  content?: string;
-  tags?: string[];
-}) {
-  const title = (log.title ?? "").trim();
-  const content = (log.content ?? "").trim();
-
-  // DB에서 걸렀다고 가정하지만, 방어적으로 유지
-  if (title.length < 2) return true;
-  if (content.length < 30) return true;
-
-  // (선택) 프론트에서만 추가로 거르고 싶은 룰
-  // - 너무 많은 반복 문자
-  const repeated = /(.)\1{9,}/; // 같은 문자 10번 이상
-  if (repeated.test(title) || repeated.test(content)) return true;
-
-  // - test 태그(혹시 DB에서 누락됐을 때)
-  if ((log.tags ?? []).includes("test")) return true;
-
-  return false;
 }
 
 type LogsTab = "all" | "mine";
@@ -273,20 +252,12 @@ export default function LogsPage() {
         {/* Right: Sort text + New */}
         <div className="flex items-baseline gap-2">
           <button
-            className="cursor-pointer text-sm t5 hover:text-[var(--text-3)] transition"
-            onClick={() =>
-              setSort((s) =>
-                s === "recent"
-                  ? "views"
-                  : s === "views"
-                    ? "comments"
-                    : "recent",
-              )
-            }
-            title={t("logs.sort.change")}
             type="button"
+            className="cursor-pointer text-sm t5 transition hover:[color:var(--text-3)]"
+            onClick={() => setSort((s) => nextLogSort(s))}
+            title={t("logs.sort.change")}
           >
-            {t("logs.sort.label")}: {t(sortKeyToLabelKey(sort))}
+            {t("logs.related.sortLabel")}: {t(sortKeyToLabelKey(sort))}
           </button>
 
           <Button

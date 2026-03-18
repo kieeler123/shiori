@@ -13,3 +13,33 @@ getComputedStyle(document.documentElement).getPropertyValue("--header-bg")
 
 document.documentElement.dataset.theme = "brownArchive"
 ```
+
+##조회가안될때 확인방법
+```tsx
+console.log("current sort:", sort);
+
+useEffect(() => {
+  console.log("fetch sort:", sort);
+
+  let alive = true;
+
+  async function run() {
+    const rows = await dbListRelatedLogs({
+      excludeId: currentLogId,
+      userId,
+      limit,
+      sort,
+    });
+
+    console.log("rows:", rows);
+    if (!alive) return;
+    setItems(rows);
+  }
+
+  run();
+
+  return () => {
+    alive = false;
+  };
+}, [currentLogId, userId, limit, sort]);
+```
