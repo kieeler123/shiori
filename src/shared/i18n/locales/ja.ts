@@ -197,6 +197,18 @@ export const ja = {
     },
   },
   logs: {
+    table: {
+      insert: "表を挿入",
+      inserted: "表はすでに挿入されています",
+      addColumn: "列を追加",
+      addRow: "行を追加",
+      removeColumn: "削除",
+      removeRow: "行を削除",
+      headerPlaceholder: "ヘッダーを入力",
+      cellPlaceholder: "内容を入力",
+      defaultColumn: "項目 {n}",
+      notFound: "表が見つかりません",
+    },
     editor: {
       phTitle: "タイトル",
       phContent: "本文",

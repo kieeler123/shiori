@@ -83,8 +83,43 @@ export type DbLogRow = {
   comment_count: number;
   view_count: number;
   source_date: string | null;
+  table_data?: TableData | null;
 
   profile: { nickname: string | null; is_deleted?: boolean | null }[] | null;
+};
+
+export type TableColumn = {
+  id: string;
+  label: string;
+};
+
+export type TableRow = {
+  id: string;
+  cells: Record<string, string>;
+};
+
+export type SingleTable = {
+  columns: TableColumn[];
+  rows: TableRow[];
+};
+
+export type TableData = {
+  tables: Record<string, SingleTable>;
+};
+
+export type LogEditorProps = {
+  initialTitle?: string | null;
+  initialContent?: string | null;
+  initialTags?: string[];
+  initialTableData?: TableData | null;
+  submitLabel?: string;
+  onCancel?: () => void;
+  onSubmit: (value: {
+    title: string;
+    content: string;
+    tags: string[];
+    table_data?: TableData | null;
+  }) => void;
 };
 
 export type TrashListRow = {

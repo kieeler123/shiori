@@ -186,6 +186,18 @@ export const zh = {
     },
   },
   logs: {
+    table: {
+      insert: "插入表格",
+      inserted: "表格已插入",
+      addColumn: "添加列",
+      addRow: "添加行",
+      removeColumn: "删除",
+      removeRow: "删除行",
+      headerPlaceholder: "输入表头",
+      cellPlaceholder: "输入内容",
+      defaultColumn: "列 {n}",
+      notFound: "未找到表格",
+    },
     editor: {
       phTitle: "标题",
       phContent: "内容",

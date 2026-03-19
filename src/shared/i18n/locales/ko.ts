@@ -189,6 +189,18 @@ export const ko = {
     },
   },
   logs: {
+    table: {
+      insert: "표 삽입",
+      inserted: "표 이미 삽입됨",
+      addColumn: "열 추가",
+      addRow: "행 추가",
+      removeColumn: "삭제",
+      removeRow: "행 삭제",
+      headerPlaceholder: "헤더 입력",
+      cellPlaceholder: "내용 입력",
+      defaultColumn: "항목 {n}",
+      notFound: "표를 찾을 수 없습니다",
+    },
     editor: {
       phTitle: "제목",
       phContent: "내용",

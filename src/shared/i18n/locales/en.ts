@@ -203,6 +203,18 @@ export const en = {
     },
   },
   logs: {
+    table: {
+      insert: "Insert table",
+      inserted: "Table already inserted",
+      addColumn: "Add column",
+      addRow: "Add row",
+      removeColumn: "Delete",
+      removeRow: "Delete row",
+      headerPlaceholder: "Enter header",
+      cellPlaceholder: "Enter content",
+      defaultColumn: "Column {n}",
+      notFound: "Table not found",
+    },
     editor: {
       phTitle: "Title",
       phContent: "Content",

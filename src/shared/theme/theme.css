@@ -834,3 +834,25 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.shiori-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.shiori-table th {
+  background-color: #f5f5f5;
+  text-align: left;
+  padding: 10px;
+  font-weight: 600;
+}
+
+.shiori-table td {
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+.shiori-table tr:hover {
+  background-color: #fafafa;
+}

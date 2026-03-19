@@ -123,6 +123,7 @@ export default function EditLogPage() {
           initialTitle={item.title}
           initialContent={item.content}
           initialTags={Array.isArray(item.tags) ? item.tags : []}
+          initialTableData={item.table_data ?? null}
           submitLabel={busy ? t("common.processing") : t("logs.edit.save")}
           onCancel={() => nav(`/logs/${item.id}`)}
           onSubmit={onSubmit}

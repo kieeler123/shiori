@@ -25,6 +25,7 @@ import { dbLogsTrashMove } from "../../repo/trashRepo";
 import { toast } from "@/app/layout/toast";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import LogsSection from "../../components/logs/LogsSection";
+import LogContentRenderer from "../../components/logs/LogContentRenderer";
 
 function chip(t: string) {
   return (
@@ -82,6 +83,13 @@ export default function LogDetailPage() {
       }
     })().catch(console.error);
   }, [id]);
+
+  useEffect(() => {
+    if (item) {
+      console.log("log item", item);
+      console.log("table_data", (item as any).table_data);
+    }
+  }, [item]);
 
   // ✅ 조회수 +1 (10분 쿨다운)
   useEffect(() => {
@@ -231,9 +239,10 @@ export default function LogDetailPage() {
 
         {/* Content */}
         <SurfaceCard tone="soft" className="mt-5 p-5">
-          <pre className="whitespace-pre-wrap break-words text-sm t4 leading-relaxed">
-            {item.content}
-          </pre>
+          <LogContentRenderer
+            content={item.content ?? ""}
+            tableData={item.table_data ?? null}
+          />
         </SurfaceCard>
 
         {item ? (
