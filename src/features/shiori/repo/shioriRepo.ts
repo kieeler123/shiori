@@ -76,9 +76,13 @@ export async function dbCreate(input: {
 }): Promise<CreateResult> {
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
+  console.log("[dbCreate] auth user:", user);
+
   if (!user) throw new Error("Not signed in");
 
   const v = validateCreate(input);
+  console.log("[dbCreate] validated input:", v);
+  console.log("[dbCreate] raw table_data:", input.table_data);
 
   const dup = await supabase
     .from(TABLE_BASE)
@@ -88,6 +92,8 @@ export async function dbCreate(input: {
     .eq("content", v.content)
     .eq("is_deleted", false)
     .limit(1);
+
+  console.log("[dbCreate] dup result:", dup);
 
   if ((dup.data?.length ?? 0) > 0) {
     throw new Error("이미 같은 제목/내용의 글이 존재합니다.");
@@ -105,9 +111,14 @@ export async function dbCreate(input: {
     .select("id")
     .single();
 
+  console.log("[dbCreate] insert data:", data);
+  console.log("[dbCreate] insert error:", error);
+
   if (error) throw error;
 
   const row = await dbGet(data.id);
+  console.log("[dbCreate] dbGet row:", row);
+
   if (!row) return { ok: false, reason: "HIDDEN_BY_VIEW", createdId: data.id };
 
   return { ok: true, row };

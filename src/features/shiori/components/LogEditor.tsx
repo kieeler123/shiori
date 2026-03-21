@@ -7,7 +7,7 @@ import {
 } from "@/shared/theme/editor";
 import { Input } from "@/shared/ui/primitives/Input";
 import { Textarea } from "@/shared/ui/primitives/Textarea";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { normalizeTagsText } from "../domain/validators/LogValidator";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import TableEditor from "./TableEditor";
@@ -50,7 +50,6 @@ function createDefaultTable(): SingleTable {
 }
 
 export default function LogEditor({
-  syncKey = "new",
   initialTitle = "",
   initialContent = "",
   initialTags = [],
@@ -73,15 +72,6 @@ export default function LogEditor({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const hasTable = content.includes("[[table:1]]");
-
-  useEffect(() => {
-    setTitle(initialTitle);
-    setContent(initialContent);
-    setTagText(initialTags.join(", "));
-    setTableData(initialTableData);
-    setIsSubmitting(false);
-    setErr(null);
-  }, [syncKey, initialTitle, initialContent, initialTags, initialTableData]);
 
   const tags = useMemo(() => normalizeTagsText(tagText), [tagText]);
 
@@ -167,7 +157,9 @@ export default function LogEditor({
         <Textarea
           ref={textareaRef}
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => {
+            setContent(e.target.value);
+          }}
           placeholder={t("logs.editor.phContent")}
           rows={10}
           className={fieldControl}

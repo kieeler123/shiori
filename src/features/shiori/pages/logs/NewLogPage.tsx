@@ -114,10 +114,6 @@ export default function NewLogPage() {
           kind: "warn",
           text: t("logs.new.hiddenByPolicy"),
         });
-
-        setToast({ kind: "ok", text: t("logs.new.created") });
-        // Undo를 걸지 말지: “숨김 글도 undo로 지울 수 있게” 하고 싶으면 아래 createdId로 undo 걸어도 됨.
-        // setUndo({ id: crypto.randomUUID(), kind: "add", createdId: res.createdId });
         return;
       }
 
