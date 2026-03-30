@@ -213,6 +213,11 @@ export default function NewLogPage() {
           }
           onCancel={() => nav("/logs")}
           onSubmit={onSubmit}
+          onClick={() =>
+            setTimeout(() => {
+              nav("/");
+            }, 5000)
+          }
         />
       </div>
 

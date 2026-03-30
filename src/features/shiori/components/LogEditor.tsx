@@ -29,6 +29,7 @@ type Props = {
   submitLabel: string;
   onSubmit: (v: SubmitValue) => void | Promise<void>;
   onCancel?: () => void;
+  onClick?: () => void;
 };
 
 function createDefaultTable(): SingleTable {
@@ -57,6 +58,7 @@ export default function LogEditor({
   submitLabel,
   onSubmit,
   onCancel,
+  onClick,
 }: Props) {
   const { t } = useI18n();
 
@@ -198,9 +200,16 @@ export default function LogEditor({
         {err ? <div className="text-sm text-[var(--danger)]">{err}</div> : null}
 
         <div className="flex items-center gap-2 pt-1">
-          <button type="submit" disabled={!canSubmit} className={submitBtn}>
-            {isSubmitting ? t("common.processing") : submitLabel}
-          </button>
+          {onClick ? (
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className={submitBtn}
+              onClick={onClick}
+            >
+              {isSubmitting ? t("common.processing") : submitLabel}
+            </button>
+          ) : null}
 
           {onCancel ? (
             <button type="button" onClick={onCancel} className={cancelBtn}>
