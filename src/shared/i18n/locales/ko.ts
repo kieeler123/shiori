@@ -1,4 +1,50 @@
 export const ko = {
+  errors: {
+    common: {
+      unknown: "오류가 발생했습니다.",
+      retryLater: "잠시 후 다시 시도해주세요.",
+      network: "네트워크 오류가 발생했습니다.",
+    },
+    auth: {
+      loginRequired: "로그인이 필요합니다.",
+      sessionExpired: "세션이 만료되었습니다. 다시 로그인해주세요.",
+      forbidden: "이 작업을 수행할 권한이 없습니다.",
+    },
+    db: {
+      loadFailed: "데이터를 불러오지 못했습니다.",
+      saveFailed: "저장에 실패했습니다.",
+      updateFailed: "수정에 실패했습니다.",
+      deleteFailed: "삭제에 실패했습니다.",
+      duplicate: "이미 같은 제목과 내용의 글이 존재합니다.",
+      commentCreateFailed: "댓글 작성에 실패했습니다.",
+      commentDeleteFailed: "댓글 삭제에 실패했습니다.",
+      trashMoveFailed: "글을 휴지통으로 이동하지 못했습니다.",
+      restoreFailed: "글 복구에 실패했습니다.",
+      hardDeleteFailed: "글을 완전히 삭제하지 못했습니다.",
+    },
+    storage: {
+      uploadFailed: "파일 업로드에 실패했습니다.",
+      openFailed: "파일을 열 수 없습니다.",
+      deleteFailed: "파일 삭제에 실패했습니다.",
+      permission: "파일 권한 설정에 문제가 있습니다.",
+    },
+    attachment: {
+      notFound: "첨부파일을 찾을 수 없습니다.",
+      invalid: "잘못된 첨부파일입니다.",
+      referenceInvalid: "첨부파일 참조가 올바르지 않습니다.",
+    },
+    link: {
+      previewLoadFailed: "링크 미리보기를 불러오지 못했습니다.",
+      notFound: "링크 정보를 찾을 수 없습니다.",
+      invalidUrl: "올바른 링크 주소를 입력해주세요.",
+      duplicate: "이미 추가된 링크입니다.",
+      referenceInvalid: "링크 참조가 올바르지 않습니다.",
+    },
+    table: {
+      notFound: "표를 불러오지 못했습니다.",
+      referenceInvalid: "표 참조가 올바르지 않습니다.",
+    },
+  },
   admin: {
     dashboard: {
       kpi: {

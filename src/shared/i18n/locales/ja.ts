@@ -1,4 +1,50 @@
 export const ja = {
+  errors: {
+    common: {
+      unknown: "エラーが発生しました。",
+      retryLater: "しばらくしてからもう一度お試しください。",
+      network: "ネットワークエラーが発生しました。",
+    },
+    auth: {
+      loginRequired: "ログインが必要です。",
+      sessionExpired: "セッションが切れました。再度ログインしてください。",
+      forbidden: "この操作を行う権限がありません。",
+    },
+    db: {
+      loadFailed: "データの読み込みに失敗しました。",
+      saveFailed: "保存に失敗しました。",
+      updateFailed: "更新に失敗しました。",
+      deleteFailed: "削除に失敗しました。",
+      duplicate: "同じタイトルと内容の投稿が既に存在します。",
+      commentCreateFailed: "コメントの作成に失敗しました。",
+      commentDeleteFailed: "コメントの削除に失敗しました。",
+      trashMoveFailed: "投稿をゴミ箱へ移動できませんでした。",
+      restoreFailed: "投稿の復元に失敗しました。",
+      hardDeleteFailed: "投稿を完全に削除できませんでした。",
+    },
+    storage: {
+      uploadFailed: "ファイルのアップロードに失敗しました。",
+      openFailed: "ファイルを開くことができません。",
+      deleteFailed: "ファイルの削除に失敗しました。",
+      permission: "ファイルの権限設定に問題があります。",
+    },
+    attachment: {
+      notFound: "添付ファイルが見つかりません。",
+      invalid: "無効な添付ファイルです。",
+      referenceInvalid: "添付ファイル参照が正しくありません。",
+    },
+    link: {
+      previewLoadFailed: "リンクプレビューを読み込めませんでした。",
+      notFound: "リンク情報が見つかりません。",
+      invalidUrl: "正しいリンクアドレスを入力してください。",
+      duplicate: "既に追加されているリンクです。",
+      referenceInvalid: "リンク参照が正しくありません。",
+    },
+    table: {
+      notFound: "表を読み込めませんでした。",
+      referenceInvalid: "表参照が正しくありません。",
+    },
+  },
   admin: {
     dashboard: {
       kpi: {

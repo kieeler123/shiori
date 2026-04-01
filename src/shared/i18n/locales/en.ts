@@ -1,4 +1,50 @@
 export const en = {
+  errors: {
+    common: {
+      unknown: "An error occurred.",
+      retryLater: "Please try again later.",
+      network: "A network error occurred.",
+    },
+    auth: {
+      loginRequired: "Login is required.",
+      sessionExpired: "Session expired. Please log in again.",
+      forbidden: "You do not have permission to perform this action.",
+    },
+    db: {
+      loadFailed: "Failed to load data.",
+      saveFailed: "Failed to save data.",
+      updateFailed: "Failed to update data.",
+      deleteFailed: "Failed to delete data.",
+      duplicate: "A post with the same title and content already exists.",
+      commentCreateFailed: "Failed to create comment.",
+      commentDeleteFailed: "Failed to delete comment.",
+      trashMoveFailed: "Failed to move the post to trash.",
+      restoreFailed: "Failed to restore the post.",
+      hardDeleteFailed: "Failed to permanently delete the post.",
+    },
+    storage: {
+      uploadFailed: "Failed to upload file.",
+      openFailed: "Unable to open file.",
+      deleteFailed: "Failed to delete file.",
+      permission: "There is a problem with file permissions.",
+    },
+    attachment: {
+      notFound: "Attachment not found.",
+      invalid: "Invalid attachment.",
+      referenceInvalid: "Invalid attachment reference.",
+    },
+    link: {
+      previewLoadFailed: "Failed to load link preview.",
+      notFound: "Link information not found.",
+      invalidUrl: "Please enter a valid URL.",
+      duplicate: "This link has already been added.",
+      referenceInvalid: "Invalid link reference.",
+    },
+    table: {
+      notFound: "Failed to load table.",
+      referenceInvalid: "Invalid table reference.",
+    },
+  },
   admin: {
     dashboard: {
       kpi: {

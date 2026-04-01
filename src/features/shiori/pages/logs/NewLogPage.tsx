@@ -8,6 +8,8 @@ import { dbLogsTrashHardDelete } from "../../repo/trashRepo";
 import { Button } from "@/shared/ui/primitives/Button";
 import { PageSection } from "@/app/layout/PageSection";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { logError } from "@/shared/error/logError";
+import { toastError } from "@/shared/error/toastError";
 
 type Toast = { kind: "ok" | "warn" | "error"; text: string } | null;
 
@@ -101,12 +103,50 @@ export default function NewLogPage() {
 
   const secondsLeft = Math.max(0, Math.ceil(undoRemainingMs / 1000));
 
+  async function setErrorToastAndLog(
+    error: unknown,
+    opts: {
+      category:
+        | "db"
+        | "storage"
+        | "attachment"
+        | "editor"
+        | "network"
+        | "auth"
+        | "render"
+        | "unknown";
+      action: string;
+      uiMessage?: string;
+      meta?: Record<string, unknown>;
+    },
+  ) {
+    const text = opts.uiMessage ?? String((error as any)?.message ?? error);
+
+    setToast({
+      kind: "error",
+      text,
+    });
+
+    await logError({
+      category: opts.category,
+      action: opts.action,
+      page: window.location.pathname,
+      error,
+      meta: {
+        ...opts.meta,
+        uiMessage: text,
+      },
+    });
+  }
+
   async function onSubmit(v: EditorSubmitValue) {
     if (isMutating) return;
     setIsMutating(true);
 
     try {
       const res = await dbCreate(v);
+
+      nav("/");
 
       if (!res.ok) {
         // ✅ 저장은 되었는데, 뷰 정책 때문에 목록에 안 보이는 상태
@@ -127,7 +167,30 @@ export default function NewLogPage() {
       setToast({ kind: "ok", text: "작성 완료!" });
     } catch (e) {
       console.error("create failed:", e);
-      setToast({ kind: "error", text: String((e as any)?.message ?? e) });
+      if ((e as Error).message === "DUPLICATE_LOG") {
+        await toastError({
+          error: e,
+          category: "db",
+          action: "create-log",
+          uiMessage: t("errors.db.duplicate"),
+        });
+      } else {
+        await toastError({
+          error: e,
+          category: "db",
+          action: "create-log",
+        });
+      }
+      await setErrorToastAndLog(e, {
+        category: "db",
+        action: "create-log",
+        uiMessage: String((e as any)?.message ?? e),
+        meta: {
+          titleLength: v.title.length,
+          contentLength: v.content.length,
+          tagCount: v.tags.length,
+        },
+      });
     } finally {
       setIsMutating(false);
     }
@@ -142,7 +205,14 @@ export default function NewLogPage() {
       setUndo(null);
     } catch (e) {
       console.error("undo failed:", e);
-      alert(String((e as any)?.message ?? e));
+      await setErrorToastAndLog(e, {
+        category: "db",
+        action: "undo-create-log",
+        uiMessage: String((e as any)?.message ?? e),
+        meta: {
+          createdId: undo.createdId,
+        },
+      });
     } finally {
       setIsMutating(false);
     }
@@ -213,11 +283,6 @@ export default function NewLogPage() {
           }
           onCancel={() => nav("/logs")}
           onSubmit={onSubmit}
-          onClick={() =>
-            setTimeout(() => {
-              nav("/");
-            }, 5000)
-          }
         />
       </div>
 

@@ -178,6 +178,11 @@ export default function AdminHomePage() {
             {t("admin.actions.data")}
           </Button>
         </div>
+        <div className="flex items-center gap-2">
+          <Button variant="nav" onClick={() => nav("/admin/error-logs")}>
+            error log
+          </Button>
+        </div>
       </div>
 
       {/* KPI */}

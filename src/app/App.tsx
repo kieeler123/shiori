@@ -29,6 +29,7 @@ import ImportExportPage from "@/features/shiori/pages/dev/ImportExportPage";
 import { AdminOnlyOutlet } from "./layout/AdminOnlyOutlet";
 import AdminHomePage from "@/features/shiori/admin/pages/AdminHomePage";
 import AdminDataPage from "@/features/shiori/admin/pages/AdminDataPage";
+import AdminErrorLogsPage from "@/features/shiori/admin/pages/AdminErrorLogsPage";
 
 export default function App() {
   return (
@@ -74,6 +75,7 @@ export default function App() {
         <Route element={<AdminOnlyOutlet />}>
           <Route path="/admin" element={<AdminHomePage />} />
           <Route path="/admin/data" element={<AdminDataPage />} />
+          <Route path="/admin/error-logs" element={<AdminErrorLogsPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

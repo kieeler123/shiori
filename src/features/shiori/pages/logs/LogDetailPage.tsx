@@ -26,6 +26,7 @@ import { toast } from "@/app/layout/toast";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import LogsSection from "../../components/logs/LogsSection";
 import LogContentRenderer from "../../components/logs/LogContentRenderer";
+import { toastError } from "@/shared/error/toastError";
 
 function chip(t: string) {
   return (
@@ -135,6 +136,17 @@ export default function LogDetailPage() {
     } catch (e: any) {
       console.error(e);
       toast(String(e?.message ?? e), "error");
+      await toastError({
+        category: "db",
+        action: "create-comment",
+        page: window.location.pathname,
+        uiMessage: t("errors.storage.uploadFailed"),
+        error: e,
+        meta: {
+          itemId: id,
+        },
+      });
+      throw e;
     } finally {
       setBusy(false);
     }
@@ -150,7 +162,17 @@ export default function LogDetailPage() {
       toast(t("logs.comments.deleted"), "success");
     } catch (e: any) {
       console.error(e);
-      toast(String(e?.message ?? e), "error");
+      await toastError({
+        error: e,
+        category: "db",
+        action: "delete-comment",
+        page: window.location.pathname,
+        uiMessage: t("errors.storage.uploadFailed"),
+        meta: {
+          itemId: id,
+          commentId: cid,
+        },
+      });
     } finally {
       setBusy(false);
     }
@@ -167,7 +189,16 @@ export default function LogDetailPage() {
       nav("/logs", { state: { refresh: true } });
     } catch (e: any) {
       console.error(e);
-      toast(String(e?.message ?? e), "error");
+      await toastError({
+        error: e,
+        category: "db",
+        action: "move-log-to-trash",
+        page: window.location.pathname,
+        uiMessage: t("errors.storage.uploadFailed"),
+        meta: {
+          itemId: id,
+        },
+      });
     } finally {
       setBusy(false);
     }
@@ -242,6 +273,8 @@ export default function LogDetailPage() {
           <LogContentRenderer
             content={item.content ?? ""}
             tableData={item.table_data ?? null}
+            attachments={(item as any).attachments ?? []}
+            links={(item as any).links ?? []}
           />
         </SurfaceCard>
 

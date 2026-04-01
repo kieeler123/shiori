@@ -4,7 +4,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import { dbGet, dbUpdate } from "@/features/shiori/repo/shioriRepo";
 import LogEditor from "@/features/shiori/components/LogEditor";
-import type { DbLogRow } from "../../type";
+import type {
+  AttachmentItem,
+  DbLogRow,
+  LinkPreviewItem,
+  TableData,
+} from "../../type";
 
 import { Button } from "@/shared/ui/primitives/Button";
 import { SurfaceCard } from "@/shared/ui/patterns/SurfaceCard";
@@ -15,7 +20,14 @@ import { formatDateTime } from "@/shared/i18n/format";
 // 있으면 사용 (없으면 아래 주석 참고)
 // import { PageLoadingCard } from "@/shared/ui/patterns/PageLoadingCard";
 
-type EditorSubmitValue = { title: string; content: string; tags: string[] };
+type EditorSubmitValue = {
+  title: string;
+  content: string;
+  tags: string[];
+  table_data?: TableData | null;
+  attachments?: AttachmentItem[];
+  links?: LinkPreviewItem[];
+};
 
 export default function EditLogPage() {
   const nav = useNavigate();
@@ -52,7 +64,15 @@ export default function EditLogPage() {
 
     setBusy(true);
     try {
-      const updated = await dbUpdate(id, v);
+      const updated = await dbUpdate(id, {
+        title: v.title,
+        content: v.content,
+        tags: v.tags,
+        table_data: v.table_data ?? null,
+        attachments: v.attachments ?? [],
+        links: v.links ?? [],
+      });
+
       setItem(updated);
       nav(`/logs/${id}`, { state: { refresh: true } });
     } catch (e) {
@@ -119,11 +139,14 @@ export default function EditLogPage() {
 
       <div className="mt-6">
         <LogEditor
+          key={item.id}
           syncKey={item.id}
           initialTitle={item.title}
           initialContent={item.content}
           initialTags={Array.isArray(item.tags) ? item.tags : []}
           initialTableData={item.table_data ?? null}
+          initialAttachments={item?.attachments ?? []}
+          initialLinks={item?.links ?? []}
           submitLabel={busy ? t("common.processing") : t("logs.edit.save")}
           onCancel={() => nav(`/logs/${item.id}`)}
           onSubmit={onSubmit}

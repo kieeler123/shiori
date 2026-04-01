@@ -1,3 +1,22 @@
+export type AttachmentItem = {
+  id: string;
+  path: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  bucket: string;
+  publicUrl?: string | null;
+};
+
+export type LinkPreviewItem = {
+  id: string;
+  url: string;
+  title: string;
+  description?: string | null;
+  image?: string | null;
+  siteName?: string | null;
+};
+
 export type LogItem = {
   id: string;
   userId: string | null;
@@ -84,6 +103,8 @@ export type DbLogRow = {
   view_count: number;
   source_date: string | null;
   table_data?: TableData | null;
+  attachments?: AttachmentItem[] | null;
+  links?: LinkPreviewItem[] | null;
 
   profile: { nickname: string | null; is_deleted?: boolean | null }[] | null;
 };

@@ -1,4 +1,50 @@
 export const zh = {
+  errors: {
+    common: {
+      unknown: "发生错误。",
+      retryLater: "请稍后再试。",
+      network: "发生网络错误。",
+    },
+    auth: {
+      loginRequired: "需要登录。",
+      sessionExpired: "会话已过期，请重新登录。",
+      forbidden: "您没有执行此操作的权限。",
+    },
+    db: {
+      loadFailed: "加载数据失败。",
+      saveFailed: "保存失败。",
+      updateFailed: "更新失败。",
+      deleteFailed: "删除失败。",
+      duplicate: "已存在相同标题和内容的帖子。",
+      commentCreateFailed: "创建评论失败。",
+      commentDeleteFailed: "删除评论失败。",
+      trashMoveFailed: "无法将帖子移到回收站。",
+      restoreFailed: "恢复帖子失败。",
+      hardDeleteFailed: "永久删除帖子失败。",
+    },
+    storage: {
+      uploadFailed: "文件上传失败。",
+      openFailed: "无法打开文件。",
+      deleteFailed: "删除文件失败。",
+      permission: "文件权限设置有问题。",
+    },
+    attachment: {
+      notFound: "未找到附件。",
+      invalid: "附件无效。",
+      referenceInvalid: "附件引用无效。",
+    },
+    link: {
+      previewLoadFailed: "无法加载链接预览。",
+      notFound: "未找到链接信息。",
+      invalidUrl: "请输入正确的链接地址。",
+      duplicate: "该链接已添加。",
+      referenceInvalid: "链接引用无效。",
+    },
+    table: {
+      notFound: "无法加载表格。",
+      referenceInvalid: "表格引用无效。",
+    },
+  },
   admin: {
     dashboard: {
       kpi: {
