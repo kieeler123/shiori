@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Reason = "initial" | "refresh";
 
@@ -12,37 +12,20 @@ type FetchPage<Row> = (args: {
   limit: number;
   offset: number;
 }) => Promise<PageResult<Row> | Row[]>;
-// 너는 dbListPage가 Row[]를 리턴하니까 둘 다 지원
 
 export function usePagedList<Row, Item>(opts: {
   pageSize: number;
   fetchPage: FetchPage<Row>;
   mapRow: (r: Row) => Item;
-  filterItem?: (it: Item) => boolean; // true면 keep
-  mergeKey?: (it: Item) => string; // 중복 제거 key (기본: (it as any).id)
-  onCacheSave?: (items: Item[]) => void; // 필요할 때만
+  filterItem?: (it: Item) => boolean;
+  mergeKey?: (it: Item) => string;
+  onCacheSave?: (items: Item[]) => void;
   key: string;
 }) {
-  const {
-    pageSize,
-    fetchPage,
-    mapRow,
-    filterItem,
-    mergeKey,
-    onCacheSave,
-    key,
-  } = opts;
+  const optsRef = useRef(opts);
+  optsRef.current = opts;
 
-  useEffect(() => {
-    // key가 바뀌면 리스트 초기화 + 첫 페이지 다시 로드
-    resetPaging();
-    loadFirstPage();
-  }, [key]);
-
-  const keyOf = useCallback(
-    (it: Item) => (mergeKey ? mergeKey(it) : String((it as any)?.id)),
-    [mergeKey],
-  );
+  const requestIdRef = useRef(0);
 
   const [items, setItems] = useState<Item[]>([]);
   const [offset, setOffset] = useState(0);
@@ -52,20 +35,35 @@ export function usePagedList<Row, Item>(opts: {
   const [refreshing, setRefreshing] = useState(false);
   const [busyMore, setBusyMore] = useState(false);
 
-  const applyFilter = useCallback(
-    (arr: Item[]) => (filterItem ? arr.filter(filterItem) : arr),
-    [filterItem],
-  );
+  const normalizeRows = (res: PageResult<Row> | Row[]) => {
+    return Array.isArray(res) ? res : res.rows;
+  };
+
+  const applyFilter = useCallback((arr: Item[]) => {
+    const { filterItem } = optsRef.current;
+    return filterItem ? arr.filter(filterItem) : arr;
+  }, []);
+
+  const keyOf = useCallback((it: Item) => {
+    const { mergeKey } = optsRef.current;
+    return mergeKey ? mergeKey(it) : String((it as any)?.id);
+  }, []);
 
   const loadFirstPage = useCallback(
     async (reason: Reason = "refresh") => {
+      const requestId = ++requestIdRef.current;
+
+      const { pageSize, fetchPage, mapRow, onCacheSave } = optsRef.current;
+
       if (reason === "initial") setInitialLoading(true);
       else setRefreshing(true);
 
       try {
         const res = await fetchPage({ limit: pageSize, offset: 0 });
-        const rows = Array.isArray(res) ? res : res.rows;
 
+        if (requestId !== requestIdRef.current) return;
+
+        const rows = normalizeRows(res);
         const next = applyFilter(rows.map(mapRow));
 
         setItems(next);
@@ -74,60 +72,73 @@ export function usePagedList<Row, Item>(opts: {
 
         onCacheSave?.(next);
       } finally {
-        if (reason === "initial") setInitialLoading(false);
-        else setRefreshing(false);
+        if (requestId === requestIdRef.current) {
+          if (reason === "initial") setInitialLoading(false);
+          else setRefreshing(false);
+        }
       }
     },
-    [fetchPage, pageSize, mapRow, applyFilter, onCacheSave],
+    [applyFilter],
   );
 
   const loadNextPage = useCallback(async () => {
-    if (busyMore) return;
-    if (!hasMore) return;
+    if (busyMore || !hasMore) return;
+
+    const { pageSize, fetchPage, mapRow, onCacheSave } = optsRef.current;
+    const currentOffset = offset;
 
     setBusyMore(true);
-    try {
-      const res = await fetchPage({ limit: pageSize, offset });
-      const rows = Array.isArray(res) ? res : res.rows;
 
+    try {
+      const res = await fetchPage({
+        limit: pageSize,
+        offset: currentOffset,
+      });
+
+      const rows = normalizeRows(res);
       const next = applyFilter(rows.map(mapRow));
 
       setItems((prev) => {
         const seen = new Set(prev.map(keyOf));
         const merged = [...prev];
+
         for (const it of next) {
           const k = keyOf(it);
-          if (!seen.has(k)) merged.push(it);
+          if (!seen.has(k)) {
+            seen.add(k);
+            merged.push(it);
+          }
         }
+
         onCacheSave?.(merged);
         return merged;
       });
 
-      setOffset((v) => v + rows.length);
-      if (rows.length < pageSize) setHasMore(false);
+      setOffset((prev) => prev + rows.length);
+      setHasMore(rows.length >= pageSize);
     } finally {
       setBusyMore(false);
     }
-  }, [
-    busyMore,
-    hasMore,
-    fetchPage,
-    pageSize,
-    offset,
-    mapRow,
-    applyFilter,
-    keyOf,
-    onCacheSave,
-  ]);
+  }, [busyMore, hasMore, offset, applyFilter, keyOf]);
 
   const resetPaging = useCallback(() => {
+    requestIdRef.current += 1;
+    setItems([]);
     setOffset(0);
     setHasMore(true);
+    setInitialLoading(true);
+    setRefreshing(false);
+    setBusyMore(false);
   }, []);
+
+  useEffect(() => {
+    resetPaging();
+    loadFirstPage("initial");
+  }, [opts.key]);
 
   return {
     items,
-    setItems, // 캐시 먼저 보여주는 패턴이 있으면 필요
+    setItems,
     offset,
     hasMore,
     initialLoading,
