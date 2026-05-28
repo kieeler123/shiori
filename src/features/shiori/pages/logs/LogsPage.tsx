@@ -148,8 +148,6 @@ export default function LogsPage() {
     mapRow: toLogItem,
     filterItem: (it) => !shouldHideFromList(it),
     mergeKey: (it) => it.id,
-    onCacheSave:
-      tab === "all" && sort === "recent" ? (arr) => saveLogs(arr) : undefined,
   });
 
   useInfiniteScrollSentinel(sentinelRef, {
