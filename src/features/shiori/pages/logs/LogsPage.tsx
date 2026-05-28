@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef, useDeferredValue } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { saveLogs } from "@/features/shiori/utils/storage";
 import type { DbLogRow, LogItem } from "@/features/shiori/type/logs";
 
 import { useSession } from "@/features/auth/useSession";
@@ -147,6 +148,7 @@ export default function LogsPage() {
     mapRow: toLogItem,
     filterItem: (it) => !shouldHideFromList(it),
     mergeKey: (it) => it.id,
+    onCacheSave: undefined,
   });
 
   useInfiniteScrollSentinel(sentinelRef, {
