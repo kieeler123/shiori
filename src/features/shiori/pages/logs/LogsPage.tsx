@@ -161,7 +161,6 @@ export default function LogsPage() {
 
   const filteredLogs = useMemo(() => {
     let arr = logs;
-
     if (selectedTag) {
       arr = arr.filter((log) => (log.tags ?? []).includes(selectedTag));
     }
