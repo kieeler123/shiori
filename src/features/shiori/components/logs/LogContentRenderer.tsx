@@ -71,7 +71,7 @@ function AttachmentCard({ item }: { item: AttachmentItem }) {
                 className="max-h-96 rounded-xl border border-[color:var(--border-soft)] object-contain"
               />
               <a
-                href={item.publicUrl}
+                href={`/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-block text-xs underline underline-offset-2"
@@ -81,10 +81,9 @@ function AttachmentCard({ item }: { item: AttachmentItem }) {
             </div>
           ) : (
             <a
-              href={item.publicUrl}
+              href={`/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-block text-sm underline underline-offset-2"
             >
               파일 열기
             </a>

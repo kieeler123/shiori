@@ -72,6 +72,20 @@ function buildStoragePath(file: File) {
   return `logs/${yyyy}/${mm}/${dd}/${crypto.randomUUID()}${ext}`;
 }
 
+function getUploadContentType(file: File) {
+  const ext = file.name.split(".").pop()?.toLowerCase();
+
+  if (ext === "md" || ext === "markdown") {
+    return "text/markdown; charset=utf-8";
+  }
+
+  if (ext === "txt") {
+    return "text/plain; charset=utf-8";
+  }
+
+  return file.type || "application/octet-stream";
+}
+
 export default function AttachmentEditor({
   attachments,
   setAttachments,
@@ -112,12 +126,20 @@ export default function AttachmentEditor({
 
         const path = buildStoragePath(file);
 
+        const uploadContentType = getUploadContentType(file);
+
+        console.log("UPLOAD DEBUG:", {
+          fileName: file.name,
+          fileType: file.type,
+          uploadContentType,
+        });
+
         const { error: uploadError } = await supabase.storage
           .from(bucketName)
           .upload(path, file, {
             cacheControl: "3600",
             upsert: false,
-            contentType: file.type || undefined,
+            contentType: getUploadContentType(file),
           });
 
         if (uploadError) {
