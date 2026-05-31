@@ -3,6 +3,7 @@ import type { AttachmentItem, LinkPreviewItem, TableData } from "../../type";
 import LogTable from "./LogTable";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { logError } from "@/shared/error/logError";
+import { supabase } from "@/lib/supabaseClient";
 
 type Props = {
   content: string;
@@ -31,6 +32,38 @@ function formatBytes(bytes: number) {
   if (mb < 1024) return `${mb.toFixed(1)} MB`;
   const gb = mb / 1024;
   return `${gb.toFixed(1)} GB`;
+}
+
+async function handleOpenAttachment(item: AttachmentItem) {
+  const fileName = item.name.toLowerCase();
+
+  const isText =
+    item.mimeType.startsWith("text/") ||
+    fileName.endsWith(".md") ||
+    fileName.endsWith(".markdown") ||
+    fileName.endsWith(".txt");
+
+  // md/txt는 API로 열기
+  if (isText && item.publicUrl) {
+    window.open(
+      `/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+    return;
+  }
+
+  // pdf/image는 signedUrl로 열기
+  const { data, error } = await supabase.storage
+    .from(item.bucket)
+    .createSignedUrl(item.path, 60 * 10);
+
+  if (error || !data?.signedUrl) {
+    alert("첨부파일을 열 수 없습니다.");
+    return;
+  }
+
+  window.open(data.signedUrl, "_blank", "noopener,noreferrer");
 }
 
 function AttachmentCard({ item }: { item: AttachmentItem }) {
@@ -80,13 +113,9 @@ function AttachmentCard({ item }: { item: AttachmentItem }) {
               </a>
             </div>
           ) : (
-            <a
-              href={`/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <button type="button" onClick={() => handleOpenAttachment(item)}>
               파일 열기
-            </a>
+            </button>
           )
         ) : (
           <div className="text-xs text-[var(--text-4)]">

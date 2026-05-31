@@ -230,23 +230,30 @@ export default function AttachmentEditor({
   }
 
   async function handleOpenAttachment(item: AttachmentItem) {
+    const fileName = item.name.toLowerCase();
+
+    const isText =
+      item.mimeType.startsWith("text/") ||
+      fileName.endsWith(".md") ||
+      fileName.endsWith(".markdown") ||
+      fileName.endsWith(".txt");
+
+    // md/txt는 API로 열기
+    if (isText && item.publicUrl) {
+      window.open(
+        `/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+      return;
+    }
+
+    // pdf/image는 signedUrl로 열기
     const { data, error } = await supabase.storage
       .from(item.bucket)
       .createSignedUrl(item.path, 60 * 10);
 
     if (error || !data?.signedUrl) {
-      await logError({
-        category: "storage",
-        action: "create-signed-url",
-        page: window.location.pathname,
-        error,
-        meta: {
-          bucket: item.bucket,
-          path: item.path,
-          name: item.name,
-        },
-      });
-
       alert("첨부파일을 열 수 없습니다.");
       return;
     }
