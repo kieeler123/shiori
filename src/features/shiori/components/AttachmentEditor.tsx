@@ -229,6 +229,31 @@ export default function AttachmentEditor({
     void uploadFiles(files);
   }
 
+  async function handleOpenAttachment(item: AttachmentItem) {
+    const { data, error } = await supabase.storage
+      .from(item.bucket)
+      .createSignedUrl(item.path, 60 * 10);
+
+    if (error || !data?.signedUrl) {
+      await logError({
+        category: "storage",
+        action: "create-signed-url",
+        page: window.location.pathname,
+        error,
+        meta: {
+          bucket: item.bucket,
+          path: item.path,
+          name: item.name,
+        },
+      });
+
+      alert("첨부파일을 열 수 없습니다.");
+      return;
+    }
+
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  }
+
   function handleRemoveAttachment(id: string) {
     setAttachments((prev) => prev.filter((item) => item.id !== id));
   }
@@ -322,16 +347,13 @@ export default function AttachmentEditor({
                       {item.path}
                     </div>
 
-                    {item.publicUrl ? (
-                      <a
-                        href={item.publicUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-block text-xs underline underline-offset-2"
-                      >
-                        미리보기 / 열기
-                      </a>
-                    ) : null}
+                    <button
+                      type="button"
+                      className="inline-block text-xs underline underline-offset-2"
+                      onClick={() => handleOpenAttachment(item)}
+                    >
+                      미리보기 / 열기
+                    </button>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
