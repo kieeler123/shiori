@@ -167,7 +167,7 @@ export default function AttachmentEditor({
           id: crypto.randomUUID(),
           path,
           name: file.name,
-          mimeType: file.type || "application/octet-stream",
+          mimeType: getUploadContentType(file),
           size: file.size,
           bucket: bucketName,
           publicUrl: publicUrlData?.publicUrl ?? null,
