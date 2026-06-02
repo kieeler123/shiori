@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -7,6 +8,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function PdfViewerPage() {
+  const { t } = useI18n();
   const [numPages, setNumPages] = useState<number>(0);
 
   const fileUrl = useMemo(() => {
@@ -14,10 +16,7 @@ export default function PdfViewerPage() {
     const url = params.get("url") ?? "";
 
     if (!url) return "";
-
-    if (url.startsWith("/")) {
-      return `${window.location.origin}${url}`;
-    }
+    if (url.startsWith("/")) return `${window.location.origin}${url}`;
 
     return url;
   }, []);
@@ -29,26 +28,32 @@ export default function PdfViewerPage() {
 
   if (!fileUrl) {
     return (
-      <main className="min-h-screen bg-background p-4 text-foreground">
-        PDF 주소가 없습니다.
+      <main className="min-h-screen bg-app p-4 text-[var(--text-2)]">
+        {t("pdfViewer.missingUrl")}
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background p-3 text-foreground">
-      <div className="mx-auto max-w-4xl rounded-xl border bg-card p-3 shadow-sm">
-        <div className="mb-3 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
-          {numPages > 0 ? `총 ${numPages}페이지` : "PDF 불러오는 중..."}
+    <main className="min-h-screen bg-app p-3 text-[var(--text-2)]">
+      <div className="mx-auto max-w-4xl rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-elev-1)] p-3 shadow-lg">
+        <div className="mb-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--text-4)]">
+          {numPages > 0
+            ? t("pdfViewer.totalPages").replace("{count}", String(numPages))
+            : t("pdfViewer.loading")}
         </div>
 
         <div className="overflow-x-auto">
           <Document
             file={fileUrl}
-            loading={<div className="p-4 text-sm">PDF 불러오는 중...</div>}
+            loading={
+              <div className="p-4 text-sm text-[var(--text-4)]">
+                {t("pdfViewer.loading")}
+              </div>
+            }
             error={
-              <div className="p-4 text-sm text-destructive">
-                PDF를 불러오지 못했습니다.
+              <div className="p-4 text-sm text-[var(--btn-danger-fg)]">
+                {t("pdfViewer.loadFailed")}
               </div>
             }
             onLoadError={(error) => {
@@ -66,7 +71,7 @@ export default function PdfViewerPage() {
               {Array.from({ length: numPages }, (_, index) => (
                 <div
                   key={index + 1}
-                  className="overflow-hidden rounded-lg border bg-background"
+                  className="overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[var(--surface-3)]"
                 >
                   <Page
                     pageNumber={index + 1}
@@ -74,8 +79,11 @@ export default function PdfViewerPage() {
                     renderTextLayer={false}
                     renderAnnotationLayer={false}
                     loading={
-                      <div className="p-4 text-sm">
-                        {index + 1}페이지 불러오는 중...
+                      <div className="p-4 text-sm text-[var(--text-4)]">
+                        {t("pdfViewer.pageLoading").replace(
+                          "{page}",
+                          String(index + 1),
+                        )}
                       </div>
                     }
                     onLoadError={(error) => {

@@ -1,4 +1,20 @@
 export const zh = {
+  attachments: {
+    image: "图片",
+    file: "附件",
+    openOriginal: "打开原文件",
+    openFile: "打开文件",
+    urlUnavailable: "无法获取文件链接。",
+    openFailed: "无法打开附件。",
+    pdfOpenFailed: "无法打开 PDF。",
+  },
+  pdfViewer: {
+    missingUrl: "缺少 PDF 地址。",
+    loading: "正在加载 PDF...",
+    loadFailed: "无法加载 PDF。",
+    totalPages: "共 {count} 页",
+    pageLoading: "正在加载第 {page} 页...",
+  },
   errors: {
     common: {
       unknown: "发生错误。",

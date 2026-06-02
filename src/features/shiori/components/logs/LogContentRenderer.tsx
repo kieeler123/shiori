@@ -32,7 +32,10 @@ function formatBytes(bytes: number) {
   return `${gb.toFixed(1)} GB`;
 }
 
-async function handleOpenAttachment(item: AttachmentItem) {
+async function handleOpenAttachment(
+  item: AttachmentItem,
+  t: (key: string) => string,
+) {
   const fileName = item.name.toLowerCase();
 
   const isText =
@@ -44,7 +47,6 @@ async function handleOpenAttachment(item: AttachmentItem) {
   const isPdf =
     item.mimeType === "application/pdf" || fileName.endsWith(".pdf");
 
-  // md/txt는 기존 API로 열기
   if (isText && item.publicUrl) {
     window.open(
       `/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`,
@@ -56,24 +58,14 @@ async function handleOpenAttachment(item: AttachmentItem) {
 
   const { data, error } = await supabase.storage
     .from(item.bucket)
-    .createSignedUrl(item.path, 60 * 10);
+    .createSignedUrl(item.path, 60 * 30);
 
   if (error || !data?.signedUrl) {
-    alert("첨부파일을 열 수 없습니다.");
+    alert(t("attachments.openFailed"));
     return;
   }
 
-  // PDF는 직접 열지 않고 PDF.js 뷰어 페이지로 이동
   if (isPdf) {
-    const { data, error } = await supabase.storage
-      .from(item.bucket)
-      .createSignedUrl(item.path, 60 * 10);
-
-    if (error || !data?.signedUrl) {
-      alert("PDF를 열 수 없습니다.");
-      return;
-    }
-
     const proxyUrl = `${window.location.origin}/api/attachments/view?type=pdf&url=${encodeURIComponent(
       data.signedUrl,
     )}`;
@@ -87,23 +79,32 @@ async function handleOpenAttachment(item: AttachmentItem) {
     return;
   }
 
-  // 이미지 등 나머지는 기존 방식 유지
   window.open(data.signedUrl, "_blank", "noopener,noreferrer");
 }
 
-function AttachmentCard({ item }: { item: AttachmentItem }) {
+function AttachmentCard({
+  item,
+  t,
+}: {
+  item: AttachmentItem;
+  t: (key: string) => string;
+}) {
   const isImage = item.mimeType.startsWith("image/");
 
   return (
-    <div className="rounded-2xl border p-4">
-      <div className="space-y-2">
-        {isImage ? "이미지" : "첨부파일"} · {formatBytes(item.size)}
+    <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-elev-1)] p-4">
+      <div className="text-xs text-[var(--text-5)]">
+        {isImage ? t("attachments.image") : t("attachments.file")} ·{" "}
+        {formatBytes(item.size)}
       </div>
 
-      <div className="break-all text-sm font-medium text-[var(--text-1)]">
+      <div className="mt-2 break-all text-sm font-medium text-[var(--text-1)]">
         {item.name}
       </div>
-      <div className="break-all text-xs text-[var(--text-4)]">{item.path}</div>
+
+      <div className="mt-1 break-all text-xs text-[var(--text-5)]">
+        {item.path}
+      </div>
 
       <div className="mt-3">
         {item.publicUrl ? (
@@ -112,22 +113,22 @@ function AttachmentCard({ item }: { item: AttachmentItem }) {
               href={item.publicUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-block text-xs underline underline-offset-2"
+              className="inline-block text-xs text-[var(--btn-ghost-fg)] underline underline-offset-2 hover:text-[var(--btn-ghost-hover-fg)]"
             >
-              원본 열기
+              {t("attachments.openOriginal")}
             </a>
           ) : (
             <button
               type="button"
-              onClick={() => void handleOpenAttachment(item)}
-              className="inline-block text-xs underline underline-offset-2"
+              onClick={() => void handleOpenAttachment(item, t)}
+              className="inline-block text-xs text-[var(--btn-ghost-fg)] underline underline-offset-2 hover:text-[var(--btn-ghost-hover-fg)]"
             >
-              파일 열기
+              {t("attachments.openFile")}
             </button>
           )
         ) : (
-          <span className="text-xs text-[var(--text-4)]">
-            파일 URL을 불러올 수 없습니다.
+          <span className="text-xs text-[var(--text-5)]">
+            {t("attachments.urlUnavailable")}
           </span>
         )}
       </div>
@@ -141,23 +142,38 @@ function LinkCard({ item }: { item: LinkPreviewItem }) {
       href={item.url}
       target="_blank"
       rel="noreferrer"
-      className="block rounded-lg border border-slate-200 bg-white p-3 hover:border-indigo-300"
+      className="
+        block
+        rounded-xl
+        border
+        border-[var(--border-soft)]
+        bg-[var(--bg-elev-1)]
+        p-3
+        transition-colors
+        hover:border-[var(--accent)]
+      "
     >
       {item.image ? (
         <img
           src={item.image}
           alt=""
-          className="mb-3 max-h-48 w-full rounded-md object-cover"
+          className="
+            mb-3
+            max-h-48
+            w-full
+            rounded-lg
+            object-cover
+          "
         />
       ) : null}
 
-      <div className="font-semibold text-slate-900">{item.title}</div>
+      <div className="font-semibold text-[var(--text-1)]">{item.title}</div>
 
       {item.description ? (
-        <p className="mt-1 text-sm text-slate-600">{item.description}</p>
+        <p className="mt-1 text-sm text-[var(--text-4)]">{item.description}</p>
       ) : null}
 
-      <p className="mt-2 break-all text-xs text-slate-400">
+      <p className="mt-2 break-all text-xs text-[var(--text-5)]">
         {item.siteName ? `${item.siteName} · ` : ""}
         {item.url}
       </p>
@@ -221,7 +237,7 @@ export default function LogContentRenderer({
 
       if (attachment) {
         parts.push(
-          <AttachmentCard key={`attach-${tokenId}`} item={attachment} />,
+          <AttachmentCard key={`attach-${tokenId}`} item={attachment} t={t} />,
         );
       } else {
         void logError({

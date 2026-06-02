@@ -1,4 +1,20 @@
 export const en = {
+  attachments: {
+    image: "Image",
+    file: "Attachment",
+    openOriginal: "Open Original",
+    openFile: "Open File",
+    urlUnavailable: "Unable to retrieve the file URL.",
+    openFailed: "Unable to open the attachment.",
+    pdfOpenFailed: "Unable to open the PDF.",
+  },
+  pdfViewer: {
+    missingUrl: "PDF URL is missing.",
+    loading: "Loading PDF...",
+    loadFailed: "Failed to load the PDF.",
+    totalPages: "Total {count} pages",
+    pageLoading: "Loading page {page}...",
+  },
   errors: {
     common: {
       unknown: "An error occurred.",

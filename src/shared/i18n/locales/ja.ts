@@ -1,4 +1,20 @@
 export const ja = {
+  attachments: {
+    image: "画像",
+    file: "添付ファイル",
+    openOriginal: "元のファイルを開く",
+    openFile: "ファイルを開く",
+    urlUnavailable: "ファイルURLを取得できません。",
+    openFailed: "添付ファイルを開けません。",
+    pdfOpenFailed: "PDFを開けません。",
+  },
+  pdfViewer: {
+    missingUrl: "PDFのURLがありません。",
+    loading: "PDFを読み込み中...",
+    loadFailed: "PDFを読み込めませんでした。",
+    totalPages: "全 {count} ページ",
+    pageLoading: "{page} ページを読み込み中...",
+  },
   errors: {
     common: {
       unknown: "エラーが発生しました。",

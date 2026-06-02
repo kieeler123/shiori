@@ -1,4 +1,20 @@
 export const ko = {
+  attachments: {
+    image: "이미지",
+    file: "첨부파일",
+    openOriginal: "원본 열기",
+    openFile: "파일 열기",
+    urlUnavailable: "파일 URL을 불러올 수 없습니다.",
+    openFailed: "첨부파일을 열 수 없습니다.",
+    pdfOpenFailed: "PDF를 열 수 없습니다.",
+  },
+  pdfViewer: {
+    missingUrl: "PDF 주소가 없습니다.",
+    loading: "PDF 불러오는 중...",
+    loadFailed: "PDF를 불러오지 못했습니다.",
+    totalPages: "총 {count}페이지",
+    pageLoading: "{page}페이지 불러오는 중...",
+  },
   errors: {
     common: {
       unknown: "오류가 발생했습니다.",
