@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "@/features/auth/useSession";
-import { dbRestoreAccountIfPossible } from "../repo/AccountTrashRepo";
+import { dbRestoreAccountIfPossible } from "../repo/accountTrashRepo";
 
 export function useAutoRestoreAccount() {
   const { ready, isAuthed } = useSession();
@@ -13,7 +13,7 @@ export function useAutoRestoreAccount() {
     ranRef.current = true;
 
     dbRestoreAccountIfPossible()
-      .then((res) => {
+      .then((res: any) => {
         if (res?.restored) {
           // 필요하면 toast
           console.log("Account restored", res);
@@ -21,6 +21,6 @@ export function useAutoRestoreAccount() {
           // ex) nav(".", { state: { refresh: true } })
         }
       })
-      .catch((e) => console.warn("restore failed:", e?.message ?? e));
+      .catch((e: any) => console.warn("restore failed:", e?.message ?? e));
   }, [ready, isAuthed]);
 }

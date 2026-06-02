@@ -16,20 +16,18 @@ const TOKEN_REGEX = /\[\[(table|attach|link):([^\]]+)\]\]/g;
 
 function TextBlock({ text }: { text: string }) {
   if (!text) return null;
-
-  return (
-    <div className="whitespace-pre-wrap break-words text-sm t4 leading-relaxed">
-      {text}
-    </div>
-  );
+  return <p className="whitespace-pre-wrap">{text}</p>;
 }
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
+
   const kb = bytes / 1024;
   if (kb < 1024) return `${kb.toFixed(1)} KB`;
+
   const mb = kb / 1024;
   if (mb < 1024) return `${mb.toFixed(1)} MB`;
+
   const gb = mb / 1024;
   return `${gb.toFixed(1)} GB`;
 }
@@ -43,7 +41,10 @@ async function handleOpenAttachment(item: AttachmentItem) {
     fileName.endsWith(".markdown") ||
     fileName.endsWith(".txt");
 
-  // md/txt는 API로 열기
+  const isPdf =
+    item.mimeType === "application/pdf" || fileName.endsWith(".pdf");
+
+  // md/txt는 기존 API로 열기
   if (isText && item.publicUrl) {
     window.open(
       `/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`,
@@ -53,7 +54,6 @@ async function handleOpenAttachment(item: AttachmentItem) {
     return;
   }
 
-  // pdf/image는 signedUrl로 열기
   const { data, error } = await supabase.storage
     .from(item.bucket)
     .createSignedUrl(item.path, 60 * 10);
@@ -63,6 +63,31 @@ async function handleOpenAttachment(item: AttachmentItem) {
     return;
   }
 
+  // PDF는 직접 열지 않고 PDF.js 뷰어 페이지로 이동
+  if (isPdf) {
+    const { data, error } = await supabase.storage
+      .from(item.bucket)
+      .createSignedUrl(item.path, 60 * 10);
+
+    if (error || !data?.signedUrl) {
+      alert("PDF를 열 수 없습니다.");
+      return;
+    }
+
+    const proxyUrl = `${window.location.origin}/api/attachments/view?type=pdf&url=${encodeURIComponent(
+      data.signedUrl,
+    )}`;
+
+    window.open(
+      `/pdf-viewer?url=${encodeURIComponent(proxyUrl)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+
+    return;
+  }
+
+  // 이미지 등 나머지는 기존 방식 유지
   window.open(data.signedUrl, "_blank", "noopener,noreferrer");
 }
 
@@ -70,57 +95,40 @@ function AttachmentCard({ item }: { item: AttachmentItem }) {
   const isImage = item.mimeType.startsWith("image/");
 
   return (
-    <div
-      className="rounded-2xl border p-4"
-      style={{
-        background: "var(--bg-elev-1)",
-        borderColor: "var(--border-soft)",
-      }}
-    >
+    <div className="rounded-2xl border p-4">
       <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-[color:var(--border-soft)] px-2 py-1 text-xs text-[var(--text-5)]">
-            {isImage ? "이미지" : "첨부파일"}
-          </span>
-          <span className="text-xs text-[var(--text-4)]">
-            {formatBytes(item.size)}
-          </span>
-        </div>
+        {isImage ? "이미지" : "첨부파일"} · {formatBytes(item.size)}
+      </div>
 
-        <div className="break-all text-sm font-medium text-[var(--text-1)]">
-          {item.name}
-        </div>
+      <div className="break-all text-sm font-medium text-[var(--text-1)]">
+        {item.name}
+      </div>
+      <div className="break-all text-xs text-[var(--text-4)]">{item.path}</div>
 
-        <div className="break-all text-xs text-[var(--text-4)]">
-          {item.path}
-        </div>
-
+      <div className="mt-3">
         {item.publicUrl ? (
           isImage ? (
-            <div className="space-y-2">
-              <img
-                src={item.publicUrl}
-                alt={item.name}
-                className="max-h-96 rounded-xl border border-[color:var(--border-soft)] object-contain"
-              />
-              <a
-                href={`/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-block text-xs underline underline-offset-2"
-              >
-                원본 열기
-              </a>
-            </div>
+            <a
+              href={item.publicUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block text-xs underline underline-offset-2"
+            >
+              원본 열기
+            </a>
           ) : (
-            <button type="button" onClick={() => handleOpenAttachment(item)}>
+            <button
+              type="button"
+              onClick={() => void handleOpenAttachment(item)}
+              className="inline-block text-xs underline underline-offset-2"
+            >
               파일 열기
             </button>
           )
         ) : (
-          <div className="text-xs text-[var(--text-4)]">
+          <span className="text-xs text-[var(--text-4)]">
             파일 URL을 불러올 수 없습니다.
-          </div>
+          </span>
         )}
       </div>
     </div>
@@ -133,39 +141,26 @@ function LinkCard({ item }: { item: LinkPreviewItem }) {
       href={item.url}
       target="_blank"
       rel="noreferrer"
-      className="block rounded-2xl border p-4"
-      style={{
-        background: "var(--bg-elev-1)",
-        borderColor: "var(--border-soft)",
-      }}
+      className="block rounded-lg border border-slate-200 bg-white p-3 hover:border-indigo-300"
     >
-      <div className="flex flex-col gap-3 md:flex-row">
-        {item.image ? (
-          <img
-            src={item.image}
-            alt={item.title}
-            className="h-32 w-full rounded-xl border object-cover md:w-48"
-            style={{ borderColor: "var(--border-soft)" }}
-          />
-        ) : null}
+      {item.image ? (
+        <img
+          src={item.image}
+          alt=""
+          className="mb-3 max-h-48 w-full rounded-md object-cover"
+        />
+      ) : null}
 
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="break-words text-sm font-medium text-[var(--text-1)]">
-            {item.title}
-          </div>
+      <div className="font-semibold text-slate-900">{item.title}</div>
 
-          {item.description ? (
-            <div className="break-words text-sm text-[var(--text-3)]">
-              {item.description}
-            </div>
-          ) : null}
+      {item.description ? (
+        <p className="mt-1 text-sm text-slate-600">{item.description}</p>
+      ) : null}
 
-          <div className="break-all text-xs text-[var(--text-4)]">
-            {item.siteName ? `${item.siteName} · ` : ""}
-            {item.url}
-          </div>
-        </div>
-      </div>
+      <p className="mt-2 break-all text-xs text-slate-400">
+        {item.siteName ? `${item.siteName} · ` : ""}
+        {item.url}
+      </p>
     </a>
   );
 }
@@ -177,6 +172,7 @@ export default function LogContentRenderer({
   links,
 }: Props) {
   const { t } = useI18n();
+
   if (!content) return null;
 
   const parts: ReactNode[] = [];
@@ -190,19 +186,16 @@ export default function LogContentRenderer({
     const end = start + fullMatch.length;
 
     const textBefore = content.slice(lastIndex, start);
+
     if (textBefore) {
-      parts.push(
-        <TextBlock key={`text-${lastIndex}-${start}`} text={textBefore} />,
-      );
+      parts.push(<TextBlock key={`text-${lastIndex}`} text={textBefore} />);
     }
 
     if (tokenType === "table") {
       const table = tableData?.tables?.[tokenId];
 
       if (table) {
-        parts.push(
-          <LogTable key={`table-${tokenId}-${start}`} table={table} />,
-        );
+        parts.push(<LogTable key={`table-${tokenId}`} table={table} />);
       } else {
         void logError({
           category: "editor",
@@ -216,10 +209,7 @@ export default function LogContentRenderer({
         });
 
         parts.push(
-          <div
-            key={`missing-table-${tokenId}-${start}`}
-            className="my-3 rounded-md border border-dashed px-3 py-2 text-xs t6"
-          >
+          <div key={`missing-table-${tokenId}`}>
             {t("errors.table.notFound")}
           </div>,
         );
@@ -231,10 +221,7 @@ export default function LogContentRenderer({
 
       if (attachment) {
         parts.push(
-          <AttachmentCard
-            key={`attach-${tokenId}-${start}`}
-            item={attachment}
-          />,
+          <AttachmentCard key={`attach-${tokenId}`} item={attachment} />,
         );
       } else {
         void logError({
@@ -252,10 +239,7 @@ export default function LogContentRenderer({
         });
 
         parts.push(
-          <div
-            key={`missing-attach-${tokenId}-${start}`}
-            className="my-3 rounded-md border border-dashed px-3 py-2 text-xs t6"
-          >
+          <div key={`missing-attach-${tokenId}`}>
             {t("errors.attachment.notFound")}
           </div>,
         );
@@ -266,7 +250,7 @@ export default function LogContentRenderer({
       const link = links?.find((item) => item.id === tokenId);
 
       if (link) {
-        parts.push(<LinkCard key={`link-${tokenId}-${start}`} item={link} />);
+        parts.push(<LinkCard key={`link-${tokenId}`} item={link} />);
       } else {
         void logError({
           category: "editor",
@@ -283,10 +267,7 @@ export default function LogContentRenderer({
         });
 
         parts.push(
-          <div
-            key={`missing-link-${tokenId}-${start}`}
-            className="my-3 rounded-md border border-dashed px-3 py-2 text-xs t6"
-          >
+          <div key={`missing-link-${tokenId}`}>
             {t("errors.link.notFound")}
           </div>,
         );
@@ -297,8 +278,9 @@ export default function LogContentRenderer({
   }
 
   const rest = content.slice(lastIndex);
+
   if (rest) {
-    parts.push(<TextBlock key={`text-rest-${lastIndex}`} text={rest} />);
+    parts.push(<TextBlock key="text-rest" text={rest} />);
   }
 
   return <div className="space-y-4">{parts}</div>;

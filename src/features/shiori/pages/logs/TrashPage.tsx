@@ -12,7 +12,7 @@ import {
 } from "../../repo/trashRepo";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDateTime } from "@/shared/i18n/format";
-import { dbGetMyDeleteStatus } from "@/features/shiori/repo/AccountTrashRepo";
+import { dbGetMyDeleteStatus } from "../../repo/accountTrashRepo";
 
 export default function TrashPage() {
   const { isAuthed } = useSession();

@@ -30,6 +30,7 @@ import { AdminOnlyOutlet } from "./layout/AdminOnlyOutlet";
 import AdminHomePage from "@/features/shiori/admin/pages/AdminHomePage";
 import AdminDataPage from "@/features/shiori/admin/pages/AdminDataPage";
 import AdminErrorLogsPage from "@/features/shiori/admin/pages/AdminErrorLogsPage";
+import PdfViewerPage from "@/features/shiori/pages/PdfViewerPage";
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
         {/* ✅ 공개: 읽기 */}
         <Route path="/" element={<LogsPage />} />
         <Route path="/logs/:id" element={<LogDetailPage />} />
+        <Route path="/pdf-viewer" element={<PdfViewerPage />} />
 
         <Route path="/support" element={<SupportLayout />}>
           <Route index element={<SupportListPage />} />
