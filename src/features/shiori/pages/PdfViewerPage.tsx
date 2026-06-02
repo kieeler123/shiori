@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 
@@ -21,18 +21,24 @@ export default function PdfViewerPage() {
     return url;
   }, []);
 
-  const pageWidth = Math.min(
-    typeof window !== "undefined" ? window.innerWidth - 32 : 860,
-    860,
-  );
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [pageWidth, setPageWidth] = useState(860);
 
-  if (!fileUrl) {
-    return (
-      <main className="min-h-screen bg-app p-4 text-[var(--text-2)]">
-        {t("pdfViewer.missingUrl")}
-      </main>
-    );
-  }
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const updateWidth = () => {
+      setPageWidth(Math.min(el.clientWidth, 860));
+    };
+
+    updateWidth();
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <main className="min-h-screen bg-app p-3 text-[var(--text-2)]">
@@ -43,7 +49,7 @@ export default function PdfViewerPage() {
             : t("pdfViewer.loading")}
         </div>
 
-        <div className="overflow-x-auto">
+        <div ref={containerRef} className="overflow-x-auto">
           <Document
             file={fileUrl}
             loading={
@@ -71,9 +77,10 @@ export default function PdfViewerPage() {
               {Array.from({ length: numPages }, (_, index) => (
                 <div
                   key={index + 1}
-                  className="overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[var(--surface-3)]"
+                  className="overflow-x-auto overflow-y-visible rounded-xl border border-[var(--border-soft)] bg-[var(--surface-3)]"
                 >
                   <Page
+                    className="mx-auto"
                     pageNumber={index + 1}
                     width={pageWidth}
                     renderTextLayer={false}
