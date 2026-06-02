@@ -1,6 +1,6 @@
 2026-02-03
 
-🇯🇵 エラー解決記録エッセイ
+# 🇯🇵 エラー解決記録エッセイ
 
 今回の開発では、機能追加よりも「運用構造への移行」によって多くのエラーが発生した。
 これは単なるバグではなく、「設計レベルが一段上がった証拠」でもあった。
@@ -26,7 +26,7 @@ Provider を最上位に戻すことで解決した。
 “個人アプリ → 運用サービス” への構造進化の副作用だった。
 エラーを潰すたびに、アプリはより本番に近い形へと進化している。
 
-🇺🇸 Error Resolution Essay
+# 🇺🇸 Error Resolution Essay
 
 During this stage of development, errors occurred not because features were broken, but because the system structure evolved toward an operational service model.
 
@@ -47,7 +47,7 @@ Switching to a Soft Delete model using is_deleted allowed recovery and enabled t
 All errors encountered were side effects of transitioning from a “personal project” architecture to a “service-ready” architecture.
 Each resolved error pushed the application closer to production-level robustness.
 
-🇰🇷 에러 해결 에세이
+# 🇰🇷 에러 해결 에세이
 
 이번 개발 단계에서 발생한 에러들은 단순한 버그가 아니라,
 개인용 프로젝트에서 운영 가능한 서비스 구조로 올라가는 과정에서 나타난 구조적 충돌이었다.

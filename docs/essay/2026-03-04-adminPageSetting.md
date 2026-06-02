@@ -1,7 +1,8 @@
 2026-03-04
 
-✍️ 2️⃣ エッセイ形式
-🇯🇵 日本語
+# 🇯🇵 日本語
+
+## エッセイ形式
 
 今日は機能を増やした日というより、
 基準を整理した日だった。
@@ -21,7 +22,7 @@ source_date があればそれを使い、
 今日は「追加」ではなく
 「整理」と「統一」の日だった。
 
-🇺🇸 English
+# 🇺🇸 English
 
 Today was not about adding features,
 but about defining consistency.
@@ -40,7 +41,7 @@ sorting, display, and deduplication logic became unified.
 
 Today was about clarity and structure.
 
-🇰🇷 한국어
+# 🇰🇷 한국어
 
 오늘은 기능을 추가한 날이라기보다
 기준을 정리한 날이었다.

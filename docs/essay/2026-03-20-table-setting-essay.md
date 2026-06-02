@@ -1,7 +1,6 @@
 2026-03-20
 
-✍️ 2️⃣ 에세이 형식
-🇯🇵 日本語
+# 🇯🇵 日本語
 
 今回の開発では、学習ログの中にテーブルを自然に挿入できる機能を実装しました。
 単純にテーブルを描画するのではなく、[[table:1]] のようなトークンを本文に埋め込むことで、表示位置を柔軟に制御できる設計にしました。
@@ -12,7 +11,7 @@
 
 最終的には、i18n対応まで考慮し、将来的な多言語対応にも対応できる構造を整えました。
 
-🇺🇸 English
+# 🇺🇸 English
 
 In this implementation, I developed a system that allows users to insert tables directly within their learning logs.
 
@@ -24,7 +23,9 @@ I also built a TableEditor component that allows users to dynamically add and re
 
 Finally, I prepared the system for internationalization (i18n), making it ready for multilingual support in the future.
 
-🇰🇷 한국어
+# 🇰🇷 한국어
+
+## 에세이 형식
 
 이번 작업에서는 학습 로그 안에 표를 자연스럽게 삽입할 수 있는 기능을 구현했습니다.
 

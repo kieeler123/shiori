@@ -1,6 +1,6 @@
 2026-02-22
 
-🇯🇵 日本語（エッセイ）
+# 🇯🇵 日本語（エッセイ）
 
 今日は Shiori プロジェクトにおいて、データ移行と表示ロジックの整合性を中心に改善を行った。
 
@@ -20,7 +20,7 @@ source_date ?? created_at
 
 今日は新機能を大量に追加する日ではなく、データ構造の理解と設計の安定化に重点を置いた一日だった。
 
-🇺🇸 English (Essay)
+# 🇺🇸 English (Essay)
 
 Today’s work on the Shiori project focused on data migration consistency and display logic refinement.
 
@@ -46,7 +46,7 @@ Finally, I planned future enhancements such as search highlighting and AI-genera
 
 Rather than adding many new features, today was dedicated to stabilizing architecture and deepening understanding of data flow.
 
-🇰🇷 한국어 (에세이)
+# 🇰🇷 한국어 (에세이)
 
 오늘은 Shiori 프로젝트에서 데이터 이관과 표시 로직 정합성을 중심으로 작업을 진행했다.
 

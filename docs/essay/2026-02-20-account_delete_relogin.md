@@ -1,6 +1,6 @@
 2026-02-20
 
-🇯🇵 日本語（エッセイ）
+# 🇯🇵 日本語（エッセイ）
 
 今日は本来、ヘッダーとメインページのUI改善を行う予定だった。しかし、会員退会後の再ログイン時に削除データが復元されない問題を発見し、調査を進めるうちにデータベース構造と認証ポリシーまで確認することになった。
 
@@ -12,7 +12,7 @@
 
 結果として、機能追加よりも「システムがどの層で制御されているか」を深く理解できた一日だった。
 
-🇺🇸 English (Essay)
+# 🇺🇸 English (Essay)
 
 Today I originally planned to improve the header and main page UI. However, while testing account deletion and re-login behavior, I discovered that deleted data could not be restored correctly after logging back in.
 
@@ -24,7 +24,7 @@ Through this process, I clarified the separation between soft delete and hard de
 
 Although the original goal was UI improvement, the day ultimately deepened my understanding of authentication flow, database visibility rules, and system architecture layers.
 
-🇰🇷 한국어 (에세이)
+# 🇰🇷 한국어 (에세이)
 
 오늘은 원래 헤더와 메인 페이지 디자인을 수정하려고 했다. 그러나 회원 탈퇴 후 재로그인 시 삭제된 데이터가 복구되지 않는 문제를 발견하면서 작업 방향이 크게 바뀌었다.
 

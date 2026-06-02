@@ -1,6 +1,6 @@
 2026-03-21
 
-🇯🇵 일본어 (日本語)
+# 🇯🇵 日本語
 
 今日の作業は単なる機能実装ではなく、状態管理とUIの流れを深く理解する過程だった。
 最初は新規投稿ができない問題をDBやAPIの問題だと考えていたが、実際の原因はフロントエンドの状態管理にあった。
@@ -22,7 +22,7 @@ useEffectは強力だが、誤用するとバグの原因になる
 💡 Tip
 Reactでは「stateの流れ」を言語化できると、一気にレベルが上がります。
 
-🇺🇸 영어 (English)
+# 🇺🇸 English
 
 Today’s work was not just about implementing a feature, but about gaining a deeper understanding of state management and UI flow.
 At first, I suspected that the issue preventing new posts from being created was related to the database or API. However, the actual root cause was in the frontend state management.
@@ -44,7 +44,7 @@ This experience will serve as an important foundation for solving more complex s
 💡 Tip
 If you can clearly explain the flow of state, your debugging skills improve dramatically.
 
-🇰🇷 한국어
+# 🇰🇷 한국어
 
 오늘 작업은 단순한 기능 구현이 아니라 상태 관리와 UI 흐름을 깊이 이해하는 과정이었다.
 처음에는 새 글 작성이 되지 않는 문제를 DB나 API 문제로 의심했지만, 실제 원인은 프론트엔드 상태 관리에 있었다.

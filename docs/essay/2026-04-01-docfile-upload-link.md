@@ -1,6 +1,6 @@
 2026-04-01
 
-🇯🇵 日本語
+# 🇯🇵 日本語
 
 今日は添付ファイルとリンク機能を中心に、Shioriのコア構造を大きく進めた一日だった。
 単純なアップロード機能ではなく、content内にトークンとして埋め込み、それをレンダラーで再構築する設計を採用したことで、柔軟性と拡張性を両立する形になった。
@@ -11,7 +11,7 @@
 
 全体として、機能の完成度だけでなく、構造設計とエラー処理まで含めて一段レベルが上がったと感じる。
 
-🇺🇸 English
+# 🇺🇸 English
 
 Today was a significant step forward in building the core structure of Shiori, focusing on attachments and link handling.
 
@@ -23,7 +23,7 @@ Another important realization came from YouTube preview failures. It became clea
 
 Overall, today was not just about adding features, but about improving architecture, reliability, and long-term scalability.
 
-🇰🇷 한국어
+# 🇰🇷 한국어
 
 오늘은 첨부파일과 링크 기능을 중심으로 Shiori의 핵심 구조를 크게 발전시킨 하루였다.
 

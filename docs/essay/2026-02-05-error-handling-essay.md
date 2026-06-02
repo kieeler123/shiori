@@ -1,6 +1,8 @@
 🧠 Error Handling Essay — 2026-02-05
-🇯🇵 日本語
-■ 発生した現象
+
+# 🇯🇵 日本語
+
+## 発生した現象
 
 Support（顧客センター）の投稿を削除したが、
 Support専用のゴミ箱画面に表示されなかった。
@@ -13,14 +15,14 @@ Support専用のゴミ箱画面に表示されなかった。
 
 という状態だった。
 
-■ 表面上のエラー
+## 表面上のエラー
 
 Networkタブでは以下のエラーが出ていた：
 
 400 Bad Request
 column support_trash_v.deleted_by_nickname does not exist
 
-■ 最初に疑った原因
+## 最初に疑った原因
 
 RLSでブロックされている？
 
@@ -31,12 +33,11 @@ SELECT条件ミス？
 データ自体はDBに存在していたため、
 「表示ロジック側の問題」と判断。
 
-■ 実際の原因
+## 実際の原因
 
 support_trash_v ビューに存在しないカラム：
 
 deleted_by_nickname
-
 
 を SELECT していた。
 
@@ -44,7 +45,7 @@ deleted_by_nickname
 
 DB構造とフロントのクエリが一致していなかった
 
-■ なぜこの問題が起きたのか（構造的理由）
+## なぜこの問題が起きたのか（構造的理由）
 
 プロジェクトが拡張され、以下が分離された：
 
@@ -62,7 +63,7 @@ support用VIEWに存在しないカラムを参照
 👉 モジュール分離により
 “似ているが別構造のRepoが混在” する状態になっていた。
 
-■ どうやって原因を特定したか
+## どうやって原因を特定したか
 
 Networkタブ確認
 
@@ -70,18 +71,17 @@ SQLで直接確認
 
 select id, title, deleted_at, deleted_by from support_tickets where is_deleted = true;
 
-
 エラーメッセージとVIEW構造照合
 
 👉 コンソールではなくNetworkから特定できたのがポイント
 
-■ 解決方法
+## 解決方法
 
 SELECTから deleted_by_nickname を削除
 
 supportTrashRepoを分離して責務明確化
 
-■ 学んだこと
+## 学んだこと
 
 エラーは「機能ミス」ではなく「構造のズレ」
 
@@ -89,7 +89,7 @@ Repo分離は必ず構造差分が発生する
 
 Networkタブ確認が最短ルート
 
-■ 今後のルール
+## 今後のルール
 
 VIEW変更時はSELECT文字列必ず確認
 
@@ -97,19 +97,18 @@ Repo共通化しすぎない（責務分離）
 
 「表示されない」はRLSより先にクエリ確認
 
-🇺🇸 English
+# 🇺🇸 English
 
 I deleted a support ticket, but it did not appear in the Support Trash page.
 The deletion was successful in the database, but the UI failed to display it.
 
-Network tab showed:
+## Network tab showed:
 
 column support_trash_v.deleted_by_nickname does not exist
 
-
 The frontend query was selecting a column that did not exist in the view.
 
-This happened because:
+## This happened because:
 
 trashRepo and supportTrashRepo were separated
 
@@ -117,18 +116,19 @@ But the SELECT structure from logs was reused
 
 👉 Structural mismatch caused by module separation.
 
-Fix:
+## Fix:
 
 Removed non-existent column from SELECT
 
 Separated support trash repo responsibilities
 
-Lesson:
+## Lesson:
 
 Errors reveal structural boundaries.
 
-🇰🇷 한국어
-■ 발생 현상
+# 🇰🇷 한국어
+
+## 발생 현상
 
 고객센터 글을 삭제했지만
 고객센터 휴지통 화면에 보이지 않았다.
@@ -136,21 +136,21 @@ Errors reveal structural boundaries.
 DB에는 데이터가 있었고 삭제도 성공했지만,
 화면에만 나타나지 않는 상황이었다.
 
-■ 표면 에러
+## 표면 에러
+
 column support_trash_v.deleted_by_nickname does not exist
 
-■ 실제 원인
+## 실제 원인
 
 존재하지 않는 컬럼을 SELECT 하고 있었다.
 
 deleted_by_nickname
 
-
 즉,
 
 프론트의 쿼리 구조와 DB View 구조가 불일치
 
-■ 왜 이런 일이 생겼는가
+## 왜 이런 일이 생겼는가
 
 프로젝트가 커지면서:
 
@@ -165,13 +165,13 @@ deleted_by_nickname
 
 👉 모듈 분리로 인해 구조 동기화 실패
 
-■ 해결
+## 해결
 
 잘못된 컬럼 제거
 
 support 전용 trash repo 분리 정리
 
-■ 배운 점
+## 배운 점
 
 이건 단순 버그가 아니라:
 

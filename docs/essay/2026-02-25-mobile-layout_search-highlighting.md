@@ -1,7 +1,8 @@
 2026-02-25
 
-🇯🇵 日本語 (Japanese)
-② エッセイ形式
+# 🇯🇵 日本語 (Japanese)
+
+## エッセイ形式
 
 今日は Shiori のモバイルUXを中心に大きな構造改善を行った。
 単なるレスポンシブ対応ではなく、ヘッダーの役割そのものを見直し、検索を独立UIではなく「モード切替」として設計し直した。
@@ -11,8 +12,9 @@ ThemeSelect を Compact 化し、デスクトップとモバイルで異なる�
 また、検索ハイライトをテーマごとに色分離することで、Shiori 全体の一貫したデザイン思想が明確になった。
 今日は見た目の調整に見えて、実際には「UI構造の基盤」を作った一日だった。
 
-🇺🇸 English
-② Essay Format
+# 🇺🇸 English
+
+## Essay Format
 
 Today’s work focused on restructuring the mobile experience of Shiori.
 Rather than applying simple responsive styling, I redesigned the role of the header itself and transformed search into a full UI mode instead of a separate element.
@@ -22,8 +24,9 @@ By compacting the theme selector into a unified component, both desktop and mobi
 Introducing theme-based highlight colors also strengthened visual consistency across the application.
 Although it looked like UI polishing, today was fundamentally about building a scalable UI foundation.
 
-🇰🇷 한국어 (Korean)
-② 에세이 형식
+# 🇰🇷 한국어 (Korean)
+
+## 에세이 형식
 
 오늘은 Shiori의 모바일 UX 구조를 중심으로 큰 개선을 진행했다.
 단순한 반응형 대응이 아니라, 헤더 자체의 역할을 다시 정의하고 검색을 독립 요소가 아닌 UI 모드 전환 방식으로 재설계했다.

@@ -1,6 +1,6 @@
 2026-02-09
 
-🇯🇵 日本語
+# 🇯🇵 日本語
 
 今日は単なるデザイン修正ではなく、
 UIと構造を同時に整理した一日だった。
@@ -12,7 +12,7 @@ UIと構造を同時に整理した一日だった。
 今回は Page → Surface → Outlet という階層を定義し、
 再利用可能な構造へ整理した。
 
-これにより、
+## これにより、
 
 UIの一貫性が向上
 
@@ -25,7 +25,7 @@ UIの一貫性が向上
 単なる「見た目修正」ではなく、
 UI設計とルーティング設計を統合した構造改善だったと言える。
 
-🇺🇸 English
+# 🇺🇸 English
 
 Today was not just about visual adjustments.
 
@@ -35,11 +35,12 @@ By introducing SupportLayout,
 the support section gained a clear hierarchy and responsibility separation.
 
 Previously, each page handled its own layout.
-Now, the structure follows:
+
+## Now, the structure follows:
 
 Page → Surface → Outlet
 
-This improved:
+## This improved:
 
 UI consistency
 
@@ -50,21 +51,22 @@ Scalability for future expansion
 This was not cosmetic work.
 It was architectural refinement at the layout level.
 
-🇰🇷 한국어
+# 🇰🇷 한국어
 
 오늘은 단순한 디자인 수정이 아니었다.
 
 SupportLayout을 도입하면서
 고객센터 영역을 구조적으로 재설계했다.
 
-기존에는 페이지마다 레이아웃을 따로 관리했다면,
+## 기존에는 페이지마다 레이아웃을 따로 관리했다면,
+
 이제는
 
 Page → Surface → Outlet
 
 계층 구조로 정리했다.
 
-그 결과
+## 그 결과
 
 UI 일관성 증가
 

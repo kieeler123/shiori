@@ -1,7 +1,6 @@
 2026-03-19
 
-✍️ 📌 에세이 형식
-🇯🇵 日本語
+# 🇯🇵 日本語
 
 詳細ページの下部に、同一作者の投稿を表示する機能を実装した。
 このセクションでは、最新順と人気順を切り替えられるようにし、最大5件まで表示する構造とした。
@@ -18,7 +17,7 @@
 この経験から、フィルタは一律に適用するものではなく、
 UIの目的やデータ量に応じて調整すべきであることを理解した。
 
-🇺🇸 English
+# 🇺🇸 English
 
 I implemented a section under the log detail page to display other posts by the same author.
 The section supports sorting by recent and views, and displays up to five items.
@@ -34,7 +33,9 @@ The root cause was applying a strict filter designed for the main list to a smal
 From this, I learned that filtering strategies should be adjusted based on context,
 especially when dealing with limited datasets.
 
-🇰🇷 한국어
+# 🇰🇷 한국어
+
+## 에세이 형식
 
 상세페이지 하단에 같은 작성자의 글을 보여주는 기능을 구현했다.
 이 섹션은 최신순과 인기순으로 정렬할 수 있으며, 최대 5개의 글을 표시하도록 구성했다.

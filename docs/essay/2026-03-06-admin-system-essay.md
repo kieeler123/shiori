@@ -1,6 +1,6 @@
 2026-03-06
 
-🇯🇵 日本語
+# 🇯🇵 日本語
 
 今日の作業では、単なる UI ページではなく
 Shiori の モデレーション管理の基礎構造を作ることができた。
@@ -21,7 +21,7 @@ AIモデレーション
 また、Admin UI も Theme Token System を利用することで、
 プラットフォーム全体のデザイン一貫性を維持できる構造になった。
 
-🇺🇸 English
+# 🇺🇸 English
 
 Today's work focused on building the foundation of Shiori's moderation management system rather than simply adding another UI page.
 
@@ -37,7 +37,7 @@ moderation analytics
 
 Additionally, the admin UI was integrated into the platform's theme token system, ensuring design consistency across the entire application.
 
-🇰🇷 한국어
+# 🇰🇷 한국어
 
 오늘 작업은 단순히 관리자 페이지 UI를 만든 것이 아니라
 Shiori 플랫폼의 관리 및 Moderation 구조의 기초를 만든 작업이었다.
