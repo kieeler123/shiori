@@ -8,7 +8,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 export default function PdfViewerPage() {
   const [numPages, setNumPages] = useState<number>(0);
-  const [pageNumber, setPageNumber] = useState(1);
 
   const fileUrl = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
@@ -23,46 +22,35 @@ export default function PdfViewerPage() {
     return url;
   }, []);
 
-  Array.from({ length: numPages }, (_, i) => (
-    <Page key={i + 1} pageNumber={i + 1} />
-  ));
+  const pageWidth = Math.min(
+    typeof window !== "undefined" ? window.innerWidth - 32 : 860,
+    860,
+  );
+
+  if (!fileUrl) {
+    return (
+      <main className="min-h-screen bg-background p-4 text-foreground">
+        PDF 주소가 없습니다.
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-neutral-100 p-3">
-      <div className="mx-auto max-w-4xl rounded-xl bg-white p-3 shadow">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <button
-            type="button"
-            disabled={pageNumber <= 1}
-            onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))}
-            className="rounded border px-3 py-2 disabled:opacity-40"
-          >
-            이전
-          </button>
-
-          <span className="text-sm">
-            {pageNumber} / {numPages || "-"}
-          </span>
-
-          <button
-            type="button"
-            disabled={numPages > 0 && pageNumber >= numPages}
-            onClick={() =>
-              setPageNumber((prev) =>
-                numPages ? Math.min(numPages, prev + 1) : prev,
-              )
-            }
-            className="rounded border px-3 py-2 disabled:opacity-40"
-          >
-            다음
-          </button>
+    <main className="min-h-screen bg-background p-3 text-foreground">
+      <div className="mx-auto max-w-4xl rounded-xl border bg-card p-3 shadow-sm">
+        <div className="mb-3 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
+          {numPages > 0 ? `총 ${numPages}페이지` : "PDF 불러오는 중..."}
         </div>
 
         <div className="overflow-x-auto">
           <Document
             file={fileUrl}
-            loading={<div>PDF 불러오는 중...</div>}
-            error={<div>PDF를 불러오지 못했습니다.</div>}
+            loading={<div className="p-4 text-sm">PDF 불러오는 중...</div>}
+            error={
+              <div className="p-4 text-sm text-destructive">
+                PDF를 불러오지 못했습니다.
+              </div>
+            }
             onLoadError={(error) => {
               console.error("PDF load error:", error);
               console.log("fileUrl:", fileUrl);
@@ -72,18 +60,31 @@ export default function PdfViewerPage() {
             }}
             onLoadSuccess={({ numPages }) => {
               setNumPages(numPages);
-              setPageNumber(1);
             }}
           >
-            <Page
-              pageNumber={pageNumber}
-              width={Math.min(window.innerWidth - 40, 860)}
-              onLoadError={(error) => {
-                console.error("PDF page load error:", error);
-              }}
-              renderTextLayer={false}
-              renderAnnotationLayer={false}
-            />
+            <div className="space-y-4">
+              {Array.from({ length: numPages }, (_, index) => (
+                <div
+                  key={index + 1}
+                  className="overflow-hidden rounded-lg border bg-background"
+                >
+                  <Page
+                    pageNumber={index + 1}
+                    width={pageWidth}
+                    renderTextLayer={false}
+                    renderAnnotationLayer={false}
+                    loading={
+                      <div className="p-4 text-sm">
+                        {index + 1}페이지 불러오는 중...
+                      </div>
+                    }
+                    onLoadError={(error) => {
+                      console.error("PDF page load error:", error);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
           </Document>
         </div>
       </div>
