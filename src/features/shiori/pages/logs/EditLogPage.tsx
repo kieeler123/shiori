@@ -139,6 +139,7 @@ export default function EditLogPage() {
 
       <div className="mt-6">
         <LogEditor
+          logId={id}
           key={item.id}
           syncKey={item.id}
           initialTitle={item.title}

@@ -271,10 +271,11 @@ export default function LogDetailPage() {
         {/* Content */}
         <SurfaceCard tone="soft" className="mt-5 p-5">
           <LogContentRenderer
+            logId={item.id}
             content={item.content ?? ""}
             tableData={item.table_data ?? null}
-            attachments={(item as any).attachments ?? []}
-            links={(item as any).links ?? []}
+            attachments={item.attachments ?? []}
+            links={item.links ?? []}
           />
         </SurfaceCard>
 

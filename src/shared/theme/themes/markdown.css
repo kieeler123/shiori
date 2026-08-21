@@ -1,0 +1,270 @@
+.markdown-viewer {
+  color: var(--text-2);
+  font-size: 1rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.markdown-viewer > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-viewer > *:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-viewer h1,
+.markdown-viewer h2,
+.markdown-viewer h3,
+.markdown-viewer h4,
+.markdown-viewer h5,
+.markdown-viewer h6 {
+  color: var(--text-1);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.markdown-viewer h1 {
+  margin: 2rem 0 1rem;
+  font-size: 2rem;
+}
+
+.markdown-viewer h2 {
+  margin: 1.8rem 0 0.9rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 1.5rem;
+}
+
+.markdown-viewer h3 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
+.markdown-viewer p {
+  margin: 0.8rem 0;
+}
+
+.markdown-viewer strong {
+  color: var(--text-1);
+  font-weight: 700;
+}
+
+.markdown-viewer a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.markdown-viewer ul,
+.markdown-viewer ol {
+  margin: 0.9rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-viewer li {
+  margin: 0.3rem 0;
+}
+
+.markdown-viewer blockquote {
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 0.8rem 0.8rem 0;
+  background: var(--bg-elev-1);
+  color: var(--text-3);
+}
+
+.markdown-viewer code {
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.4rem;
+  background: var(--bg-elev-2);
+  color: var(--text-1);
+  font-size: 0.9em;
+}
+
+.markdown-viewer pre {
+  margin: 1rem 0;
+  overflow-x: auto;
+  padding: 1rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 0.8rem;
+  background: var(--bg-elev-2);
+}
+
+.markdown-viewer pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.markdown-viewer hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.markdown-viewer img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem auto;
+  border-radius: 0.75rem;
+}
+
+.markdown-viewer table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+}
+
+.markdown-viewer th,
+.markdown-viewer td {
+  border: 1px solid var(--border-soft);
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+}
+
+.markdown-viewer th {
+  background: var(--bg-elev-1);
+  color: var(--text-1);
+}
+
+.markdown-viewer td {
+  color: var(--text-2);
+}
+
+@media (max-width: 640px) {
+  .markdown-viewer {
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
+  .markdown-viewer h1 {
+    font-size: 1.65rem;
+  }
+
+  .markdown-viewer h2 {
+    font-size: 1.35rem;
+  }
+
+  .markdown-viewer h3 {
+    font-size: 1.15rem;
+  }
+
+  .markdown-viewer table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+.attachment-image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.attachment-image-grid img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.75rem;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 14mm;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* PDF에 넣지 않을 UI */
+  .no-print,
+  .markdown-viewer-toolbar {
+    display: none !important;
+  }
+
+  /*
+   * 페이지 전체를 인쇄하지 않고
+   * markdown-print-root만 출력
+   */
+  body * {
+    visibility: hidden;
+  }
+
+  .markdown-print-root,
+  .markdown-print-root * {
+    visibility: visible;
+  }
+
+  .markdown-print-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #fff !important;
+  }
+
+  .markdown-viewer {
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    color: #111 !important;
+    background: #fff !important;
+
+    font-size: 10.5pt;
+    line-height: 1.65;
+  }
+
+  .markdown-viewer img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+
+  .markdown-viewer h1 {
+    font-size: 22pt;
+  }
+
+  .markdown-viewer h2 {
+    font-size: 17pt;
+  }
+
+  .markdown-viewer h3 {
+    font-size: 13pt;
+  }
+
+  .markdown-viewer pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .markdown-viewer table {
+    width: 100%;
+  }
+}
+
+.react-pdf__Page {
+  max-width: 100%;
+}
+
+.react-pdf__Page__canvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+}

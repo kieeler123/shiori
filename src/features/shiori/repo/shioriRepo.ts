@@ -20,9 +20,9 @@ export const TABLE_BASE = "shiori_items";
 const SELECT_LIST =
   "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count, source_date, display_date, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted ), attachments, links";
 
-const SELECT_DETAIL =
-  "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count, source_date, display_date, table_data, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted ), attachments, links";
-
+export const SELECT_DETAIL = `
+  id, user_id, title, content, tags, table_data, attachments, links, created_at, updated_at
+`;
 export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
   const {
     limit = 10,

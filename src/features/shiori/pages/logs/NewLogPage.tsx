@@ -11,9 +11,22 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { logError } from "@/shared/error/logError";
 import { toastError } from "@/shared/error/toastError";
 
+import type {
+  AttachmentItem,
+  LinkPreviewItem,
+  TableData,
+} from "@/features/shiori/type";
+
 type Toast = { kind: "ok" | "warn" | "error"; text: string } | null;
 
-type EditorSubmitValue = { title: string; content: string; tags: string[] };
+type EditorSubmitValue = {
+  title: string;
+  content: string;
+  tags: string[];
+  table_data?: TableData | null;
+  attachments?: AttachmentItem[];
+  links?: LinkPreviewItem[];
+};
 
 const UNDO_MS = 5000;
 

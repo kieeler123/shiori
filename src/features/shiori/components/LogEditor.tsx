@@ -11,18 +11,16 @@ import { useMemo, useRef, useState } from "react";
 import { normalizeTagsText } from "../domain/validators/LogValidator";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import TableEditor from "./TableEditor";
-import type { LinkPreviewItem, SingleTable, TableData } from "../type";
-import AttachmentEditor from "./AttachmentEditor";
 import LinkEditor from "./LinkEditor";
+import AttachmentEditor from "./AttachmentEditor";
+import MarkdownImportButton from "./MarkdownImportButton";
 
-type AttachmentItem = {
-  id: string;
-  path: string;
-  name: string;
-  mimeType: string;
-  size: number;
-  bucket: string;
-};
+import type {
+  AttachmentItem,
+  LinkPreviewItem,
+  SingleTable,
+  TableData,
+} from "../type";
 
 type SubmitValue = {
   title: string;
@@ -45,6 +43,7 @@ type Props = {
   onClick?: () => void;
   initialLinks?: LinkPreviewItem[];
   initialAttachments?: AttachmentItem[];
+  logId?: string;
 };
 
 function createDefaultTable(): SingleTable {
@@ -75,6 +74,7 @@ export default function LogEditor({
   onSubmit,
   onCancel,
   initialLinks = [],
+  logId,
 }: Props) {
   const { t } = useI18n();
 
@@ -224,6 +224,12 @@ export default function LogEditor({
           className={fieldControl}
         />
 
+        <MarkdownImportButton
+          setAttachments={setAttachments}
+          onImportMarkdown={setContent}
+          disabled={isSubmitting}
+        />
+
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -255,6 +261,7 @@ export default function LogEditor({
         <TableEditor tableData={tableData} setTableData={setTableData} />
 
         <AttachmentEditor
+          logId={logId}
           attachments={attachments}
           setAttachments={setAttachments}
           onInsertToContent={handleInsertAttachmentToken}

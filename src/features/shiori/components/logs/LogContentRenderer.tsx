@@ -5,18 +5,34 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { logError } from "@/shared/error/logError";
 import { supabase } from "@/lib/supabaseClient";
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+
+import { useNavigate } from "react-router-dom";
+import type { NavigateFunction } from "react-router-dom";
+import { getAttachmentViewerPath } from "@/features/attatchments/lib/getAttachmentViewerPath";
+
 type Props = {
+  logId: string;
   content: string;
   tableData?: TableData | null;
-  attachments?: AttachmentItem[] | null;
-  links?: LinkPreviewItem[] | null;
+  attachments?: AttachmentItem[];
+  links?: LinkPreviewItem[];
 };
 
 const TOKEN_REGEX = /\[\[(table|attach|link):([^\]]+)\]\]/g;
 
 function TextBlock({ text }: { text: string }) {
-  if (!text) return null;
-  return <p className="whitespace-pre-wrap">{text}</p>;
+  if (!text.trim()) return null;
+
+  return (
+    <div className="markdown-viewer">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+        {text}
+      </ReactMarkdown>
+    </div>
+  );
 }
 
 function formatBytes(bytes: number) {
@@ -34,25 +50,14 @@ function formatBytes(bytes: number) {
 
 async function handleOpenAttachment(
   item: AttachmentItem,
+  logId: string,
+  navigate: ReturnType<typeof useNavigate>,
   t: (key: string) => string,
 ) {
-  const fileName = item.name.toLowerCase();
+  const viewerPath = getAttachmentViewerPath(item, logId);
 
-  const isText =
-    item.mimeType.startsWith("text/") ||
-    fileName.endsWith(".md") ||
-    fileName.endsWith(".markdown") ||
-    fileName.endsWith(".txt");
-
-  const isPdf =
-    item.mimeType === "application/pdf" || fileName.endsWith(".pdf");
-
-  if (isText && item.publicUrl) {
-    window.open(
-      `/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+  if (viewerPath) {
+    navigate(viewerPath);
     return;
   }
 
@@ -65,37 +70,46 @@ async function handleOpenAttachment(
     return;
   }
 
-  if (isPdf) {
-    const proxyUrl = `${window.location.origin}/api/attachments/view?type=pdf&url=${encodeURIComponent(
-      data.signedUrl,
-    )}`;
-
-    window.open(
-      `/pdf-viewer?url=${encodeURIComponent(proxyUrl)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
-
-    return;
-  }
-
   window.open(data.signedUrl, "_blank", "noopener,noreferrer");
 }
 
 function AttachmentCard({
   item,
+  logId,
+  navigate,
   t,
 }: {
   item: AttachmentItem;
+  logId: string;
+  navigate: ReturnType<typeof useNavigate>;
   t: (key: string) => string;
 }) {
   const isImage = item.mimeType.startsWith("image/");
 
+  if (isImage && item.publicUrl) {
+    return (
+      <div className="w-full">
+        <a
+          href={item.publicUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="block"
+        >
+          <img
+            src={item.publicUrl}
+            alt={item.name}
+            className="h-auto w-full max-w-full rounded-xl object-contain"
+            loading="lazy"
+          />
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-elev-1)] p-4">
       <div className="text-xs text-[var(--text-5)]">
-        {isImage ? t("attachments.image") : t("attachments.file")} ·{" "}
-        {formatBytes(item.size)}
+        {t("attachments.file")} · {formatBytes(item.size)}
       </div>
 
       <div className="mt-2 break-all text-sm font-medium text-[var(--text-1)]">
@@ -107,30 +121,13 @@ function AttachmentCard({
       </div>
 
       <div className="mt-3">
-        {item.publicUrl ? (
-          isImage ? (
-            <a
-              href={item.publicUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-block text-xs text-[var(--btn-ghost-fg)] underline underline-offset-2 hover:text-[var(--btn-ghost-hover-fg)]"
-            >
-              {t("attachments.openOriginal")}
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void handleOpenAttachment(item, t)}
-              className="inline-block text-xs text-[var(--btn-ghost-fg)] underline underline-offset-2 hover:text-[var(--btn-ghost-hover-fg)]"
-            >
-              {t("attachments.openFile")}
-            </button>
-          )
-        ) : (
-          <span className="text-xs text-[var(--text-5)]">
-            {t("attachments.urlUnavailable")}
-          </span>
-        )}
+        <button
+          type="button"
+          onClick={() => void handleOpenAttachment(item, logId, navigate, t)}
+          className="inline-block text-xs text-[var(--btn-ghost-fg)] underline underline-offset-2 hover:text-[var(--btn-ghost-hover-fg)]"
+        >
+          {t("attachments.openFile")}
+        </button>
       </div>
     </div>
   );
@@ -182,12 +179,14 @@ function LinkCard({ item }: { item: LinkPreviewItem }) {
 }
 
 export default function LogContentRenderer({
+  logId,
   content,
   tableData,
-  attachments,
-  links,
+  attachments = [],
+  links = [],
 }: Props) {
   const { t } = useI18n();
+  const navigate = useNavigate();
 
   if (!content) return null;
 
@@ -237,7 +236,13 @@ export default function LogContentRenderer({
 
       if (attachment) {
         parts.push(
-          <AttachmentCard key={`attach-${tokenId}`} item={attachment} t={t} />,
+          <AttachmentCard
+            key={`attach-${tokenId}`}
+            item={attachment}
+            logId={logId}
+            navigate={navigate}
+            t={t}
+          />,
         );
       } else {
         void logError({

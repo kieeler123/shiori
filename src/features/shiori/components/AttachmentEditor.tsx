@@ -3,11 +3,14 @@ import { chip, cancelBtn, fieldControl } from "@/shared/theme/editor";
 import { supabase } from "@/lib/supabaseClient";
 import type { AttachmentItem } from "../type";
 import { logError } from "@/shared/error/logError";
+import { useNavigate } from "react-router-dom";
+import { getAttachmentViewerPath } from "@/features/attatchments/lib/getAttachmentViewerPath";
 
 type Props = {
   attachments: AttachmentItem[];
   setAttachments: React.Dispatch<React.SetStateAction<AttachmentItem[]>>;
   onInsertToContent?: (attachmentId: string) => void;
+  logId?: string;
   bucketName?: string;
   disabled?: boolean;
 };
@@ -90,6 +93,7 @@ export default function AttachmentEditor({
   attachments,
   setAttachments,
   onInsertToContent,
+  logId,
   bucketName = "log-attachments",
   disabled = false,
 }: Props) {
@@ -98,6 +102,8 @@ export default function AttachmentEditor({
   const [dragging, setDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   const acceptAttr = useMemo(() => ACCEPTED_EXTENSIONS.join(","), []);
 
@@ -230,28 +236,16 @@ export default function AttachmentEditor({
   }
 
   async function handleOpenAttachment(item: AttachmentItem) {
-    const fileName = item.name.toLowerCase();
+    const viewerPath = getAttachmentViewerPath(item, logId);
 
-    const isText =
-      item.mimeType.startsWith("text/") ||
-      fileName.endsWith(".md") ||
-      fileName.endsWith(".markdown") ||
-      fileName.endsWith(".txt");
-
-    // md/txt는 API로 열기
-    if (isText && item.publicUrl) {
-      window.open(
-        `/api/attachments/view?url=${encodeURIComponent(item.publicUrl)}`,
-        "_blank",
-        "noopener,noreferrer",
-      );
+    if (viewerPath) {
+      navigate(viewerPath);
       return;
     }
 
-    // pdf/image는 signedUrl로 열기
     const { data, error } = await supabase.storage
       .from(item.bucket)
-      .createSignedUrl(item.path, 60 * 10);
+      .createSignedUrl(item.path, 60 * 30);
 
     if (error || !data?.signedUrl) {
       alert("첨부파일을 열 수 없습니다.");
