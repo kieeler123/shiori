@@ -10,7 +10,6 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 
 import { useNavigate } from "react-router-dom";
-import type { NavigateFunction } from "react-router-dom";
 import { getAttachmentViewerPath } from "@/features/attatchments/lib/getAttachmentViewerPath";
 
 type Props = {
