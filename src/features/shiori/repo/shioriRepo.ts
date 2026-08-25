@@ -21,7 +21,17 @@ const SELECT_LIST =
   "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count, source_date, display_date, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted ), attachments, links";
 
 export const SELECT_DETAIL = `
-  id, user_id, title, content, tags, table_data, attachments, links, created_at, updated_at
+  id,
+  user_id,
+  title,
+  content,
+  tags,
+  table_data,
+  attachments,
+  links,
+  source_filename,
+  created_at,
+  updated_at
 `;
 export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
   const {
@@ -83,6 +93,7 @@ export async function dbCreate(input: {
   table_data?: TableData | null;
   attachments?: AttachmentItem[];
   links?: LinkPreviewItem[] | null;
+  source_filename?: string | null;
 }): Promise<CreateResult> {
   try {
     const { data: auth } = await supabase.auth.getUser();
@@ -142,6 +153,7 @@ export async function dbCreate(input: {
         table_data: input.table_data ?? null,
         attachments: input.attachments ?? [],
         links: input.links ?? [],
+        source_filename: input.source_filename?.trim() || null,
       })
       .select("id")
       .single();
@@ -185,6 +197,7 @@ export async function dbUpdate(
     table_data?: TableData | null;
     attachments?: AttachmentItem[];
     links?: LinkPreviewItem[] | null;
+    source_filename?: string | null;
   },
 ): Promise<DbLogRow> {
   validateContentBlocks({
@@ -204,6 +217,7 @@ export async function dbUpdate(
         updated_at: new Date().toISOString(),
         attachments: input.attachments ?? [],
         links: input.links ?? [],
+        source_filename: input.source_filename?.trim() || null,
       })
       .eq("id", id);
 
@@ -228,4 +242,61 @@ export async function dbUpdate(
 
     throw e;
   }
+}
+
+function normalizeSourceFilename(filename: string) {
+  let value = filename;
+
+  try {
+    value = decodeURIComponent(value);
+  } catch {
+    // 그대로 사용
+  }
+
+  return value.normalize("NFC").trim();
+}
+
+export async function dbFindBySourceFilename(
+  filename: string,
+): Promise<Pick<DbLogRow, "id"> | null> {
+  const normalizedFilename = normalizeSourceFilename(filename);
+
+  console.log("[dbFindBySourceFilename]", {
+    input: filename,
+    normalized: normalizedFilename,
+  });
+
+  if (!normalizedFilename) {
+    return null;
+  }
+
+  const { data: auth } = await supabase.auth.getUser();
+
+  if (!auth.user) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from(TABLE_BASE)
+    .select("id, source_filename")
+    .eq("user_id", auth.user.id)
+    .eq("source_filename", normalizedFilename)
+    .eq("is_deleted", false)
+    .limit(1)
+    .maybeSingle();
+
+  console.log("[dbFindBySourceFilename] result", {
+    data,
+    error,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data?.id
+    ? {
+        id: data.id,
+      }
+    : null;
 }

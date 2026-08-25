@@ -1,34 +1,53 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSlug from "rehype-slug";
 
 import { supabase } from "@/lib/supabaseClient";
 import { PageSection } from "@/app/layout/PageSection";
 import { dbGet } from "@/features/shiori/repo/shioriRepo";
+
 import type { AttachmentItem } from "@/features/shiori/type";
 
 import "@/shared/theme/themes/markdown.css";
-import rehypeRaw from "rehype-raw";
 
 type ViewerState = {
   loading: boolean;
   error: string | null;
   markdown: string;
   attachment: AttachmentItem | null;
+  attachments: AttachmentItem[];
 };
 
 function handlePrint() {
   window.print();
 }
 
-function getFileNameFromPath(sourcePath: string) {
-  const normalized = decodeURIComponent(sourcePath)
+function safeDecodeURIComponent(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function normalizeFilename(value: string) {
+  return safeDecodeURIComponent(value)
     .replace(/\\/g, "/")
     .split("?")[0]
-    .split("#")[0];
+    .split("#")[0]
+    .normalize("NFC")
+    .trim()
+    .toLowerCase();
+}
 
-  return normalized.split("/").pop()?.toLowerCase() ?? "";
+function getFileNameFromPath(sourcePath: string) {
+  const normalized = normalizeFilename(sourcePath);
+
+  return normalized.split("/").pop() ?? "";
 }
 
 function findAttachmentBySourcePath(
@@ -42,10 +61,11 @@ function findAttachmentBySourcePath(
   }
 
   const matches = attachments.filter(
-    (item) => item.name.toLowerCase() === sourceFileName,
+    (item) =>
+      item.name.normalize("NFC").trim().toLowerCase() === sourceFileName,
   );
 
-  // 같은 이름의 파일이 하나일 때만 안전하게 사용
+  // 같은 이름의 첨부파일이 정확히 하나일 때만 이동
   if (matches.length !== 1) {
     return null;
   }
@@ -60,6 +80,43 @@ function isLocalAssetPath(src: string) {
     src.startsWith("//") ||
     src.startsWith("data:")
   );
+}
+
+function isMarkdownLink(href: string) {
+  const path = href.split("#")[0].split("?")[0].toLowerCase();
+
+  return path.endsWith(".md") || path.endsWith(".markdown");
+}
+
+function splitMarkdownLink(href: string) {
+  const hashIndex = href.indexOf("#");
+
+  if (hashIndex === -1) {
+    return {
+      sourcePath: safeDecodeURIComponent(href),
+      anchor: null,
+    };
+  }
+
+  return {
+    sourcePath: safeDecodeURIComponent(href.slice(0, hashIndex)),
+    anchor: safeDecodeURIComponent(href.slice(hashIndex + 1)),
+  };
+}
+
+function scrollToAnchor(anchor: string) {
+  if (!anchor) {
+    return;
+  }
+
+  const decodedAnchor = safeDecodeURIComponent(anchor);
+
+  requestAnimationFrame(() => {
+    document.getElementById(decodedAnchor)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
 }
 
 async function createAttachmentUrl(attachment: AttachmentItem) {
@@ -109,7 +166,7 @@ export async function resolveMarkdownAssets(
     const attachment = findAttachmentBySourcePath(sourcePath, attachments);
 
     if (!attachment) {
-      console.warn("Markdown asset attachment not found:", sourcePath);
+      console.warn("[MarkdownViewer] asset attachment not found:", sourcePath);
 
       continue;
     }
@@ -127,6 +184,8 @@ export async function resolveMarkdownAssets(
 }
 
 export default function MarkdownViewerPage() {
+  const navigate = useNavigate();
+
   const { logId, attachmentId } = useParams<{
     logId: string;
     attachmentId: string;
@@ -137,6 +196,7 @@ export default function MarkdownViewerPage() {
     error: null,
     markdown: "",
     attachment: null,
+    attachments: [],
   });
 
   useEffect(() => {
@@ -149,9 +209,17 @@ export default function MarkdownViewerPage() {
           error: "로그 또는 첨부파일 ID가 없습니다.",
           markdown: "",
           attachment: null,
+          attachments: [],
         });
+
         return;
       }
+
+      setState((prev) => ({
+        ...prev,
+        loading: true,
+        error: null,
+      }));
 
       try {
         const log = await dbGet(logId);
@@ -160,10 +228,10 @@ export default function MarkdownViewerPage() {
           throw new Error("로그를 찾을 수 없습니다.");
         }
 
+        const attachments = (log.attachments ?? []) as AttachmentItem[];
+
         const attachment =
-          log.attachments?.find(
-            (item: AttachmentItem) => item.id === attachmentId,
-          ) ?? null;
+          attachments.find((item) => item.id === attachmentId) ?? null;
 
         if (!attachment) {
           throw new Error("첨부파일을 찾을 수 없습니다.");
@@ -193,7 +261,7 @@ export default function MarkdownViewerPage() {
 
         const resolvedMarkdown = await resolveMarkdownAssets(
           markdown,
-          log.attachments ?? [],
+          attachments,
         );
 
         if (cancelled) {
@@ -205,9 +273,10 @@ export default function MarkdownViewerPage() {
           error: null,
           markdown: resolvedMarkdown,
           attachment,
+          attachments,
         });
       } catch (error) {
-        console.error("Markdown viewer load failed:", error);
+        console.error("[MarkdownViewer] load failed:", error);
 
         if (cancelled) {
           return;
@@ -221,6 +290,7 @@ export default function MarkdownViewerPage() {
               : "Markdown을 불러오는 중 오류가 발생했습니다.",
           markdown: "",
           attachment: null,
+          attachments: [],
         });
       }
     }
@@ -231,6 +301,28 @@ export default function MarkdownViewerPage() {
       cancelled = true;
     };
   }, [logId, attachmentId]);
+
+  // 다른 .md#anchor 로 이동한 뒤 DOM 생성 후 스크롤
+  useEffect(() => {
+    if (state.loading || state.error || !state.markdown) {
+      return;
+    }
+
+    const hash = window.location.hash;
+
+    if (!hash) {
+      return;
+    }
+
+    const anchor = safeDecodeURIComponent(hash.slice(1));
+
+    requestAnimationFrame(() => {
+      document.getElementById(anchor)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [state.loading, state.error, state.markdown, attachmentId]);
 
   if (state.loading) {
     return (
@@ -269,7 +361,125 @@ export default function MarkdownViewerPage() {
           <article className="markdown-viewer">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
+              rehypePlugins={[rehypeRaw, rehypeSlug]}
+              components={{
+                a: ({ href, children }) => {
+                  if (!href) {
+                    return <span>{children}</span>;
+                  }
+
+                  /*
+                   * 1. 현재 Markdown 파일 내부 anchor
+                   *
+                   * [표현 비교](#표현-비교)
+                   */
+                  if (href.startsWith("#")) {
+                    return (
+                      <a
+                        href={href}
+                        onClick={(event) => {
+                          event.preventDefault();
+
+                          const anchor = safeDecodeURIComponent(href.slice(1));
+
+                          scrollToAnchor(anchor);
+
+                          window.history.replaceState(
+                            null,
+                            "",
+                            `${window.location.pathname}${window.location.search}#${encodeURIComponent(anchor)}`,
+                          );
+                        }}
+                      >
+                        {children}
+                      </a>
+                    );
+                  }
+
+                  /*
+                   * 2. 같은 Log의 다른 Markdown 첨부파일
+                   *
+                   * GENERAL.md
+                   * JLPT.md
+                   * JLPT-ANSWER.md
+                   * GENERAL.md#표현-비교
+                   */
+                  if (isMarkdownLink(href)) {
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!logId) {
+                            return;
+                          }
+
+                          const { sourcePath, anchor } =
+                            splitMarkdownLink(href);
+
+                          const target = findAttachmentBySourcePath(
+                            sourcePath,
+                            state.attachments,
+                          );
+
+                          console.log("[MarkdownViewer] markdown link click", {
+                            href,
+                            sourcePath,
+                            anchor,
+                            target,
+                          });
+
+                          if (!target) {
+                            console.error(
+                              "[MarkdownViewer] target attachment not found:",
+                              sourcePath,
+                              state.attachments.map((item) => ({
+                                id: item.id,
+                                name: item.name,
+                              })),
+                            );
+
+                            return;
+                          }
+
+                          const basePath =
+                            `/logs/${logId}` +
+                            `/attachments/${target.id}` +
+                            `/markdown`;
+
+                          const nextPath = anchor
+                            ? `${basePath}#${encodeURIComponent(anchor)}`
+                            : basePath;
+
+                          console.log("[MarkdownViewer] navigate:", nextPath);
+
+                          navigate(nextPath);
+                        }}
+                        className="
+                          cursor-pointer
+                          border-0
+                          bg-transparent
+                          p-0
+                          font-inherit
+                          text-[var(--accent)]
+                          underline
+                          underline-offset-4
+                        "
+                      >
+                        {children}
+                      </button>
+                    );
+                  }
+
+                  /*
+                   * 3. 외부 링크
+                   */
+                  return (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {children}
+                    </a>
+                  );
+                },
+              }}
             >
               {state.markdown}
             </ReactMarkdown>

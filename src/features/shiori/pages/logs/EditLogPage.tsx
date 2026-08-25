@@ -27,6 +27,7 @@ type EditorSubmitValue = {
   table_data?: TableData | null;
   attachments?: AttachmentItem[];
   links?: LinkPreviewItem[];
+  source_filename?: string | null;
 };
 
 export default function EditLogPage() {
@@ -71,6 +72,7 @@ export default function EditLogPage() {
         table_data: v.table_data ?? null,
         attachments: v.attachments ?? [],
         links: v.links ?? [],
+        source_filename: v.source_filename ?? null,
       });
 
       setItem(updated);
@@ -146,8 +148,9 @@ export default function EditLogPage() {
           initialContent={item.content}
           initialTags={Array.isArray(item.tags) ? item.tags : []}
           initialTableData={item.table_data ?? null}
-          initialAttachments={item?.attachments ?? []}
-          initialLinks={item?.links ?? []}
+          initialAttachments={item.attachments ?? []}
+          initialLinks={item.links ?? []}
+          initialSourceFilename={item.source_filename ?? null}
           submitLabel={busy ? t("common.processing") : t("logs.edit.save")}
           onCancel={() => nav(`/logs/${item.id}`)}
           onSubmit={onSubmit}

@@ -2,9 +2,14 @@ import { useRef, useState } from "react";
 import type { AttachmentItem } from "../type";
 import { importMarkdownAssets } from "@/features/attatchments/lib/markdownAssetImporter";
 
+type MarkdownImportResult = {
+  markdown: string;
+  filename: string;
+};
+
 type Props = {
   setAttachments: React.Dispatch<React.SetStateAction<AttachmentItem[]>>;
-  onImportMarkdown: (markdown: string) => void;
+  onImportMarkdown: (result: MarkdownImportResult) => void;
   bucketName?: string;
   disabled?: boolean;
 };
@@ -80,7 +85,10 @@ export default function MarkdownImportButton({
 
       setAttachments((prev) => [...prev, ...result.attachments]);
 
-      onImportMarkdown(result.markdown);
+      onImportMarkdown({
+        markdown: result.markdown,
+        filename: markdownFile.name,
+      });
 
       const importedCount = result.importedAssets.length;
       const missingCount = result.missingAssets.length;

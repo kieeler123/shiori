@@ -26,6 +26,7 @@ type EditorSubmitValue = {
   table_data?: TableData | null;
   attachments?: AttachmentItem[];
   links?: LinkPreviewItem[];
+  source_filename?: string | null;
 };
 
 const UNDO_MS = 5000;
@@ -154,6 +155,7 @@ export default function NewLogPage() {
 
   async function onSubmit(v: EditorSubmitValue) {
     if (isMutating) return;
+
     setIsMutating(true);
 
     try {
@@ -162,24 +164,27 @@ export default function NewLogPage() {
       nav("/");
 
       if (!res.ok) {
-        // ✅ 저장은 되었는데, 뷰 정책 때문에 목록에 안 보이는 상태
         setToast({
           kind: "warn",
           text: t("logs.new.hiddenByPolicy"),
         });
+
         return;
       }
 
-      // ✅ 정상 노출되는 글만 Undo 배너 활성화
       setUndo({
         id: crypto.randomUUID(),
         kind: "add",
         createdId: res.row.id,
       });
 
-      setToast({ kind: "ok", text: "작성 완료!" });
+      setToast({
+        kind: "ok",
+        text: "작성 완료!",
+      });
     } catch (e) {
       console.error("create failed:", e);
+
       if ((e as Error).message === "DUPLICATE_LOG") {
         await toastError({
           error: e,
@@ -194,14 +199,17 @@ export default function NewLogPage() {
           action: "create-log",
         });
       }
+
       await setErrorToastAndLog(e, {
         category: "db",
         action: "create-log",
         uiMessage: String((e as any)?.message ?? e),
+
         meta: {
           titleLength: v.title.length,
           contentLength: v.content.length,
           tagCount: v.tags.length,
+          sourceFilename: v.source_filename ?? null,
         },
       });
     } finally {

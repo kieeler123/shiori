@@ -102,6 +102,9 @@ export type DbLogRow = {
   comment_count: number;
   view_count: number;
   source_date: string | null;
+
+  source_filename?: string | null;
+
   table_data?: TableData | null;
   attachments?: AttachmentItem[] | null;
   links?: LinkPreviewItem[] | null;
@@ -133,14 +136,20 @@ export type LogEditorProps = {
   initialContent?: string | null;
   initialTags?: string[];
   initialTableData?: TableData | null;
+  initialSourceFilename?: string | null;
+
   submitLabel?: string;
   onCancel?: () => void;
+
   onSubmit: (value: {
     title: string;
     content: string;
     tags: string[];
     table_data?: TableData | null;
-  }) => void;
+    attachments?: AttachmentItem[];
+    links?: LinkPreviewItem[];
+    source_filename?: string | null;
+  }) => void | Promise<void>;
 };
 
 export type TrashListRow = {

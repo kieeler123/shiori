@@ -4,7 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSession } from "@/features/auth/useSession";
 import AuthPanel from "@/features/auth/AuthPanel";
 
-import { dbGet } from "@/features/shiori/repo/shioriRepo";
+import {
+  dbFindBySourceFilename,
+  dbGet,
+} from "@/features/shiori/repo/shioriRepo";
 import {
   dbCommentsList,
   dbCommentCreate,
@@ -68,6 +71,27 @@ export default function LogDetailPage() {
     if (!isAuthed || !userId) return false;
     return item?.user_id === userId;
   }, [isAuthed, userId, item?.user_id]);
+
+  useEffect(() => {
+    if (loading || !item) {
+      return;
+    }
+
+    const hash = window.location.hash;
+
+    if (!hash) {
+      return;
+    }
+
+    const anchor = decodeURIComponent(hash.slice(1));
+
+    requestAnimationFrame(() => {
+      document.getElementById(anchor)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [loading, item]);
 
   // ✅ 상세 + 댓글 로드
   useEffect(() => {
@@ -276,6 +300,7 @@ export default function LogDetailPage() {
             tableData={item.table_data ?? null}
             attachments={item.attachments ?? []}
             links={item.links ?? []}
+            resolveMarkdownFile={dbFindBySourceFilename}
           />
         </SurfaceCard>
 
