@@ -46,6 +46,10 @@ function toLogItem(r: DbLogRow): LogItem {
     commentCount: r.comment_count ?? 0,
     viewCount: r.view_count ?? 0,
     sourceDate: r.source_date ?? null,
+
+    importSource: r.import_source ?? null,
+    sourceFilename: r.source_filename ?? null,
+
     profile: pickProfileNickname((r as any).profile),
   };
 }

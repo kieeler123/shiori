@@ -30,6 +30,7 @@ type SubmitValue = {
   attachments?: AttachmentItem[];
   links?: LinkPreviewItem[];
   source_filename?: string | null;
+  import_source?: "markdown" | null;
 };
 
 type Props = {
@@ -39,16 +40,14 @@ type Props = {
   initialTags?: string[];
   initialTableData?: TableData | null;
   initialSourceFilename?: string | null;
+  initialImportSource?: "markdown" | null;
 
   submitLabel: string;
-
   onSubmit: (v: SubmitValue) => void | Promise<void>;
   onCancel?: () => void;
   onClick?: () => void;
-
   initialLinks?: LinkPreviewItem[];
   initialAttachments?: AttachmentItem[];
-
   logId?: string;
 };
 
@@ -76,6 +75,7 @@ export default function LogEditor({
   initialTags = [],
   initialTableData = null,
   initialSourceFilename = null,
+  initialImportSource = null,
   submitLabel,
   initialAttachments = [],
   onSubmit,
@@ -112,6 +112,10 @@ export default function LogEditor({
 
   const [sourceFilename, setSourceFilename] = useState<string | null>(
     initialSourceFilename,
+  );
+
+  const [importSource, setImportSource] = useState<"markdown" | null>(
+    initialImportSource,
   );
 
   function handleInsertTableAtCursor() {
@@ -206,6 +210,7 @@ export default function LogEditor({
         attachments,
         links,
         source_filename: sourceFilename,
+        import_source: importSource,
       });
     } catch (e) {
       console.error(e);
@@ -238,9 +243,10 @@ export default function LogEditor({
 
         <MarkdownImportButton
           setAttachments={setAttachments}
-          onImportMarkdown={({ markdown, filename }) => {
+          onImportMarkdown={({ markdown, filename, importSource }) => {
             setContent(markdown);
             setSourceFilename(filename);
+            setImportSource(importSource);
           }}
         />
 

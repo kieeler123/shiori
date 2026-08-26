@@ -28,6 +28,7 @@ type EditorSubmitValue = {
   attachments?: AttachmentItem[];
   links?: LinkPreviewItem[];
   source_filename?: string | null;
+  import_source?: "markdown" | null;
 };
 
 export default function EditLogPage() {
@@ -73,6 +74,7 @@ export default function EditLogPage() {
         attachments: v.attachments ?? [],
         links: v.links ?? [],
         source_filename: v.source_filename ?? null,
+        import_source: v.import_source ?? null,
       });
 
       setItem(updated);
@@ -151,6 +153,7 @@ export default function EditLogPage() {
           initialAttachments={item.attachments ?? []}
           initialLinks={item.links ?? []}
           initialSourceFilename={item.source_filename ?? null}
+          initialImportSource={item.import_source ?? null}
           submitLabel={busy ? t("common.processing") : t("logs.edit.save")}
           onCancel={() => nav(`/logs/${item.id}`)}
           onSubmit={onSubmit}

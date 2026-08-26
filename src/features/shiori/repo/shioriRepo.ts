@@ -18,7 +18,7 @@ const TABLE_VIEW = "shiori_items_v";
 export const TABLE_BASE = "shiori_items";
 
 const SELECT_LIST =
-  "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count, source_date, display_date, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted ), attachments, links";
+  "id, user_id, title, content, tags, created_at, updated_at, view_count, comment_count, source_date, display_date, source_filename, import_source, profile:profiles!shiori_items_user_id_fkey ( nickname, is_deleted ), attachments, links";
 
 export const SELECT_DETAIL = `
   id,
@@ -30,6 +30,7 @@ export const SELECT_DETAIL = `
   attachments,
   links,
   source_filename,
+  import_source,
   created_at,
   updated_at
 `;
@@ -71,6 +72,9 @@ export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
   }
 
   const { data, error } = await q;
+
+  console.log("[dbListPage] rows:", data);
+  console.log("[dbListPage] opts:", opts);
   if (error) throw error;
   return (data ?? []) as unknown as DbLogRow[];
 }
@@ -94,6 +98,7 @@ export async function dbCreate(input: {
   attachments?: AttachmentItem[];
   links?: LinkPreviewItem[] | null;
   source_filename?: string | null;
+  import_source?: "markdown" | null;
 }): Promise<CreateResult> {
   try {
     const { data: auth } = await supabase.auth.getUser();
@@ -153,7 +158,8 @@ export async function dbCreate(input: {
         table_data: input.table_data ?? null,
         attachments: input.attachments ?? [],
         links: input.links ?? [],
-        source_filename: input.source_filename?.trim() || null,
+        source_filename: input.source_filename?.normalize("NFC").trim() || null,
+        import_source: input.import_source ?? null,
       })
       .select("id")
       .single();
@@ -198,6 +204,7 @@ export async function dbUpdate(
     attachments?: AttachmentItem[];
     links?: LinkPreviewItem[] | null;
     source_filename?: string | null;
+    import_source?: "markdown" | null;
   },
 ): Promise<DbLogRow> {
   validateContentBlocks({
@@ -217,7 +224,8 @@ export async function dbUpdate(
         updated_at: new Date().toISOString(),
         attachments: input.attachments ?? [],
         links: input.links ?? [],
-        source_filename: input.source_filename?.trim() || null,
+        source_filename: input.source_filename?.normalize("NFC").trim() || null,
+        import_source: input.import_source ?? null,
       })
       .eq("id", id);
 

@@ -27,6 +27,7 @@ type EditorSubmitValue = {
   attachments?: AttachmentItem[];
   links?: LinkPreviewItem[];
   source_filename?: string | null;
+  import_source?: "markdown" | null;
 };
 
 const UNDO_MS = 5000;

@@ -32,6 +32,7 @@ import AdminDataPage from "@/features/shiori/admin/pages/AdminDataPage";
 import AdminErrorLogsPage from "@/features/shiori/admin/pages/AdminErrorLogsPage";
 import PdfViewerPage from "@/features/shiori/pages/PdfViewerPage";
 import MarkdownViewerPage from "@/features/shiori/pages/MarkdownViewerPage";
+import AdminLogDetailPage from "@/features/shiori/admin/pages/AdminLogDetailPage";
 
 export default function App() {
   return (
@@ -84,7 +85,11 @@ export default function App() {
 
         <Route element={<AdminOnlyOutlet />}>
           <Route path="/admin" element={<AdminHomePage />} />
+
           <Route path="/admin/data" element={<AdminDataPage />} />
+
+          <Route path="/admin/logs/:id" element={<AdminLogDetailPage />} />
+
           <Route path="/admin/error-logs" element={<AdminErrorLogsPage />} />
         </Route>
 

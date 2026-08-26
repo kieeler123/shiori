@@ -5,6 +5,7 @@ import { importMarkdownAssets } from "@/features/attatchments/lib/markdownAssetI
 type MarkdownImportResult = {
   markdown: string;
   filename: string;
+  importSource: "markdown";
 };
 
 type Props = {
@@ -88,6 +89,7 @@ export default function MarkdownImportButton({
       onImportMarkdown({
         markdown: result.markdown,
         filename: markdownFile.name,
+        importSource: "markdown",
       });
 
       const importedCount = result.importedAssets.length;

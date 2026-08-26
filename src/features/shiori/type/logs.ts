@@ -28,6 +28,9 @@ export type LogItem = {
   commentCount: number;
   viewCount: number;
 
+  importSource?: string | null;
+  sourceFilename?: string | null;
+
   sourceDate?: string | null;
 
   profile: { nickname: string | null } | null;
@@ -104,12 +107,18 @@ export type DbLogRow = {
   source_date: string | null;
 
   source_filename?: string | null;
+  import_source?: "markdown" | null;
 
   table_data?: TableData | null;
   attachments?: AttachmentItem[] | null;
   links?: LinkPreviewItem[] | null;
 
-  profile: { nickname: string | null; is_deleted?: boolean | null }[] | null;
+  profile:
+    | {
+        nickname: string | null;
+        is_deleted?: boolean | null;
+      }[]
+    | null;
 };
 
 export type TableColumn = {
