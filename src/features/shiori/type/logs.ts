@@ -1,10 +1,16 @@
+export type AttachmentStorageType = "local" | "supabase";
+
 export type AttachmentItem = {
   id: string;
+
+  storageType?: AttachmentStorageType;
+
   path: string;
   name: string;
   mimeType: string;
   size: number;
-  bucket: string;
+
+  bucket?: string | null;
   publicUrl?: string | null;
 };
 

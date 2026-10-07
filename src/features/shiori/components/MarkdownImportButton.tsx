@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import type { AttachmentItem } from "../type";
-import { importMarkdownAssets } from "@/features/attatchments/lib/markdownAssetImporter";
+import { importMarkdownAssets } from "@/features/attachments/lib/markdownAssetImporter";
 
 type MarkdownImportResult = {
   markdown: string;
@@ -10,8 +10,11 @@ type MarkdownImportResult = {
 
 type Props = {
   setAttachments: React.Dispatch<React.SetStateAction<AttachmentItem[]>>;
+
+  onAttachmentCreated?: (attachment: AttachmentItem) => void;
+
   onImportMarkdown: (result: MarkdownImportResult) => void;
-  bucketName?: string;
+
   disabled?: boolean;
 };
 
@@ -36,8 +39,8 @@ function isMarkdownFile(file: File) {
 
 export default function MarkdownImportButton({
   setAttachments,
+  onAttachmentCreated,
   onImportMarkdown,
-  bucketName = "log-attachments",
   disabled = false,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -80,9 +83,11 @@ export default function MarkdownImportButton({
 
       const markdown = await markdownFile.text();
 
-      const result = await importMarkdownAssets(markdown, assetFiles, {
-        bucketName,
-      });
+      const result = await importMarkdownAssets(markdown, assetFiles);
+
+      for (const attachment of result.attachments) {
+        onAttachmentCreated?.(attachment);
+      }
 
       setAttachments((prev) => [...prev, ...result.attachments]);
 

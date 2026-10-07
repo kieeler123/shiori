@@ -6,13 +6,15 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
 
-import { supabase } from "@/lib/supabaseClient";
 import { PageSection } from "@/app/layout/PageSection";
 import { dbGet } from "@/features/shiori/repo/shioriRepo";
 
 import type { AttachmentItem } from "@/features/shiori/type";
 
 import "@/shared/theme/themes/markdown.css";
+import { resolveAttachmentItemUrl } from "@/features/attachments/lib/attachmentResolver";
+
+import { revokeAttachmentUrl } from "@/features/attachments/lib/attachmentUrl";
 
 type ViewerState = {
   loading: boolean;
@@ -119,22 +121,15 @@ function scrollToAnchor(anchor: string) {
   });
 }
 
-async function createAttachmentUrl(attachment: AttachmentItem) {
-  const { data, error } = await supabase.storage
-    .from(attachment.bucket)
-    .createSignedUrl(attachment.path, 60 * 60);
-
-  if (error) {
-    throw error;
-  }
-
-  return data?.signedUrl ?? null;
-}
+type ResolvedMarkdownAssets = {
+  markdown: string;
+  urls: string[];
+};
 
 export async function resolveMarkdownAssets(
   markdown: string,
   attachments: AttachmentItem[],
-) {
+): Promise<ResolvedMarkdownAssets> {
   const sourcePaths = new Set<string>();
 
   // Markdown 이미지
@@ -161,26 +156,46 @@ export async function resolveMarkdownAssets(
   }
 
   let resolvedMarkdown = markdown;
+  const urls: string[] = [];
 
-  for (const sourcePath of sourcePaths) {
-    const attachment = findAttachmentBySourcePath(sourcePath, attachments);
+  try {
+    for (const sourcePath of sourcePaths) {
+      const attachment = findAttachmentBySourcePath(sourcePath, attachments);
 
-    if (!attachment) {
-      console.warn("[MarkdownViewer] asset attachment not found:", sourcePath);
+      if (!attachment) {
+        console.warn(
+          "[MarkdownViewer] asset attachment not found:",
+          sourcePath,
+        );
 
-      continue;
+        continue;
+      }
+
+      const resolvedUrl = await resolveAttachmentItemUrl(attachment, {
+        expiresIn: 60 * 30,
+      });
+
+      urls.push(resolvedUrl);
+
+      resolvedMarkdown = resolvedMarkdown.split(sourcePath).join(resolvedUrl);
+    }
+  } catch (error) {
+    for (const url of urls) {
+      revokeAttachmentUrl(url);
     }
 
-    const signedUrl = await createAttachmentUrl(attachment);
-
-    if (!signedUrl) {
-      continue;
-    }
-
-    resolvedMarkdown = resolvedMarkdown.split(sourcePath).join(signedUrl);
+    throw error;
   }
 
-  return resolvedMarkdown;
+  return {
+    markdown: resolvedMarkdown,
+    urls,
+  };
+
+  return {
+    markdown: resolvedMarkdown,
+    urls,
+  };
 }
 
 export default function MarkdownViewerPage() {
@@ -201,12 +216,13 @@ export default function MarkdownViewerPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const activeUrls: string[] = [];
 
     async function loadMarkdown() {
       if (!logId || !attachmentId) {
         setState({
           loading: false,
-          error: "로그 또는 첨부파일 ID가 없습니다.",
+          error: "잘못된 Markdown 첨부파일 경로입니다.",
           markdown: "",
           attachment: null,
           attachments: [],
@@ -215,79 +231,94 @@ export default function MarkdownViewerPage() {
         return;
       }
 
-      setState((prev) => ({
-        ...prev,
+      setState({
         loading: true,
         error: null,
-      }));
+        markdown: "",
+        attachment: null,
+        attachments: [],
+      });
 
       try {
         const log = await dbGet(logId);
+
+        if (cancelled) {
+          return;
+        }
 
         if (!log) {
           throw new Error("로그를 찾을 수 없습니다.");
         }
 
-        const attachments = (log.attachments ?? []) as AttachmentItem[];
+        const attachments = log.attachments ?? [];
 
         const attachment =
           attachments.find((item) => item.id === attachmentId) ?? null;
 
         if (!attachment) {
-          throw new Error("첨부파일을 찾을 수 없습니다.");
+          throw new Error("Markdown 첨부파일을 찾을 수 없습니다.");
         }
 
-        const { data, error } = await supabase.storage
-          .from(attachment.bucket)
-          .createSignedUrl(attachment.path, 60 * 10);
+        const resolvedUrl = await resolveAttachmentItemUrl(attachment, {
+          expiresIn: 60 * 30,
+        });
 
-        if (error) {
-          throw error;
+        if (cancelled) {
+          revokeAttachmentUrl(resolvedUrl);
+          return;
         }
 
-        if (!data?.signedUrl) {
-          throw new Error("첨부파일 URL을 생성하지 못했습니다.");
-        }
+        activeUrls.push(resolvedUrl);
 
-        const response = await fetch(data.signedUrl);
+        const response = await fetch(resolvedUrl);
 
         if (!response.ok) {
           throw new Error(
-            `Markdown 파일을 불러오지 못했습니다. (${response.status})`,
+            `Markdown 파일을 읽지 못했습니다: ${response.status}`,
           );
         }
 
-        const markdown = await response.text();
+        const rawMarkdown = await response.text();
 
-        const resolvedMarkdown = await resolveMarkdownAssets(
-          markdown,
+        if (cancelled) {
+          return;
+        }
+
+        const resolvedAssets = await resolveMarkdownAssets(
+          rawMarkdown,
           attachments,
         );
 
         if (cancelled) {
+          for (const url of resolvedAssets.urls) {
+            revokeAttachmentUrl(url);
+          }
+
           return;
         }
+
+        activeUrls.push(...resolvedAssets.urls);
 
         setState({
           loading: false,
           error: null,
-          markdown: resolvedMarkdown,
+          markdown: resolvedAssets.markdown,
           attachment,
           attachments,
         });
       } catch (error) {
-        console.error("[MarkdownViewer] load failed:", error);
-
         if (cancelled) {
           return;
         }
+
+        console.error("[MarkdownViewer] load failed:", error);
 
         setState({
           loading: false,
           error:
             error instanceof Error
               ? error.message
-              : "Markdown을 불러오는 중 오류가 발생했습니다.",
+              : "Markdown 파일을 불러오지 못했습니다.",
           markdown: "",
           attachment: null,
           attachments: [],
@@ -299,6 +330,10 @@ export default function MarkdownViewerPage() {
 
     return () => {
       cancelled = true;
+
+      for (const url of activeUrls) {
+        revokeAttachmentUrl(url);
+      }
     };
   }, [logId, attachmentId]);
 

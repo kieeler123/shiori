@@ -15,6 +15,10 @@ import LinkEditor from "./LinkEditor";
 import AttachmentEditor from "./AttachmentEditor";
 import MarkdownImportButton from "./MarkdownImportButton";
 
+import { deleteAttachment } from "@/features/attachments/lib/deleteAttachment";
+
+import { clearLocalAttachmentPending } from "@/features/attachments/local/localAttachmentJournal";
+
 import type {
   AttachmentItem,
   LinkPreviewItem,
@@ -69,6 +73,64 @@ function createDefaultTable(): SingleTable {
   };
 }
 
+async function cleanupAttachments(attachments: AttachmentItem[]) {
+  for (const attachment of attachments) {
+    try {
+      await deleteAttachment(attachment);
+
+      if (isLocalAttachment(attachment)) {
+        await clearLocalAttachmentPending(attachment.id);
+      }
+    } catch (error) {
+      console.error("[LogEditor] attachment cleanup failed:", {
+        attachmentId: attachment.id,
+        attachmentName: attachment.name,
+        error,
+      });
+    }
+  }
+}
+
+async function clearCommittedAttachmentPending(
+  attachments: AttachmentItem[],
+): Promise<void> {
+  for (const attachment of attachments) {
+    if (!isLocalAttachment(attachment)) {
+      continue;
+    }
+
+    try {
+      await clearLocalAttachmentPending(attachment.id);
+    } catch (error) {
+      console.error("[LogEditor] pending cleanup failed:", {
+        attachmentId: attachment.id,
+        attachmentName: attachment.name,
+        error,
+      });
+    }
+  }
+}
+
+function getAttachmentsToDeleteAfterSave(
+  originalAttachments: AttachmentItem[],
+  currentAttachments: AttachmentItem[],
+  createdAttachments: AttachmentItem[],
+): AttachmentItem[] {
+  const currentIds = new Set(currentAttachments.map((item) => item.id));
+
+  const candidates = [...originalAttachments, ...createdAttachments];
+
+  const uniqueCandidates = new Map(candidates.map((item) => [item.id, item]));
+
+  return [...uniqueCandidates.values()].filter(
+    (item) => !currentIds.has(item.id),
+  );
+}
+
+function isLocalAttachment(attachment: AttachmentItem): boolean {
+  return (attachment.storageType ?? "supabase") === "local";
+}
+
 export default function LogEditor({
   initialTitle = "",
   initialContent = "",
@@ -95,6 +157,12 @@ export default function LogEditor({
   );
   const [links, setLinks] = useState<LinkPreviewItem[]>(initialLinks);
 
+  const originalAttachmentsRef = useRef<AttachmentItem[]>([
+    ...initialAttachments,
+  ]);
+
+  const createdAttachmentsRef = useRef<AttachmentItem[]>([]);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const hasTable = content.includes("[[table:1]]");
@@ -117,6 +185,32 @@ export default function LogEditor({
   const [importSource, setImportSource] = useState<"markdown" | null>(
     initialImportSource,
   );
+
+  async function handleCancel() {
+    if (isSubmitting) {
+      return;
+    }
+
+    const createdAttachments = [...createdAttachmentsRef.current];
+
+    await cleanupAttachments(createdAttachments);
+
+    createdAttachmentsRef.current = [];
+
+    onCancel?.();
+  }
+
+  function handleAttachmentCreated(attachment: AttachmentItem) {
+    const alreadyTracked = createdAttachmentsRef.current.some(
+      (item) => item.id === attachment.id,
+    );
+
+    if (alreadyTracked) {
+      return;
+    }
+
+    createdAttachmentsRef.current.push(attachment);
+  }
 
   function handleInsertTableAtCursor() {
     const tableId = "1";
@@ -196,7 +290,10 @@ export default function LogEditor({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!canSubmit) return;
+
+    if (!canSubmit) {
+      return;
+    }
 
     setIsSubmitting(true);
     setErr(null);
@@ -212,8 +309,51 @@ export default function LogEditor({
         source_filename: sourceFilename,
         import_source: importSource,
       });
+
+      const createdAttachments = [...createdAttachmentsRef.current];
+
+      const attachmentsToDelete = getAttachmentsToDeleteAfterSave(
+        originalAttachmentsRef.current,
+        attachments,
+        createdAttachments,
+      );
+
+      await cleanupAttachments(attachmentsToDelete);
+
+      const currentAttachmentIds = new Set(
+        attachments.map((attachment) => attachment.id),
+      );
+
+      const committedCreatedAttachments = createdAttachments.filter(
+        (attachment) => currentAttachmentIds.has(attachment.id),
+      );
+
+      await clearCommittedAttachmentPending(committedCreatedAttachments);
+
+      originalAttachmentsRef.current = [...attachments];
+
+      createdAttachmentsRef.current = [];
+
+      await cleanupAttachments(attachmentsToDelete);
+
+      originalAttachmentsRef.current = attachments;
+
+      createdAttachmentsRef.current = [];
+
+      await cleanupAttachments(attachmentsToDelete);
+
+      /*
+       * 현재 상태를 새로운 기준점으로 만든다.
+       *
+       * onSubmit 후에도 LogEditor가 잠시 mount 상태로
+       * 남거나 재사용되는 경우 중복 cleanup을 방지한다.
+       */
+      originalAttachmentsRef.current = [...attachments];
+
+      createdAttachmentsRef.current = [];
     } catch (e) {
       console.error(e);
+
       setErr(String((e as any)?.message ?? e));
     } finally {
       setIsSubmitting(false);
@@ -243,6 +383,7 @@ export default function LogEditor({
 
         <MarkdownImportButton
           setAttachments={setAttachments}
+          onAttachmentCreated={handleAttachmentCreated}
           onImportMarkdown={({ markdown, filename, importSource }) => {
             setContent(markdown);
             setSourceFilename(filename);
@@ -284,6 +425,7 @@ export default function LogEditor({
           logId={logId}
           attachments={attachments}
           setAttachments={setAttachments}
+          onAttachmentCreated={handleAttachmentCreated}
           onInsertToContent={handleInsertAttachmentToken}
           disabled={isSubmitting}
         />
@@ -303,7 +445,13 @@ export default function LogEditor({
           </button>
 
           {onCancel ? (
-            <button type="button" onClick={onCancel} className={cancelBtn}>
+            <button
+              type="button"
+              onClick={() => {
+                void handleCancel();
+              }}
+              className={cancelBtn}
+            >
               {t("common.cancel")}
             </button>
           ) : null}

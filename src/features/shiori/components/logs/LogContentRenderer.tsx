@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { AttachmentItem, LinkPreviewItem, TableData } from "../../type";
 
 import LogTable from "./LogTable";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { logError } from "@/shared/error/logError";
-import { supabase } from "@/lib/supabaseClient";
+import { resolveAttachmentItemUrl } from "@/features/attachments/lib/attachmentResolver";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -13,7 +13,8 @@ import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
 
 import { useNavigate } from "react-router-dom";
-import { getAttachmentViewerPath } from "@/features/attatchments/lib/getAttachmentViewerPath";
+import { getAttachmentViewerPath } from "@/features/attachments/lib/getAttachmentViewerPath";
+import { revokeAttachmentUrl } from "@/features/attachments/lib/attachmentUrl";
 
 type MarkdownLinkTarget = {
   id: string;
@@ -544,17 +545,29 @@ async function handleOpenAttachment(
     return;
   }
 
-  const { data, error } = await supabase.storage
-    .from(item.bucket)
-    .createSignedUrl(item.path, 60 * 30);
+  try {
+    const resolvedUrl = await resolveAttachmentItemUrl(item, {
+      expiresIn: 60 * 30,
+    });
 
-  if (error || !data?.signedUrl) {
+    window.open(resolvedUrl, "_blank", "noopener,noreferrer");
+  } catch (error) {
+    console.error("[LogContentRenderer] attachment open failed:", error);
+
+    void logError({
+      category: "attachment",
+      action: "open-attachment",
+      page:
+        typeof window !== "undefined" ? window.location.pathname : undefined,
+      error,
+      meta: {
+        attachmentId: item.id,
+        attachmentName: item.name,
+      },
+    });
+
     alert(t("attachments.openFailed"));
-
-    return;
   }
-
-  window.open(data.signedUrl, "_blank", "noopener,noreferrer");
 }
 
 function AttachmentCard({
@@ -570,17 +583,63 @@ function AttachmentCard({
 }) {
   const isImage = item.mimeType.startsWith("image/");
 
-  if (isImage && item.publicUrl) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (!isImage) {
+      setImageUrl(null);
+      setImageError(false);
+      return;
+    }
+
+    let cancelled = false;
+    let activeUrl: string | null = null;
+
+    setImageUrl(null);
+    setImageError(false);
+
+    async function resolveImage() {
+      try {
+        const resolvedUrl = await resolveAttachmentItemUrl(item);
+
+        if (cancelled) {
+          revokeAttachmentUrl(resolvedUrl);
+          return;
+        }
+
+        activeUrl = resolvedUrl;
+        setImageUrl(resolvedUrl);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        console.error(
+          "[LogContentRenderer] attachment image resolve failed:",
+          error,
+        );
+
+        setImageUrl(null);
+        setImageError(true);
+      }
+    }
+
+    void resolveImage();
+
+    return () => {
+      cancelled = true;
+
+      revokeAttachmentUrl(activeUrl);
+    };
+  }, [item, isImage]);
+
+  if (isImage && imageUrl) {
     return (
       <div className="w-full">
-        <a
-          href={item.publicUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="block"
-        >
+        <a href={imageUrl} target="_blank" rel="noreferrer" className="block">
           <img
-            src={item.publicUrl}
+            src={imageUrl}
             alt={item.name}
             className="h-auto w-full max-w-full rounded-xl object-contain"
             loading="lazy"
@@ -593,7 +652,7 @@ function AttachmentCard({
   return (
     <div className="rounded-2xl border border-[var(--border-soft)] bg-[var(--bg-elev-1)] p-4">
       <div className="text-xs text-[var(--text-5)]">
-        {t("attachments.file")} · {formatBytes(item.size)}
+        {isImage ? "이미지" : t("attachments.file")} · {formatBytes(item.size)}
       </div>
 
       <div className="mt-2 break-all text-sm font-medium text-[var(--text-1)]">
@@ -603,6 +662,18 @@ function AttachmentCard({
       <div className="mt-1 break-all text-xs text-[var(--text-5)]">
         {item.path}
       </div>
+
+      {isImage && !imageError ? (
+        <div className="mt-3 text-xs text-[var(--text-5)]">
+          이미지 불러오는 중...
+        </div>
+      ) : null}
+
+      {isImage && imageError ? (
+        <div className="mt-3 text-xs text-[var(--danger)]">
+          이미지를 불러오지 못했습니다.
+        </div>
+      ) : null}
 
       <div className="mt-3">
         <button

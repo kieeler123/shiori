@@ -308,3 +308,47 @@ export async function dbFindBySourceFilename(
       }
     : null;
 }
+
+export async function dbIsAttachmentReferenced(
+  attachment: AttachmentItem,
+): Promise<boolean> {
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+
+  if (authError) {
+    throw authError;
+  }
+
+  const user = auth.user;
+
+  if (!user) {
+    throw new Error("첨부파일 참조 여부를 확인하려면 로그인이 필요합니다.");
+  }
+
+  const { data, error } = await supabase
+    .from(TABLE_BASE)
+    .select("id, attachments")
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw error;
+  }
+
+  for (const row of data ?? []) {
+    const attachments = Array.isArray(row.attachments)
+      ? (row.attachments as AttachmentItem[])
+      : [];
+
+    const referenced = attachments.some(
+      (item) =>
+        item.id === attachment.id &&
+        item.path === attachment.path &&
+        (item.storageType ?? "supabase") === "local",
+    );
+
+    if (referenced) {
+      return true;
+    }
+  }
+
+  return false;
+}

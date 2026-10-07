@@ -1,6 +1,9 @@
 import { supabase } from "@/lib/supabaseClient";
 
-export async function uploadAvatar(userId: string, file: File) {
+export async function uploadAvatar(
+  userId: string,
+  file: File,
+): Promise<UploadAvatarResult> {
   const ext = file.name.split(".").pop()?.toLowerCase() || "png";
   const path = `${userId}/${Date.now()}.${ext}`;
 
@@ -14,8 +17,17 @@ export async function uploadAvatar(userId: string, file: File) {
 
   if (upErr) return { ok: false as const, message: upErr.message };
 
-  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-  const url = data.publicUrl;
+  const { data } = await supabase.storage.from("avatars").getPublicUrl(path);
 
-  return { ok: true as const, url };
+  return { ok: true, url: data.publicUrl };
 }
+
+export type UploadAvatarResult =
+  | {
+      ok: true;
+      url: string;
+    }
+  | {
+      ok: false;
+      message: string;
+    };

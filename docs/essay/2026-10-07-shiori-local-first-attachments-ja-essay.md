@@ -1,0 +1,30 @@
+# Shioriの添付ファイルをLocal-firstへ移行した一日
+
+今日はShioriの添付ファイル保存方式を、Supabase
+Storage中心の構造からLocal-first構造へ大きく見直した。目的は、添付ファイルが増え続けた場合のクラウドストレージ使用量を抑えながら、Supabaseの認証・DB・既存データとの互換性を維持することだった。
+
+ブラウザはユーザーのローカルディスクへ自由に書き込めないため、File
+System Access
+APIを利用し、ユーザー自身が保存先フォルダを選択する方式にした。選択した`FileSystemDirectoryHandle`はIndexedDBへ保存し、DBには絶対パスではなく`attachments/YYYY/MM/DD/...`形式の相対パスだけを保存するようにした。
+
+既存のSupabase
+Storage上の添付ファイルを一括移行するのではなく、LocalとSupabaseを同時に扱える互換レイヤーも構築した。新しい添付ファイルには`storageType: "local"`を設定し、`storageType`が存在しない旧データはSupabaseとして扱う。共通Resolverを通じて、SupabaseはSigned
+URL、LocalはBlob
+URLとしてUIへ提供することで、表示側が保存先を意識しない構造にした。
+
+次に重要だったのがファイルのライフサイクルである。通常のログ削除ではゴミ箱から復元できる必要があるため、添付ファイルを物理削除しない。実ファイルを削除するのはゴミ箱から完全削除した場合だけにした。また、編集時には新規作成した添付ファイルを追跡し、保存・キャンセル・添付解除によって正しいファイルだけが残るTransaction処理を構築した。
+
+さらに、F5やブラウザ強制終了ではReactのstateや`useRef`が失われる問題がある。そこでIndexedDBをVersion
+2へ更新し、`pending-attachments`
+storeを追加した。Localファイル作成直後にPending
+Recordを保存し、正常保存やキャンセル後に解除するPersistent Pending
+Journal方式を導入した。
+
+RecoveryではPending
+Recordを単純な削除対象とは考えない。DB保存は成功したものの、Pending解除直前にブラウザが終了した可能性があるためである。そこで`shiori_items.attachments`を確認し、DBから参照されているファイルは保持し、参照されていない場合だけLocalファイルを削除するようにした。DB確認に失敗した場合やLocal権限がない場合は、安全のため何も削除せず後で再試行する。
+
+ゴミ箱にあるログも正常な参照として扱った。Shioriではゴミ箱からログを復元できるため、`is_deleted = true`であっても添付ファイルを孤立ファイルと判断してはいけない。また、すでにファイルが削除されている場合の`NotFoundError`は成功として扱い、Recoveryを何度実行しても安全なidempotent処理にした。
+
+最後に、自動Recoveryはアプリ起動直後ではなく、認証状態が確定した後の`RequireAuthOutlet`内でBackground処理として実行する構造にした。これによりRecoveryが失敗しても画面表示を妨げず、認証済みユーザーに対してのみ安全にDB参照確認を行える。
+
+今日の作業で得た最大の成果は、単に添付ファイルをローカルへ保存できるようになったことではない。作成、保存、キャンセル、ゴミ箱、完全削除、F5、強制終了、復旧までを一つのライフサイクルとして設計できたことである。Local-firstとは保存場所の選択ではなく、ファイルが生まれてから最終的に削除されるまでを安全に管理するアーキテクチャだと整理できる。

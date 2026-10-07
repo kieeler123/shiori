@@ -1,9 +1,23 @@
 import type { AttachmentItem } from "@/features/shiori/type";
 import { uploadAttachment } from "./uploadAttachment";
 
-type MarkdownAssetImportOptions = {
-  bucketName?: string;
-};
+import { deleteAttachment } from "./deleteAttachment";
+
+async function rollbackCreatedAttachments(
+  attachments: AttachmentItem[],
+): Promise<void> {
+  for (const attachment of attachments) {
+    try {
+      await deleteAttachment(attachment);
+    } catch (error) {
+      console.error("[markdownAssetImporter] rollback failed:", {
+        attachmentId: attachment.id,
+        attachmentName: attachment.name,
+        error,
+      });
+    }
+  }
+}
 
 export type MarkdownAssetImportResult = {
   markdown: string;
@@ -73,7 +87,7 @@ function normalizeRelativePath(value: string) {
 }
 
 /**
- * 외부 URL / data URL 등은 Storage Import 대상에서 제외한다.
+ * 외부 URL / data URL 등은 Attachment Import 대상에서 제외한다.
  */
 function shouldImportAsset(sourcePath: string) {
   const value = sourcePath.trim();
@@ -252,12 +266,11 @@ function replaceAssetReference(
 }
 
 /**
- * Markdown 안의 로컬 이미지를 Storage Attachment로 변환한다.
+ * Markdown 안의 로컬 이미지를 Shiori Attachment로 변환한다.
  */
 export async function importMarkdownAssets(
   markdown: string,
   files: FileList | File[],
-  options: MarkdownAssetImportOptions = {},
 ): Promise<MarkdownAssetImportResult> {
   const availableFiles = Array.from(files);
 
@@ -269,43 +282,51 @@ export async function importMarkdownAssets(
 
   let nextMarkdown = markdown;
 
-  for (const reference of imageReferences) {
-    const { sourcePath } = reference;
+  try {
+    for (const reference of imageReferences) {
+      const { sourcePath } = reference;
 
-    const matchedFile = findMatchingFile(sourcePath, availableFiles);
+      const matchedFile = findMatchingFile(sourcePath, availableFiles);
 
-    if (!matchedFile) {
-      missingAssets.push({
+      if (!matchedFile) {
+        missingAssets.push({
+          sourcePath,
+          reason: "file-not-found",
+        });
+
+        continue;
+      }
+
+      const attachment = await uploadAttachment(matchedFile);
+
+      /*
+       * uploadAttachment()이 성공한 순간부터
+       * 이 함수가 rollback 책임을 가진다.
+       */
+      attachments.push(attachment);
+
+      importedAssets.push({
         sourcePath,
-        reason: "file-not-found",
+        attachmentId: attachment.id,
+        attachment,
       });
 
-      continue;
+      nextMarkdown = replaceAssetReference(
+        nextMarkdown,
+        sourcePath,
+        attachment.id,
+      );
     }
 
-    const attachment = await uploadAttachment(matchedFile, {
-      bucketName: options.bucketName,
-    });
+    return {
+      markdown: nextMarkdown,
+      attachments,
+      importedAssets,
+      missingAssets,
+    };
+  } catch (error) {
+    await rollbackCreatedAttachments(attachments);
 
-    attachments.push(attachment);
-
-    importedAssets.push({
-      sourcePath,
-      attachmentId: attachment.id,
-      attachment,
-    });
-
-    nextMarkdown = replaceAssetReference(
-      nextMarkdown,
-      sourcePath,
-      attachment.id,
-    );
+    throw error;
   }
-
-  return {
-    markdown: nextMarkdown,
-    attachments,
-    importedAssets,
-    missingAssets,
-  };
 }

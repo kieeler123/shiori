@@ -1,5 +1,16 @@
 import type { AttachmentItem } from "@/features/shiori/type";
+
 import { supabase } from "@/lib/supabaseClient";
+
+import {
+  deleteLocalAttachment,
+  saveLocalAttachment,
+} from "@/features/attachments/local/localAttachmentStore";
+
+import {
+  listPendingLocalAttachments,
+  markLocalAttachmentPending,
+} from "@/features/attachments/local/localAttachmentJournal";
 
 const DEFAULT_BUCKET_NAME = "log-attachments";
 const MAX_FILE_SIZE_MB = 20;
@@ -99,13 +110,72 @@ function getUploadContentType(file: File) {
   return file.type || "application/octet-stream";
 }
 
-export async function uploadAttachment(
+/**
+ * 신규 첨부파일의 기본 저장 경로.
+ *
+ * Shiori는 신규 일반 첨부파일을 Local Disk에 저장한다.
+ * Supabase Storage로 자동 fallback하지 않는다.
+ */
+export async function uploadAttachment(file: File): Promise<AttachmentItem> {
+  validateFile(file);
+
+  const attachment = await saveLocalAttachment(file);
+
+  console.log("[attachment] local saved", attachment);
+
+  try {
+    console.log("[attachment] marking pending", attachment.id);
+
+    await markLocalAttachmentPending(attachment);
+
+    console.log("[attachment] pending saved", attachment.id);
+
+    const pending = await listPendingLocalAttachments();
+
+    console.log("[attachment] pending records", pending);
+
+    return attachment;
+
+    console.log("[attachment] pending saved", attachment.id);
+
+    return attachment;
+  } catch (error) {
+    // ...
+  }
+
+  try {
+    await markLocalAttachmentPending(attachment);
+
+    return attachment;
+  } catch (error) {
+    try {
+      await deleteLocalAttachment(attachment);
+    } catch (rollbackError) {
+      console.error("[uploadAttachment] local rollback failed:", {
+        attachmentId: attachment.id,
+        attachmentName: attachment.name,
+        rollbackError,
+      });
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * 명시적으로 Supabase Storage에 첨부파일을 저장해야 할 때 사용한다.
+ *
+ * 기존 Cloud 업로드 기능 보존용이며,
+ * uploadAttachment()의 자동 fallback으로 사용하지 않는다.
+ */
+export async function uploadSupabaseAttachment(
   file: File,
   options: UploadAttachmentOptions = {},
 ): Promise<AttachmentItem> {
   validateFile(file);
 
   const bucketName = options.bucketName ?? DEFAULT_BUCKET_NAME;
+
   const storagePath = buildStoragePath(file);
   const contentType = getUploadContentType(file);
 
@@ -127,6 +197,7 @@ export async function uploadAttachment(
 
   return {
     id: crypto.randomUUID(),
+    storageType: "supabase",
     path: storagePath,
     name: file.name,
     mimeType: contentType,

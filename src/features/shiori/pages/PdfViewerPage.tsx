@@ -4,10 +4,12 @@ import { Document, Page, pdfjs } from "react-pdf";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { dbGet } from "@/features/shiori/repo/shioriRepo";
-import { supabase } from "@/lib/supabaseClient";
+import { resolveAttachmentItemUrl } from "@/features/attachments/lib/attachmentResolver";
 
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+
+import { revokeAttachmentUrl } from "@/features/attachments/lib/attachmentUrl";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -22,7 +24,7 @@ export default function PdfViewerPage() {
     attachmentId: string;
   }>();
 
-  const [fileUrl, setFileUrl] = useState("");
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [numPages, setNumPages] = useState(0);
 
   const [loading, setLoading] = useState(true);
@@ -33,69 +35,61 @@ export default function PdfViewerPage() {
 
   useEffect(() => {
     let cancelled = false;
+    let activeUrl: string | null = null;
 
-    async function loadPdf() {
+    async function loadAttachment() {
       if (!logId || !attachmentId) {
+        setLoadError(t("pdfViewer.loadFailed"));
         setLoading(false);
-        setLoadError("로그 또는 첨부파일 ID가 없습니다.");
         return;
       }
 
-      try {
-        setLoading(true);
-        setLoadError(null);
+      setLoading(true);
+      setLoadError(null);
+      setFileUrl(null);
+      setNumPages(0);
 
+      try {
         const log = await dbGet(logId);
+
+        if (cancelled) {
+          return;
+        }
 
         if (!log) {
           throw new Error("로그를 찾을 수 없습니다.");
         }
 
-        const attachment =
-          log.attachments?.find((item) => item.id === attachmentId) ?? null;
+        const attachment = log.attachments?.find(
+          (item) => item.id === attachmentId,
+        );
 
         if (!attachment) {
-          throw new Error("PDF 첨부파일을 찾을 수 없습니다.");
+          throw new Error("첨부파일을 찾을 수 없습니다.");
         }
 
-        const fileName = attachment.name.toLowerCase();
-
-        const isPdf =
-          attachment.mimeType === "application/pdf" ||
-          fileName.endsWith(".pdf");
-
-        if (!isPdf) {
-          throw new Error("PDF 파일이 아닙니다.");
-        }
-
-        const { data, error } = await supabase.storage
-          .from(attachment.bucket)
-          .createSignedUrl(attachment.path, 60 * 30);
-
-        if (error) {
-          throw error;
-        }
-
-        if (!data?.signedUrl) {
-          throw new Error("PDF URL을 생성하지 못했습니다.");
-        }
+        const resolvedUrl = await resolveAttachmentItemUrl(attachment, {
+          expiresIn: 60 * 30,
+        });
 
         if (cancelled) {
+          revokeAttachmentUrl(resolvedUrl);
           return;
         }
 
-        setFileUrl(data.signedUrl);
+        activeUrl = resolvedUrl;
+        setFileUrl(resolvedUrl);
       } catch (error) {
-        console.error("PDF viewer load failed:", error);
-
         if (cancelled) {
           return;
         }
+
+        console.error("PDF attachment resolve failed:", error);
+
+        setFileUrl(null);
 
         setLoadError(
-          error instanceof Error
-            ? error.message
-            : "PDF를 불러오는 중 오류가 발생했습니다.",
+          error instanceof Error ? error.message : t("pdfViewer.loadFailed"),
         );
       } finally {
         if (!cancelled) {
@@ -104,12 +98,14 @@ export default function PdfViewerPage() {
       }
     }
 
-    void loadPdf();
+    void loadAttachment();
 
     return () => {
       cancelled = true;
+
+      revokeAttachmentUrl(activeUrl);
     };
-  }, [logId, attachmentId]);
+  }, [logId, attachmentId, t]);
 
   useEffect(() => {
     const el = containerRef.current;

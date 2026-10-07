@@ -1,17 +1,21 @@
 import { useMemo, useRef, useState } from "react";
 import { chip, cancelBtn, fieldControl } from "@/shared/theme/editor";
-import { supabase } from "@/lib/supabaseClient";
+import { uploadAttachment } from "@/features/attachments/lib/uploadAttachment";
 import type { AttachmentItem } from "../type";
 import { logError } from "@/shared/error/logError";
 import { useNavigate } from "react-router-dom";
-import { getAttachmentViewerPath } from "@/features/attatchments/lib/getAttachmentViewerPath";
+import { getAttachmentViewerPath } from "@/features/attachments/lib/getAttachmentViewerPath";
+import { resolveAttachmentItemUrl } from "@/features/attachments/lib/attachmentResolver";
 
 type Props = {
   attachments: AttachmentItem[];
   setAttachments: React.Dispatch<React.SetStateAction<AttachmentItem[]>>;
+
+  onAttachmentCreated?: (attachment: AttachmentItem) => void;
+
   onInsertToContent?: (attachmentId: string) => void;
+
   logId?: string;
-  bucketName?: string;
   disabled?: boolean;
 };
 
@@ -27,18 +31,7 @@ const ACCEPTED_EXTENSIONS = [
   ".webp",
 ];
 
-const ACCEPTED_MIME_PREFIXES = ["image/"];
-
-const ACCEPTED_MIME_TYPES = [
-  "application/pdf",
-  "text/plain",
-  "text/markdown",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
-
 const MAX_FILE_SIZE_MB = 20;
-const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -50,51 +43,12 @@ function formatBytes(bytes: number) {
   return `${gb.toFixed(1)} GB`;
 }
 
-function isAcceptedFile(file: File) {
-  const fileName = file.name.toLowerCase();
-  const hasAllowedExtension = ACCEPTED_EXTENSIONS.some((ext) =>
-    fileName.endsWith(ext),
-  );
-
-  const hasAllowedMimeType =
-    ACCEPTED_MIME_TYPES.includes(file.type) ||
-    ACCEPTED_MIME_PREFIXES.some((prefix) => file.type.startsWith(prefix));
-
-  return hasAllowedExtension || hasAllowedMimeType;
-}
-
-function buildStoragePath(file: File) {
-  const ext = file.name.includes(".")
-    ? `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`
-    : "";
-
-  const yyyy = new Date().getFullYear();
-  const mm = String(new Date().getMonth() + 1).padStart(2, "0");
-  const dd = String(new Date().getDate()).padStart(2, "0");
-
-  return `logs/${yyyy}/${mm}/${dd}/${crypto.randomUUID()}${ext}`;
-}
-
-function getUploadContentType(file: File) {
-  const ext = file.name.split(".").pop()?.toLowerCase();
-
-  if (ext === "md" || ext === "markdown") {
-    return "text/markdown; charset=utf-8";
-  }
-
-  if (ext === "txt") {
-    return "text/plain; charset=utf-8";
-  }
-
-  return file.type || "application/octet-stream";
-}
-
 export default function AttachmentEditor({
   attachments,
   setAttachments,
+  onAttachmentCreated,
   onInsertToContent,
   logId,
-  bucketName = "log-attachments",
   disabled = false,
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -109,79 +63,25 @@ export default function AttachmentEditor({
 
   async function uploadFiles(fileList: FileList | File[]) {
     const files = Array.from(fileList);
-    if (!files.length) return;
+
+    if (!files.length) {
+      return;
+    }
 
     setErr(null);
     setIsUploading(true);
 
     try {
-      const nextItems: AttachmentItem[] = [];
-
       for (const file of files) {
-        if (!isAcceptedFile(file)) {
-          throw new Error(
-            `지원하지 않는 파일 형식입니다: ${file.name}\n허용 형식: ${ACCEPTED_EXTENSIONS.join(", ")}`,
-          );
-        }
+        const attachment = await uploadAttachment(file);
 
-        if (file.size > MAX_FILE_SIZE) {
-          throw new Error(
-            `파일 용량 제한을 초과했습니다: ${file.name} (최대 ${MAX_FILE_SIZE_MB}MB)`,
-          );
-        }
+        onAttachmentCreated?.(attachment);
 
-        const path = buildStoragePath(file);
-
-        const uploadContentType = getUploadContentType(file);
-
-        console.log("UPLOAD DEBUG:", {
-          fileName: file.name,
-          fileType: file.type,
-          uploadContentType,
-        });
-
-        const { error: uploadError } = await supabase.storage
-          .from(bucketName)
-          .upload(path, file, {
-            cacheControl: "3600",
-            upsert: false,
-            contentType: getUploadContentType(file),
-          });
-
-        if (uploadError) {
-          await logError({
-            category: "storage",
-            action: "upload",
-            page: window.location.pathname,
-            error: uploadError,
-            meta: {
-              fileName: file.name,
-              size: file.size,
-              bucket: bucketName,
-              path,
-            },
-          });
-
-          throw uploadError;
-        }
-
-        const { data: publicUrlData } = supabase.storage
-          .from(bucketName)
-          .getPublicUrl(path);
-
-        nextItems.push({
-          id: crypto.randomUUID(),
-          path,
-          name: file.name,
-          mimeType: getUploadContentType(file),
-          size: file.size,
-          bucket: bucketName,
-          publicUrl: publicUrlData?.publicUrl ?? null,
-        });
+        setAttachments((prev) => [...prev, attachment]);
       }
-
-      setAttachments((prev) => [...prev, ...nextItems]);
     } catch (e) {
+      console.error("Attachment upload failed:", e);
+
       await logError({
         category: "attachment",
         action: "upload-handler",
@@ -192,10 +92,13 @@ export default function AttachmentEditor({
         },
       });
 
-      setErr("파일 업로드 중 오류가 발생했습니다.");
+      setErr(
+        "일부 파일을 첨부하지 못했습니다. 성공한 파일은 첨부 목록에 유지됩니다.",
+      );
     } finally {
       setIsUploading(false);
       setDragging(false);
+
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -243,16 +146,28 @@ export default function AttachmentEditor({
       return;
     }
 
-    const { data, error } = await supabase.storage
-      .from(item.bucket)
-      .createSignedUrl(item.path, 60 * 30);
+    try {
+      const url = await resolveAttachmentItemUrl(item, {
+        expiresIn: 60 * 30,
+      });
 
-    if (error || !data?.signedUrl) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("Attachment open failed:", error);
+
+      await logError({
+        category: "attachment",
+        action: "open-attachment",
+        page: window.location.pathname,
+        error,
+        meta: {
+          attachmentId: item.id,
+          attachmentName: item.name,
+        },
+      });
+
       alert("첨부파일을 열 수 없습니다.");
-      return;
     }
-
-    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   }
 
   function handleRemoveAttachment(id: string) {

@@ -5,6 +5,8 @@ import {
   importLegacyLogsUpsert,
 } from "@/features/shiori/tools/importExport";
 
+import LocalAttachmentDirectoryTest from "@/features/attachments/components/LocalAttachmentDirectoryTest";
+
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
@@ -108,6 +110,8 @@ export default function ImportExportPage() {
           >
             Export base (원본)
           </button>
+
+          <LocalAttachmentDirectoryTest />
         </div>
       </section>
 

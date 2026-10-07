@@ -1,6 +1,9 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
+
 import { useSession } from "@/features/auth/useSession";
 import { buildNext, saveNext } from "@/lib/authRedirect";
+
+import LocalAttachmentRecoveryRunner from "@/features/attachments/local/LocalAttachmentRecoveryRunner";
 
 export function RequireAuthOutlet() {
   const { session, ready } = useSession();
@@ -15,11 +18,15 @@ export function RequireAuthOutlet() {
   if (!session) {
     const from = buildNext(location.pathname, location.search);
 
-    // 로그인 후 돌아올 위치 저장
     saveNext(from);
 
     return <Navigate to={`/auth?next=${encodeURIComponent(from)}`} replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <LocalAttachmentRecoveryRunner />
+      <Outlet />
+    </>
+  );
 }

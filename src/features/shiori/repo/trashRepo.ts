@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import { logError } from "@/shared/error/logError";
 import type { AttachmentItem, TrashListRow } from "../type";
+import { deleteAttachment } from "@/features/attachments/lib/deleteAttachment";
 
 const LOGS_TABLE = "shiori_items";
 const LOGS_TRASH_VIEW = "shiori_trash_v";
@@ -12,6 +13,12 @@ type LogRowForDelete = {
   attachments?: AttachmentItem[] | null;
 };
 
+async function deleteAttachments(attachments: AttachmentItem[]): Promise<void> {
+  for (const attachment of attachments) {
+    await deleteAttachment(attachment);
+  }
+}
+
 async function requireUserId() {
   const { data, error } = await supabase.auth.getUser();
   if (error) throw error;
@@ -20,54 +27,6 @@ async function requireUserId() {
   if (!user) throw new Error("Not signed in");
 
   return user.id;
-}
-
-function groupAttachmentPathsByBucket(
-  attachments: AttachmentItem[] | null | undefined,
-): Map<string, string[]> {
-  const byBucket = new Map<string, string[]>();
-
-  if (!attachments?.length) return byBucket;
-
-  for (const item of attachments) {
-    if (!item?.bucket || !item?.path) continue;
-
-    const prev = byBucket.get(item.bucket) ?? [];
-    prev.push(item.path);
-    byBucket.set(item.bucket, prev);
-  }
-
-  return byBucket;
-}
-
-async function deleteAttachmentsFromStorage(
-  attachments: AttachmentItem[] | null | undefined,
-) {
-  const grouped = groupAttachmentPathsByBucket(attachments);
-
-  if (grouped.size === 0) return;
-
-  for (const [bucket, paths] of grouped.entries()) {
-    const uniquePaths = [...new Set(paths)];
-
-    const { error } = await supabase.storage.from(bucket).remove(uniquePaths);
-
-    if (error) {
-      await logError({
-        category: "storage",
-        action: "delete-attachments",
-        page:
-          typeof window !== "undefined" ? window.location.pathname : undefined,
-        error,
-        meta: {
-          bucket,
-          paths: uniquePaths,
-        },
-      });
-
-      throw error;
-    }
-  }
 }
 
 /** ✅ (Logs) 휴지통으로 이동 = soft delete */
@@ -246,13 +205,37 @@ export async function dbLogsTrashHardDelete(id: string): Promise<void> {
 
   const attachments = (row.attachments ?? []) as AttachmentItem[];
 
-  // 2) DB row 삭제
-  const { error: deleteError } = await supabase
+  // 2) 첨부파일부터 삭제
+  if (attachments.length > 0) {
+    try {
+      await deleteAttachments(attachments);
+    } catch (error) {
+      await logError({
+        category: "storage",
+        action: "trash-hard-delete-log-attachments",
+        page:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
+        error,
+        meta: {
+          id,
+          userId: uid,
+          attachmentCount: attachments.length,
+        },
+      });
+
+      // 첨부파일 삭제에 실패하면 DB row는 남긴다.
+      throw error;
+    }
+  }
+
+  // 3) 첨부파일 삭제가 성공한 경우 DB row 삭제
+  const { data: deletedRows, error: deleteError } = await supabase
     .from(LOGS_TABLE)
     .delete()
     .eq("id", id)
     .eq("user_id", uid)
-    .eq("is_deleted", true);
+    .eq("is_deleted", true)
+    .select("id");
 
   if (deleteError) {
     await logError({
@@ -271,30 +254,22 @@ export async function dbLogsTrashHardDelete(id: string): Promise<void> {
     throw deleteError;
   }
 
-  // 3) 첨부파일 삭제
-  if (attachments.length > 0) {
-    try {
-      await deleteAttachmentsFromStorage(attachments);
-    } catch (e) {
-      // 글은 이미 삭제되었고, 첨부만 실패한 상태
-      // 이건 로그를 남기고 에러를 다시 던질지 말지 정책 선택 가능
-      // 지금은 사용자도 알 수 있게 throw 유지
-      await logError({
-        category: "storage",
-        action: "trash-hard-delete-log-attachments-cleanup",
-        page:
-          typeof window !== "undefined" ? window.location.pathname : undefined,
-        error: e,
-        meta: {
-          id,
-          userId: uid,
-          attachmentCount: attachments.length,
-          attachments,
-        },
-      });
+  if (!deletedRows?.length) {
+    const err = new Error("No rows deleted (조건 불일치 or RLS)");
 
-      throw e;
-    }
+    await logError({
+      category: "db",
+      action: "trash-hard-delete-log-empty",
+      page:
+        typeof window !== "undefined" ? window.location.pathname : undefined,
+      error: err,
+      meta: {
+        id,
+        userId: uid,
+      },
+    });
+
+    throw err;
   }
 }
 
