@@ -4,6 +4,7 @@ import { useSession } from "@/features/auth/useSession";
 import { buildNext, saveNext } from "@/lib/authRedirect";
 
 import LocalAttachmentRecoveryRunner from "@/features/attachments/local/LocalAttachmentRecoveryRunner";
+import ApiAuthTest from "@/features/auth/components/ApiAuthTest";
 
 export function RequireAuthOutlet() {
   const { session, ready } = useSession();
@@ -25,6 +26,7 @@ export function RequireAuthOutlet() {
 
   return (
     <>
+      <ApiAuthTest />
       <LocalAttachmentRecoveryRunner />
       <Outlet />
     </>

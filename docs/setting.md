@@ -1,4 +1,27 @@
 Shiori/
+├── api/
+│ └── attachments/
+│ │ ├─ vuew.ts
+├── apps/
+│ └── api/ # 신규 Windows API Server
+│ │ ├─ dist/
+│ │ ├─ node_modules/
+│ │ ├─ src/
+│ │ ├── config/
+│ │ │ └── env.ts
+│ │ ├── middleware/
+│ │ │ └── requireAuth.ts
+│ │ ├── types/
+│ │ │ └── fastify.d.ts
+│ │ ├── app.ts
+│ │ └── index.ts
+│ │
+│ ├── .env
+│ ├── .env.example
+│ ├── .gitignore
+│ ├── package-lock.json
+│ ├── package.json
+│ └── tsconfig.json
 │
 ├─ docs/
 │ ├─ architecture/

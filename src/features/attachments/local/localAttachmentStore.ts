@@ -201,3 +201,26 @@ export async function deleteLocalAttachment(
     throw error;
   }
 }
+
+export async function checkLocalAttachmentExists(
+  attachment: AttachmentItem,
+): Promise<boolean> {
+  const root = await requireRootDirectory();
+
+  try {
+    const fileHandle = await getFileHandleFromAttachmentPath(
+      root,
+      attachment.path,
+    );
+
+    await fileHandle.getFile();
+
+    return true;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "NotFoundError") {
+      return false;
+    }
+
+    throw error;
+  }
+}

@@ -10,22 +10,11 @@ import { validateCreate } from "../domain/validators/LogValidator";
 import { logError } from "@/shared/error/logError";
 import { validateContentBlocks } from "../domain/validators/contentBlocksValidator";
 
-import { ApiError, apiGet, apiPatch } from "@/lib/apiClient";
+import { apiGet } from "@/lib/apiClient";
 
 type CreateResult =
   | { ok: true; row: DbLogRow }
   | { ok: false; reason: "HIDDEN_BY_VIEW"; createdId: string };
-
-type ApiCreateResult =
-  | {
-      ok: true;
-      row: DbLogRow;
-    }
-  | {
-      ok: false;
-      reason: "HIDDEN_BY_VIEW";
-      createdId: string;
-    };
 
 const TABLE_VIEW = "shiori_items_v";
 export const TABLE_BASE = "shiori_items";
@@ -57,81 +46,30 @@ export async function dbListPage(opts: LogListQuery = {}): Promise<DbLogRow[]> {
     userId = null,
   } = opts;
 
-  const useLocalApi =
-    import.meta.env.DEV && import.meta.env.VITE_USE_LOCAL_API === "true";
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+    orderBy,
+    ascending: String(ascending),
+  });
 
-  // 로컬 개발 환경에서 Fastify API 사용
-  if (useLocalApi) {
-    const params = new URLSearchParams({
-      limit: String(limit),
-      offset: String(offset),
-      orderBy,
-      ascending: String(ascending),
-    });
-
-    if (userId != null && userId !== "") {
-      params.set("userId", userId);
-    }
-
-    return apiGet<DbLogRow[]>(`/api/logs?${params.toString()}`);
+  if (userId) {
+    params.set("userId", userId);
   }
 
-  // 기존 Supabase 조회 방식 유지
-  let q = supabase
-    .from(TABLE_VIEW)
-    .select(SELECT_LIST)
-    .range(offset, offset + limit - 1);
-
-  if (userId != null && userId !== "") {
-    q = q.eq("user_id", userId);
-  }
-
-  if (orderBy === "display_date") {
-    q = q
-      .order("display_date", {
-        ascending,
-        nullsFirst: false,
-      })
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false });
-  } else if (orderBy === "view_count") {
-    q = q
-      .order("view_count", { ascending })
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false });
-  } else if (orderBy === "comment_count") {
-    q = q
-      .order("comment_count", { ascending })
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false });
-  } else {
-    q = q.order("created_at", { ascending }).order("id", { ascending: false });
-  }
-
-  const { data, error } = await q;
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []) as unknown as DbLogRow[];
+  return apiGet<DbLogRow[]>(`/api/logs?${params.toString()}`);
 }
 
 export async function dbGet(id: string): Promise<DbLogRow | null> {
-  try {
-    return await apiGet<DbLogRow>(`/api/logs/${encodeURIComponent(id)}`);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      return null;
-    }
+  const { data, error } = await supabase
+    .from(TABLE_VIEW)
+    .select(SELECT_DETAIL)
+    .eq("id", id)
+    .maybeSingle();
 
-    throw error;
-  }
+  if (error) throw error;
+  return (data ?? null) as unknown as DbLogRow | null;
 }
-
-import { apiPost } from "@/lib/apiClient";
-
-// 기존 CreateResult 타입은 유지합니다.
 
 export async function dbCreate(input: {
   title: string;
@@ -143,38 +81,98 @@ export async function dbCreate(input: {
   source_filename?: string | null;
   import_source?: "markdown" | null;
 }): Promise<CreateResult> {
-  // 1. 공통 입력 검증
-  const v = validateCreate(input);
+  try {
+    const { data: auth } = await supabase.auth.getUser();
+    const user = auth.user;
+    console.log("[dbCreate] auth user:", user);
 
-  validateContentBlocks({
-    content: input.content,
-    attachments: input.attachments ?? [],
-    links: input.links ?? [],
-  });
+    if (!user) throw new Error("Not signed in");
 
-  // 2. API에 전달할 데이터 정규화
-  const body = {
-    title: v.title,
-    content: v.content,
-    tags: v.tags,
-    table_data: input.table_data ?? null,
-    attachments: input.attachments ?? [],
-    links: input.links ?? [],
-    source_filename: input.source_filename?.normalize("NFC").trim() || null,
-    import_source: input.import_source ?? null,
-  };
+    const v = validateCreate(input);
+    console.log("[dbCreate] validated input:", v);
+    console.log("[dbCreate] raw table_data:", input.table_data);
 
-  // 3. 로컬 개발 환경에서는 Fastify API 사용
-  const useLocalApi =
-    import.meta.env.DEV && import.meta.env.VITE_USE_LOCAL_API === "true";
+    validateContentBlocks({
+      content: input.content,
+      attachments: input.attachments ?? [],
+      links: input.links ?? [],
+    });
 
-  if (useLocalApi) {
-    return apiPost<CreateResult, typeof body>("/api/logs", body);
+    const dup = await supabase
+      .from(TABLE_BASE)
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("title", v.title)
+      .eq("content", v.content)
+      .eq("is_deleted", false)
+      .limit(1);
+
+    console.log("[dbCreate] dup result:", dup);
+
+    if ((dup.data?.length ?? 0) > 0) {
+      const err = new Error("Duplicate log detected");
+
+      // 🔥 로그 남김
+      await logError({
+        category: "db",
+        action: "create-duplicate-log",
+        page: window.location.pathname,
+        error: err,
+        meta: {
+          title: v.title,
+          contentLength: v.content.length,
+          userId: user.id,
+        },
+      });
+
+      // 🔥 사용자용 메시지는 throw로 전달
+      throw new Error("DUPLICATE_LOG");
+    }
+
+    const { data, error } = await supabase
+      .from(TABLE_BASE)
+      .insert({
+        user_id: user.id,
+        title: v.title,
+        content: v.content,
+        tags: v.tags,
+        table_data: input.table_data ?? null,
+        attachments: input.attachments ?? [],
+        links: input.links ?? [],
+        source_filename: input.source_filename?.normalize("NFC").trim() || null,
+        import_source: input.import_source ?? null,
+      })
+      .select("id")
+      .single();
+
+    console.log("[dbCreate] insert data:", data);
+    console.log("[dbCreate] insert error:", error);
+
+    if (error) throw error;
+
+    const row = await dbGet(data.id);
+    console.log("[dbCreate] dbGet row:", row);
+    console.log("[dbCreate] row.attachments:", (row as any)?.attachments);
+
+    if (!row)
+      return { ok: false, reason: "HIDDEN_BY_VIEW", createdId: data.id };
+
+    return { ok: true, row };
+  } catch (e) {
+    await logError({
+      category: "db",
+      action: "create-log",
+      page: window.location.pathname,
+      error: e,
+      meta: {
+        titleLength: input.title.length,
+        tagCount: input.tags.length,
+        attachmentCount: input.attachments?.length ?? 0,
+      },
+    });
+
+    throw e;
   }
-
-  // 4. 기존 Supabase 직접 저장 로직
-  // 이 위치에 이전 dbCreate()의 Supabase 저장 코드를 복원해야 합니다.
-  throw new Error("Supabase 직접 저장 로직이 아직 복원되지 않았습니다.");
 }
 
 export async function dbUpdate(
@@ -190,75 +188,48 @@ export async function dbUpdate(
     import_source?: "markdown" | null;
   },
 ): Promise<DbLogRow> {
-  // 기존 첨부파일·링크 참조 검증 유지
   validateContentBlocks({
     content: input.content,
     attachments: input.attachments ?? [],
     links: input.links ?? [],
   });
 
-  // 기존 저장 규칙과 동일하게 데이터 정규화
-  const updateData = {
-    title: input.title.trim(),
-    content: input.content,
-    tags: input.tags,
-    table_data: input.table_data ?? null,
-    attachments: input.attachments ?? [],
-    links: input.links ?? [],
-    source_filename: input.source_filename?.normalize("NFC").trim() || null,
-    import_source: input.import_source ?? null,
-  };
-
-  const useLocalApi =
-    import.meta.env.DEV && import.meta.env.VITE_USE_LOCAL_API === "true";
-
   try {
-    // 1. 로컬 개발 환경: Fastify PATCH API
-    if (useLocalApi) {
-      const row = await apiPatch<DbLogRow, typeof updateData>(
-        `/api/logs/${encodeURIComponent(id)}`,
-        updateData,
-      );
-
-      console.log("[dbUpdate] Fastify PATCH 성공:", row.id);
-
-      return row;
-    }
-
-    // 2. 그 외 환경: 기존 Supabase 직접 수정
     const { error } = await supabase
       .from(TABLE_BASE)
       .update({
-        ...updateData,
+        title: input.title.trim(),
+        content: input.content,
+        tags: input.tags,
+        table_data: input.table_data ?? null,
         updated_at: new Date().toISOString(),
+        attachments: input.attachments ?? [],
+        links: input.links ?? [],
+        source_filename: input.source_filename?.normalize("NFC").trim() || null,
+        import_source: input.import_source ?? null,
       })
       .eq("id", id);
 
     if (error) throw error;
 
     const row = await dbGet(id);
-
-    console.log("[dbUpdate] Supabase dbGet row:", row);
-    console.log("[dbUpdate] row.attachments:", row?.attachments);
-
-    if (!row) {
-      throw new Error("Updated row not found in view");
-    }
-
+    console.log("[dbUpdate] dbGet row:", row);
+    console.log("[dbUpdate] row.attachments:", (row as any)?.attachments);
+    if (!row) throw new Error("Updated row not found in view");
     return row;
-  } catch (error) {
+  } catch (e) {
     await logError({
       category: "db",
       action: "update-log",
       page: window.location.pathname,
-      error,
+      error: e,
       meta: {
         id,
         titleLength: input.title.length,
       },
     });
 
-    throw error;
+    throw e;
   }
 }
 

@@ -28,5 +28,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "apps/api/src/config/env.ts", "apps/api/src/middleware/requireAuth.ts", "apps/api/types", "apps/api/src/app.ts"]
 }

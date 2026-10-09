@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { logError } from "@/shared/error/logError";
 import type { AttachmentItem, TrashListRow } from "../type";
 import { deleteAttachment } from "@/features/attachments/lib/deleteAttachment";
+import { apiDelete, apiGet, apiPostNoContent } from "@/lib/apiClient";
 
 const LOGS_TABLE = "shiori_items";
 const LOGS_TRASH_VIEW = "shiori_trash_v";
@@ -30,7 +31,35 @@ async function requireUserId() {
 }
 
 /** ✅ (Logs) 휴지통으로 이동 = soft delete */
+
+/** (Logs) 휴지통으로 이동 = soft delete */
 export async function dbLogsTrashMove(id: string): Promise<void> {
+  const useLocalApi =
+    import.meta.env.DEV && import.meta.env.VITE_USE_LOCAL_API === "true";
+
+  // 로컬 개발 환경에서는 Fastify API 사용
+  if (useLocalApi) {
+    try {
+      await apiDelete(`/api/logs/${encodeURIComponent(id)}`);
+      return;
+    } catch (error) {
+      await logError({
+        category: "db",
+        action: "trash-move-log",
+        page:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
+        error,
+        meta: {
+          id,
+          source: "fastify",
+        },
+      });
+
+      throw error;
+    }
+  }
+
+  // 운영 환경에서는 기존 Supabase 직접 처리 유지
   const uid = await requireUserId();
 
   const { error } = await supabase
@@ -61,7 +90,32 @@ export async function dbLogsTrashMove(id: string): Promise<void> {
 }
 
 /** ✅ (Logs) 내 휴지통 목록 */
+
+/** (Logs) 내 휴지통 목록 */
 export async function dbLogsTrashListMine(): Promise<TrashListRow[]> {
+  const useLocalApi =
+    import.meta.env.DEV && import.meta.env.VITE_USE_LOCAL_API === "true";
+
+  if (useLocalApi) {
+    try {
+      return await apiGet<TrashListRow[]>("/api/logs/trash");
+    } catch (error) {
+      await logError({
+        category: "db",
+        action: "trash-list-logs",
+        page:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
+        error,
+        meta: {
+          source: "fastify",
+        },
+      });
+
+      throw error;
+    }
+  }
+
+  // 운영 환경에서는 기존 Supabase 직접 조회 유지
   const uid = await requireUserId();
 
   const { data, error } = await supabase
@@ -89,7 +143,34 @@ export async function dbLogsTrashListMine(): Promise<TrashListRow[]> {
 }
 
 /** ✅ (Logs) 휴지통에서 복구 */
+
+/** (Logs) 휴지통에서 복구 */
 export async function dbLogsTrashRestore(id: string): Promise<void> {
+  const useLocalApi =
+    import.meta.env.DEV && import.meta.env.VITE_USE_LOCAL_API === "true";
+
+  if (useLocalApi) {
+    try {
+      await apiPostNoContent(`/api/logs/${encodeURIComponent(id)}/restore`);
+      return;
+    } catch (error) {
+      await logError({
+        category: "db",
+        action: "trash-restore-log",
+        page:
+          typeof window !== "undefined" ? window.location.pathname : undefined,
+        error,
+        meta: {
+          id,
+          source: "fastify",
+        },
+      });
+
+      throw error;
+    }
+  }
+
+  // 운영 환경에서는 기존 Supabase 직접 복구 유지
   const uid = await requireUserId();
 
   const { data, error } = await supabase
@@ -204,6 +285,16 @@ export async function dbLogsTrashHardDelete(id: string): Promise<void> {
   }
 
   const attachments = (row.attachments ?? []) as AttachmentItem[];
+
+  const useLocalApi =
+    import.meta.env.DEV && import.meta.env.VITE_USE_LOCAL_API === "true";
+
+  // 첨부파일 없는 글만 Fastify 완전 삭제 API 사용
+  if (useLocalApi && attachments.length === 0) {
+    await apiDelete(`/api/logs/${encodeURIComponent(id)}/permanent`);
+
+    return;
+  }
 
   // 2) 첨부파일부터 삭제
   if (attachments.length > 0) {
