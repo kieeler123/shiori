@@ -16,17 +16,6 @@ type CreateResult =
   | { ok: true; row: DbLogRow }
   | { ok: false; reason: "HIDDEN_BY_VIEW"; createdId: string };
 
-type ApiCreateResult =
-  | {
-      ok: true;
-      row: DbLogRow;
-    }
-  | {
-      ok: false;
-      reason: "HIDDEN_BY_VIEW";
-      createdId: string;
-    };
-
 const TABLE_VIEW = "shiori_items_v";
 export const TABLE_BASE = "shiori_items";
 
